@@ -399,14 +399,16 @@ function Bus({
 }
 
 function Ready({ onReady }: { onReady: () => void }) {
-  const { gl: renderer, invalidate } = useThree();
+  const { gl: renderer, invalidate, scene, camera } = useThree();
   useEffect(() => {
-    if (!renderer.getContext().isContextLost()) {
-      renderer.shadowMap.needsUpdate = true;
-      invalidate();
-      onReady();
-    }
-  }, [renderer, invalidate, onReady]);
+    if (renderer.getContext().isContextLost()) return;
+    renderer.shadowMap.needsUpdate = true;
+    invalidate();
+    const frame = requestAnimationFrame(() => {
+      if (!renderer.getContext().isContextLost() && scene.children.length && camera) onReady();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [renderer, invalidate, onReady, scene, camera]);
   return null;
 }
 
@@ -604,22 +606,24 @@ export function Scene({
           <SimulationClock simulation={demoSimulation} />
           {demo ? <Scenery /> : <ObservedTerrain ring={ring} extent={extent} area={area} animate={animateAmbience} />}
           {demoSimulation && <Pedestrians elapsed={demoSimulation.elapsed} />}
-          {vehicles.map((vehicle) => (
-            <Bus
-              key={`${demo ? "demo" : "observed"}:${vehicle.id}`}
-              vehicle={vehicle}
-              selected={selected === vehicle.id}
-              onSelect={onSelect}
-              vehicleGroups={vehicleGroups}
-              roadNetwork={roadNetwork}
-              groundHeight={!demo && hasAlvoradaMap(area) ? 0.27 : 0.018}
-              pinHeight={!demo && (action.type === "home" || action.type === "terminal")
-                ? action.type === "terminal" ? 16 : 8
-                : undefined}
-              showTag={action.type !== "top" && action.type !== "profile"}
-              elapsed={demoSimulation?.elapsed}
-            />
-          ))}
+          <Suspense fallback={null}>
+            {vehicles.map((vehicle) => (
+              <Bus
+                key={`${demo ? "demo" : "observed"}:${vehicle.id}`}
+                vehicle={vehicle}
+                selected={selected === vehicle.id}
+                onSelect={onSelect}
+                vehicleGroups={vehicleGroups}
+                roadNetwork={roadNetwork}
+                groundHeight={!demo && hasAlvoradaMap(area) ? 0.27 : 0.018}
+                pinHeight={!demo && (action.type === "home" || action.type === "terminal")
+                  ? action.type === "terminal" ? 16 : 8
+                  : undefined}
+                showTag={action.type !== "top" && action.type !== "profile"}
+                elapsed={demoSimulation?.elapsed}
+              />
+            ))}
+          </Suspense>
           <Ready key={demo ? "demo" : "observed"} onReady={onReady} />
         </Suspense>
       </Canvas>

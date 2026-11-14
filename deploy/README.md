@@ -2,6 +2,10 @@
 
 O Pátio Monitor abre direto na visão operacional. A tela reúne posições reais do BRT do Rio, o histórico por ônibus, a revisão de turno, a gravação processada e o assistente local.
 
+## Teste do avaliador
+
+Na página inicial, abra **Iniciar teste guiado**. O guia usa um caso de escala e portaria de exemplo para demonstrar a conciliação, chama a API local de IA e abre a gravação anotada com os cruzamentos detectados. O mapa mantém o feed GPS público. Para abrir o guia diretamente em um link de avaliação, acrescente `?tour=1` ao endereço da plataforma.
+
 ## Executar localmente
 
 Use Node 24, pnpm 11.25.0 e Python 3.12. Rode a partir da raiz do repositório. Na primeira execução, a internet é necessária para instalar as dependências e baixar o peso GGUF de aproximadamente 469 MiB, verificado por SHA-256.

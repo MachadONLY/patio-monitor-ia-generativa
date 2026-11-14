@@ -4,11 +4,12 @@ import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./style.css";
 import { createRoot } from "react-dom/client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Building2, BusFront, Camera, ChevronRight, ClipboardCheck, Crosshair, MapPin, Minus, Pause, Play, Plus, Radio } from "lucide-react";
+import { ArrowRight, Building2, BusFront, Camera, ChevronRight, ClipboardCheck, Crosshair, MapPin, Minus, Pause, Play, Plus, CircleHelp } from "lucide-react";
 import type { Vehicle } from "./fleet";
 import { buildVehicleRoadNetwork, projectAlvoradaRoads } from "./alvorada-road-path";
 import { alvoradaRoadSurface } from "./alvorada-road-surface";
 import { TerminalCrossings } from "./terminal-crossings";
+import { AssessmentTour } from "./assessment-tour";
 import { GateCamera } from "./gs-evidence";
 import { Scene, hasAlvoradaMap, ALVORADA_TERMINAL, type CameraAction, type CameraZoom } from "./scene";
 import { ShiftReview } from "./shift-review";
@@ -25,12 +26,15 @@ function App() {
   const [zoom, setZoom] = useState<CameraZoom>();
   const [reviewing, setReviewing] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [showFleet, setShowFleet] = useState(false);
+  const [tourOpen, setTourOpen] = useState(() => new URLSearchParams(window.location.search).get("tour") === "1");
   const [animateAmbience, setAnimateAmbience] = useState(true);
   const [ready, setReady] = useState(false);
   const [failed3d, setFailed3d] = useState(false);
   const onReady = useCallback(() => setReady(true), []);
   const onFailure = useCallback(() => setFailed3d(true), []);
   const reviewEntry = useRef<HTMLButtonElement>(null);
+  const tourEntry = useRef<HTMLButtonElement>(null);
   const reviewRegion = useRef<HTMLElement>(null);
   const contextRegion = useRef<HTMLElement>(null);
 
@@ -89,6 +93,15 @@ function App() {
     contextRegion.current?.scrollTo({ top: 0 });
   }
 
+  function closeTour() {
+    setTourOpen(false);
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("tour") === "1") {
+      url.searchParams.delete("tour");
+      window.history.replaceState(window.history.state, "", url);
+    }
+  }
+
   function resetView() {
     setSelected(null);
     setView({ type: defaultView });
@@ -105,10 +118,30 @@ function App() {
           <MapPin size={16} />
           <div><strong>{hasTerminal ? "Barra da Tijuca" : site}</strong><small>{provider?.location ?? "Mobilidade urbana"}</small></div>
         </div>
-        <div className="connection-state" data-connected={current} role="status"><i />{connection}</div>
+        <div className="header-actions">
+          <div className="connection-state" data-connected={current} role="status"><i />{connection}</div>
+          <button type="button" className="header-guide" onClick={() => setTourOpen(true)} aria-label="Abrir guia de uso">
+            <CircleHelp size={17} aria-hidden="true" /> <span>Guia de uso</span>
+          </button>
+        </div>
       </header>
+      {tourOpen && <AssessmentTour onClose={closeTour} fallbackFocus={tourEntry} />}
       {cameraOpen && <GateCamera onClose={() => setCameraOpen(false)} />}
       <main className="layout operating-layout">
+        <section className="operation-hero" aria-labelledby="operations-objective">
+          <div>
+            <h1 id="operations-objective">Conferência de saídas</h1>
+            <p>Compare a escala com a portaria para identificar atrasos, trocas de veículo e saídas sem registro.</p>
+          </div>
+          <div className="operation-actions">
+            <button type="button" className="operation-secondary" ref={reviewEntry} aria-label="Revisar turno" onClick={() => setReviewing(true)}>
+              <ClipboardCheck size={17} aria-hidden="true" /> Revisar turno
+            </button>
+            <button type="button" className="operation-primary" ref={tourEntry} onClick={() => setTourOpen(true)}>
+              <Play size={15} aria-hidden="true" /> Iniciar teste guiado <ArrowRight size={16} aria-hidden="true" />
+            </button>
+          </div>
+        </section>
         <section className={reviewing ? "workspace workspace-review" : "workspace workspace-inspector"} aria-label="Operação do pátio">
           <div className="viewport" data-ready={ready} data-camera-mode={action.type}>
             <Scene vehicles={vehicles} selected={selected} onSelect={selectVehicle}
@@ -116,8 +149,7 @@ function App() {
               demo={false} area={area} animateAmbience={animateAmbience} roadNetwork={roadNetwork} />
             {!ready && !failed3d && <div className="load-label" role="status">Carregando mapa 3D…</div>}
             <div className="scene-caption">
-              <span className="eyebrow"><Radio size={13} /> MONITORAMENTO GPS</span>
-              <h1>{hasTerminal ? "Terminal Alvorada" : site}</h1>
+              <h2>{hasTerminal ? "Terminal Alvorada" : site}</h2>
               <span>{hasTerminal ? "Barra da Tijuca · Rio de Janeiro" : area?.source}</span>
             </div>
             {!failed3d && (
@@ -146,18 +178,6 @@ function App() {
               onClose={() => { setReviewing(false); reviewEntry.current?.focus(); }} />
           </aside>
           <aside className="side" aria-label="Contexto do pátio" hidden={reviewing} ref={contextRegion}>
-            {!vehicle && (
-              <section className="info operations-intro" aria-labelledby="operations-objective">
-                <div>
-                  <span className="eyebrow">CONFERÊNCIA DE SAÍDAS</span>
-                  <h2 id="operations-objective">O ônibus saiu no horário e com o prefixo da escala?</h2>
-                </div>
-                <p>Compare a escala com a portaria, investigue trocas, atrasos e saídas sem registro, e documente a conclusão do turno.</p>
-                <button className="shift-entry" ref={reviewEntry} aria-label="Revisar turno" onClick={() => setReviewing(true)}>
-                  <ClipboardCheck size={19} /><span><strong>Revisar turno</strong><small>Importe seus arquivos ou abra um caso de exemplo</small></span><ChevronRight size={16} />
-                </button>
-              </section>
-            )}
             {vehicle ? (
               <VehicleInspector key={vehicle.id} vehicle={vehicle} mode="LIVE" site={site} area={area} elapsed={0}
                 stale={!observedVehicle || !current || Date.now() - Date.parse(vehicle.observation?.observedAt ?? "") > 90000}
@@ -170,7 +190,7 @@ function App() {
             ) : (
               <section className="info operating-fleet">
                 <div className="fleet-heading">
-                  <div><span className="eyebrow">FROTA OBSERVADA</span><h2>Ônibus no entorno</h2></div>
+                  <div><h2>Ônibus no entorno</h2><p>Últimas posições registradas</p></div>
                   <strong className="fleet-total" aria-label={`${vehicles.length} veículos`}>{vehicles.length}</strong>
                 </div>
                 {terminalVehicles === 0 && vehicles.length > 0 && action.type === "terminal" && (
@@ -180,7 +200,7 @@ function App() {
                   </div>
                 )}
                 {vehicles.length > 0 ? <div className="vehicle-list">
-                  {vehicles.map((item) => (
+                  {(showFleet ? vehicles : vehicles.slice(0, 5)).map((item) => (
                     <button key={item.id} aria-label={`Inspecionar ônibus ${item.id}`} onClick={() => selectVehicle(item.id)}>
                       <BusFront size={16} />
                       <span className="fleet-vehicle">
@@ -194,10 +214,18 @@ function App() {
                     </button>
                   ))}
                 </div> : <p className="quiet">{connection}</p>}
+                {vehicles.length > 5 && (
+                  <button type="button" className="fleet-expand" aria-expanded={showFleet}
+                    onClick={() => setShowFleet((expanded) => !expanded)}>
+                    {showFleet ? "Mostrar menos" : `Ver os ${vehicles.length} ônibus`}
+                    <ChevronRight size={14} aria-hidden="true" />
+                  </button>
+                )}
               </section>
             )}
-            <button className="shift-entry" aria-label="Câmera do portão" onClick={() => setCameraOpen(true)}>
-              <Camera size={19} /><span><strong>Câmera do portão</strong><small>Confira a detecção e a hora da passagem na gravação</small></span><ChevronRight size={16} />
+            <button type="button" className="shift-entry operation-camera" aria-label="Câmera do portão" onClick={() => setCameraOpen(true)}>
+              <span className="operation-camera-icon"><Camera size={19} aria-hidden="true" /></span>
+              <span><strong>Câmera do portão</strong><small>Veja a passagem na gravação anotada</small></span><ChevronRight size={16} aria-hidden="true" />
             </button>
             <TerminalCrossings enabled={hasTerminal} onSelect={selectVehicle} activeVehicleIds={new Set(vehicles.map(({ id }) => id))} />
             {provider && <p className="operating-source">{provider.title}{snapshot?.archiveState === "unavailable" && " · Histórico indisponível"}</p>}

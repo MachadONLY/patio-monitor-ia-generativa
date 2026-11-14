@@ -82,8 +82,7 @@ function validateReport(result: VisionReport) {
       && Number.isFinite(event.confidence) && event.confidence >= 0 && event.confidence <= 1);
 }
 
-export function GateCamera({ onClose }: { onClose: () => void }) {
-  const dialog = useRef<HTMLDialogElement>(null);
+export function GateEvidence() {
   const player = useRef<HTMLVideoElement>(null);
   const [reload, setReload] = useState(0);
   const [report, setReport] = useState<VisionReport>();
@@ -91,16 +90,6 @@ export function GateCamera({ onClose }: { onClose: () => void }) {
   const [videoFailed, setVideoFailed] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [selected, setSelected] = useState<string>();
-
-  useEffect(() => {
-    const element = dialog.current;
-    const trigger = document.activeElement;
-    element?.showModal();
-    return () => {
-      element?.close();
-      if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus();
-    };
-  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -130,18 +119,7 @@ export function GateCamera({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <dialog ref={dialog} className="gs-camera" aria-labelledby="gs-camera-title" onCancel={(event) => {
-      event.preventDefault();
-      onClose();
-    }}>
-      <header className="gs-camera-header">
-        <div className="gs-camera-brand"><Camera size={21} aria-hidden="true" /></div>
-        <div>
-          <p>EVIDÊNCIA VISUAL</p>
-          <h2 id="gs-camera-title">Câmera do portão</h2>
-        </div>
-        <button type="button" className="icon" aria-label="Fechar câmera do portão" onClick={onClose}><X size={21} /></button>
-      </header>
+    <>
       {!report ? (
         <div className="gs-camera-state">
           {unavailable ? (
@@ -203,6 +181,36 @@ export function GateCamera({ onClose }: { onClose: () => void }) {
           </footer>
         </>
       )}
+    </>
+  );
+}
+
+export function GateCamera({ onClose }: { onClose: () => void }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const element = dialog.current;
+    const trigger = document.activeElement;
+    element?.showModal();
+    return () => {
+      element?.close();
+      if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus();
+    };
+  }, []);
+
+  return (
+    <dialog ref={dialog} className="gs-camera" aria-labelledby="gs-camera-title" onCancel={(event) => {
+      event.preventDefault();
+      onClose();
+    }}>
+      <header className="gs-camera-header">
+        <div className="gs-camera-brand"><Camera size={21} aria-hidden="true" /></div>
+        <div>
+          <p>EVIDÊNCIA VISUAL</p>
+          <h2 id="gs-camera-title">Câmera do portão</h2>
+        </div>
+        <button type="button" className="icon" aria-label="Fechar câmera do portão" onClick={onClose}><X size={21} /></button>
+      </header>
+      <GateEvidence />
     </dialog>
   );
 }

@@ -90,7 +90,7 @@ test("vehicle inspection preserves the rendered terrain across terminal, focus, 
   const canvas = viewport.locator("canvas");
   await expect(viewport).toHaveAttribute("data-ready", "true", { timeout: 20_000 });
   await expect(viewport).toHaveAttribute("data-camera-mode", "terminal");
-  await expect(page.getByRole("heading", { name: /prefixo da escala/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Conferência de saídas" })).toBeVisible();
   await verifyMapFrame(canvas, page, "desktop-terminal");
 
   await page.getByRole("button", { name: "Inspecionar ônibus 50103" }).click();
