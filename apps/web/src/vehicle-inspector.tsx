@@ -97,13 +97,14 @@ type Props = {
   stale: boolean;
   following: boolean;
   cameraDisabled: boolean;
+  roadNotice?: string;
   onClose: () => void;
   onCamera: (action: "focus" | "follow" | "profile" | "top") => void;
 };
 
 export function VehicleInspector({
   vehicle, mode, site, area, replayAt, elapsed, stale, following,
-  cameraDisabled, onClose, onCamera,
+  cameraDisabled, roadNotice, onClose, onCamera,
 }: Props) {
   const [tab, setTab] = useState<(typeof tabs)[number]["id"]>("summary");
   const id = useId();
@@ -211,6 +212,7 @@ export function VehicleInspector({
             </section>
           )}
           <h3><MapPin size={16} /> Localização atual</h3>
+          {roadNotice && <p className="inspector-note">{roadNotice}</p>}
           <div className="inspector-map">
             {demo ? <SiteMap pose={demo.pose} /> : area && obs ? <GpsMap area={area} vehicle={vehicle} /> : null}
           </div>

@@ -7,7 +7,7 @@ const area = {
   ring: [[-43.375556, -23.010833], [-43.345556, -23.010833], [-43.345556, -22.980833], [-43.375556, -23.010833]],
 };
 
-function gpsSample(observedAt: string, latitude = -23.00198, longitude = -43.36601) {
+function gpsSample(observedAt: string, latitude = -23.00037, longitude = -43.36610) {
   return {
     vehicleId: "50103", lineId: 401, lineLabel: "401",
     latitude, longitude, observedAt, receivedAt: observedAt,
@@ -90,6 +90,7 @@ test("vehicle inspection preserves the rendered terrain across terminal, focus, 
   const canvas = viewport.locator("canvas");
   await expect(viewport).toHaveAttribute("data-ready", "true", { timeout: 20_000 });
   await expect(viewport).toHaveAttribute("data-camera-mode", "terminal");
+  await expect(page.getByRole("heading", { name: /prefixo da escala/ })).toBeVisible();
   await verifyMapFrame(canvas, page, "desktop-terminal");
 
   await page.getByRole("button", { name: "Inspecionar ônibus 50103" }).click();
@@ -116,7 +117,7 @@ test("vehicle inspection preserves the rendered terrain across terminal, focus, 
 test("the selected vehicle receives fresh GPS, remains framed and indicates stale data", async ({ page }) => {
   const now = Date.now();
   const start = gpsSample(new Date(now - 40_000).toISOString());
-  const moved = gpsSample(new Date(now).toISOString(), -23.00244, -43.36663);
+  const moved = gpsSample(new Date(now).toISOString(), -23.00037, -43.36630);
   const stream = await startOperatingPage(page, snapshot([start]));
   const viewport = page.locator(".viewport");
   const tag = viewport.locator(".bus-tag");
@@ -127,7 +128,7 @@ test("the selected vehicle receives fresh GPS, remains framed and indicates stal
   expect(initialTag).toBeTruthy();
 
   stream.send(JSON.stringify(snapshot([moved])));
-  await expect(page.getByText("-23.002440, -43.366630", { exact: true })).toBeVisible();
+  await expect(page.getByText("-23.000370, -43.366300", { exact: true })).toBeVisible();
   await expect(viewport).toHaveAttribute("data-camera-mode", "focus");
   await expect.poll(async () => {
     const position = await tag.boundingBox();
@@ -139,7 +140,7 @@ test("the selected vehicle receives fresh GPS, remains framed and indicates stal
   await expect(page.getByText("Leitura desatualizada", { exact: true })).toBeVisible();
   stream.send(JSON.stringify(snapshot([], "no_observations")));
   await expect(page.getByRole("status").filter({ hasText: "Sem veículos no recorte" })).toBeVisible();
-  await expect(page.getByText("-23.002440, -43.366630", { exact: true })).toBeVisible();
+  await expect(page.getByText("-23.000370, -43.366300", { exact: true })).toBeVisible();
   await expect(tag).toHaveCount(0);
 });
 
@@ -207,4 +208,16 @@ test("a professor can open a shift case without uploading files and request a so
   await page.getByRole("button", { name: "Explicar ocorrência" }).click();
   await expect(page.getByText("Orientação gerada pelo assistente")).toBeVisible();
   await expect(page.getByRole("link", { name: "Troca de veículo" })).toBeVisible();
+});
+
+test("unmatched GPS remains in the inspector without a bus, pin or camera on the sidewalk", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await startOperatingPage(page, snapshot([gpsSample(new Date().toISOString(), -23.00198, -43.36601)]));
+  await expect(page.locator(".viewport")).toHaveAttribute("data-ready", "true", { timeout: 20_000 });
+  await expect(page.getByRole("button", { name: "Localizar ônibus 50103" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Inspecionar ônibus 50103" }).click();
+  await expect(page.getByText(/Leitura sem correspondência segura/)).toBeVisible();
+  await expect(page.getByText("-23.001980, -43.366010", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Focar veículo" })).toBeDisabled();
+  await expect(page.locator(".bus-tag")).toHaveCount(0);
 });

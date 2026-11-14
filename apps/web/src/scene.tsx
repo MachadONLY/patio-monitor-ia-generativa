@@ -29,7 +29,7 @@ import { AlvoradaStreetDetail } from "./alvorada-street-detail";
 import { useAmbientMotion } from "./alvorada-ambience";
 import { alvoradaSun } from "./alvorada-sun";
 import { AlvoradaArchitecture } from "./alvorada-architecture";
-import { pathAlongAlvoradaRoad, projectAlvoradaRoads } from "./alvorada-road-path";
+import { updateRoadMotion, type RoadMotion, type RoadNetwork } from "./vehicle-road-motion";
 import { AlvoradaCartography } from "./alvorada-cartography";
 import { Scenery } from "./scenery";
 import { Pedestrians } from "./scene-pedestrians";
@@ -125,7 +125,8 @@ function CameraRig({
         : action.vehicle;
       const unavailable = "visible" in pose && !pose.visible;
       const target = unavailable ? TERMINAL_GATE : pose;
-      const rendered = !demo ? vehicleGroups.get(action.vehicle.id)?.position : undefined;
+      const renderBus = vehicleGroups.get(action.vehicle.id);
+      const rendered = !demo && renderBus?.visible ? renderBus.position : undefined;
       orbit.target.set(rendered?.x ?? target.x, 1.3, rendered?.z ?? target.z);
       previousPose.current.copy(orbit.target);
       const offset =
@@ -156,9 +157,10 @@ function CameraRig({
     const simulated = action.type === "follow" && elapsed
       ? sampleSimulation(action.vehicle, elapsed.current)
       : undefined;
+    const bus = vehicleGroups.get(action.vehicle.id);
     const target = simulated
       ? simulated.visible ? simulated : TERMINAL_GATE
-      : !demo ? vehicleGroups.get(action.vehicle.id)?.position : undefined;
+      : !demo && bus?.visible ? bus.position : undefined;
     if (!target) return;
     const previous = previousPose.current;
     const dx = target.x - previous.x;
@@ -193,7 +195,7 @@ function Bus({
   showTag,
   pinHeight,
   groundHeight,
-  roads,
+  roadNetwork,
   elapsed,
   vehicleGroups,
 }: {
@@ -203,7 +205,7 @@ function Bus({
   showTag: boolean;
   pinHeight?: number;
   groundHeight: number;
-  roads?: ReturnType<typeof projectAlvoradaRoads>;
+  roadNetwork?: RoadNetwork;
   vehicleGroups: Map<string, Group>;
   elapsed?: SceneSimulation["elapsed"];
 }) {
@@ -211,6 +213,7 @@ function Bus({
   const { gl, invalidate } = useThree();
   const group = useRef<Group>(null);
   const motion = useRef<ObservedMotion>(undefined);
+  const roadMotion = useRef<RoadMotion>(undefined);
   const wheelPivots = useRef<Object3D[]>([]);
   const wheelAngle = useRef(0);
   const lastShadowUpdate = useRef(-Infinity);
@@ -222,14 +225,22 @@ function Bus({
     return () => { vehicleGroups.delete(vehicle.id); };
   }, [vehicle.id, vehicleGroups]);
   useEffect(() => {
-    motion.current = updateObservedMotion(motion.current,
-      { x: vehicle.x, z: vehicle.z, time: gpsTime }, performance.now(),
-      roads ? (from, to) => pathAlongAlvoradaRoad(roads, from, to) : undefined);
+    const reading = { x: vehicle.x, z: vehicle.z, time: gpsTime };
+    if (roadNetwork) {
+      roadMotion.current = updateRoadMotion(roadNetwork, roadMotion.current, reading, performance.now());
+    } else {
+      motion.current = updateObservedMotion(motion.current, reading, performance.now());
+    }
     invalidate();
-  }, [vehicle.x, vehicle.z, gpsTime, roads, invalidate]);
+  }, [vehicle.x, vehicle.z, gpsTime, roadNetwork, invalidate]);
   const tag = useRef<HTMLDivElement>(null);
+  const pin = useRef<HTMLButtonElement>(null);
+  const matched = useMemo(() => roadNetwork?.match({ x: vehicle.x, z: vehicle.z, time: gpsTime }),
+    [roadNetwork, vehicle.x, vehicle.z, gpsTime]);
+  const hasRoad = !roadNetwork || Boolean(matched);
   const hovering = useRef(false);
-  const initialPosition = useRef<[number, number, number]>([vehicle.x, groundHeight, vehicle.z]);
+  const initialHeading = useRef(matched?.heading ?? 0);
+  const initialPosition = useRef<[number, number, number]>([matched?.x ?? vehicle.x, groundHeight, matched?.z ?? vehicle.z]);
   useEffect(
     () => () => {
       if (hovering.current) document.body.style.cursor = "";
@@ -245,10 +256,11 @@ function Bus({
     const bus = group.current;
     if (!bus) return;
     const now = performance.now();
-    const observed = motion.current;
-    const pose = elapsed
-      ? sampleSimulation(vehicle, elapsed.current)
-      : { ...(observed ? sampleObservedMotion(observed, now) : { x: vehicle.x, z: vehicle.z, heading: 0 }), visible: true };
+    const observed = roadNetwork ? roadMotion.current?.motion : motion.current;
+    const sampled = observed ? sampleObservedMotion(observed, now) : { x: vehicle.x, z: vehicle.z, heading: 0 };
+    const pose = elapsed ? sampleSimulation(vehicle, elapsed.current) : {
+      ...sampled, visible: !roadNetwork || Boolean(observed && roadNetwork.covers(sampled)),
+    };
     if (observed && now < observed.startsAt + observed.duration) invalidate();
     if (
       bus.position.y !== groundHeight ||
@@ -278,6 +290,7 @@ function Bus({
       tag.current.hidden = !pose.visible;
       tag.current.style.display = pose.visible ? "" : "none";
     }
+    if (pin.current) pin.current.hidden = !pose.visible;
     if (!pose.visible && hovering.current) {
       document.body.style.cursor = "";
       hovering.current = false;
@@ -312,7 +325,8 @@ function Bus({
     wheelPivots.current = wheels;
   }, [object]);
   return (
-    <group ref={group} position={initialPosition.current}>
+    <group ref={group} position={initialPosition.current} rotation-y={initialHeading.current}
+      visible={!roadNetwork || hasRoad}>
       <primitive
         object={object}
         onClick={(event: { stopPropagation: () => void }) => {
@@ -332,15 +346,15 @@ function Bus({
           document.body.style.cursor = "";
         }}
       />
-      {pinHeight !== undefined && (
+      {pinHeight !== undefined && hasRoad && (
         <Html position={[0, pinHeight, 0]} center zIndexRange={[10, 4]}>
-          <button type="button" className={pinHeight === 16 ? "live-bus-pin terminal-bus-pin" : "live-bus-pin"}
+          <button ref={pin} type="button" className={pinHeight === 16 ? "live-bus-pin terminal-bus-pin" : "live-bus-pin"}
             aria-label={`Localizar ônibus ${vehicle.id}`} aria-pressed={selected} onClick={() => onSelect(vehicle.id)}>
             <BusFront size={16} aria-hidden="true" />
           </button>
         </Html>
       )}
-      {selected && (
+      {selected && hasRoad && (
         <>
           <mesh position={[0, 0.11, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[3.48, 12.8]} />
@@ -520,6 +534,7 @@ export function Scene({
   area,
   simulation,
   animateAmbience = true,
+  roadNetwork,
 }: {
   vehicles: Vehicle[];
   selected: string | null;
@@ -532,6 +547,7 @@ export function Scene({
   area?: Area;
   simulation?: SceneSimulation;
   animateAmbience?: boolean;
+  roadNetwork?: RoadNetwork;
 }) {
   const demoSimulation = demo ? simulation : undefined;
   const vehicleGroups = useRef(new Map<string, Group>()).current;
@@ -540,10 +556,6 @@ export function Scene({
       area ? area.ring.map((point) => localPoint(area.origin, point)) : [],
     [area],
   );
-  const east = area?.origin[0];
-  const north = area?.origin[1];
-  const roads = useMemo(() => east !== undefined && north !== undefined && hasAlvoradaMap(area)
-    ? projectAlvoradaRoads([east, north]) : undefined, [east, north]);
   const extent = Math.max(
     demo ? 64 : 27,
     ...ring.map(([x, z]) => Math.max(Math.abs(x), Math.abs(z))),
@@ -599,7 +611,7 @@ export function Scene({
               selected={selected === vehicle.id}
               onSelect={onSelect}
               vehicleGroups={vehicleGroups}
-              roads={roads}
+              roadNetwork={roadNetwork}
               groundHeight={!demo && hasAlvoradaMap(area) ? 0.27 : 0.018}
               pinHeight={!demo && (action.type === "home" || action.type === "terminal")
                 ? action.type === "terminal" ? 16 : 8

@@ -919,3 +919,9 @@ button:disabled {
 
 .map-attribution { display: flex; flex-wrap: wrap; gap: 4px 9px; justify-content: end; max-width: calc(100% - 20px); }
 .map-attribution a { color: inherit; }
+
+
+.operations-intro { display: grid; gap: 10px; }
+.operations-intro h2 { font-size: 19px; margin: 4px 0 0; color: #1f3f36; line-height: 1.24; }
+.operations-intro p { margin: 0; color: #526a61; line-height: 1.45; font-size: 13px; }
+.operations-intro .shift-entry { margin: 0; width: 100%; text-align: left; }

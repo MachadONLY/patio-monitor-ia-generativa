@@ -45,7 +45,7 @@ test("the operating scene opens the terminal and focuses a GPS observation", asy
   };
   const vehicle = {
     vehicleId: "50103", lineId: null, lineLabel: "Linha de teste",
-    latitude: -23.00198, longitude: -43.36601, observedAt, receivedAt: observedAt,
+    latitude: -23.00037, longitude: -43.3661, observedAt, receivedAt: observedAt,
   };
   const snapshot = { version: 1, mode: "LIVE", state: "connected", source: "rio_mobi_gtfs_rt", area, vehicles: [vehicle] };
   await page.route("**/api/vehicles/snapshot?mode=LIVE", (route) => route.fulfill({ json: snapshot }));
@@ -60,7 +60,7 @@ test("the operating scene opens the terminal and focuses a GPS observation", asy
   await page.getByRole("button", { name: "Inspecionar ônibus 50103" }).click();
   await expect(page.locator(".viewport")).toHaveAttribute("data-camera-mode", "focus");
   await page.getByRole("tab", { name: "Histórico" }).click();
-  await expect(page.getByText("-23.001980, -43.366010", { exact: true })).toBeVisible();
+  await expect(page.getByText("-23.000370, -43.366100", { exact: true })).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
@@ -95,4 +95,32 @@ test("Alvorada solar direction follows Rio local morning and afternoon", async (
   expect(afternoon[0]).toBeLessThan(0);
   expect(morning[1]).toBeGreaterThan(0);
   expect(night[1]).toBeLessThan(0);
+});
+
+test("the Alvorada bus footprint stays on road surfaces during mapped movement", async () => {
+  const { localPoint } = await import("../src/observations");
+  const { buildVehicleRoadNetwork, projectAlvoradaRoads } = await import("../src/alvorada-road-path");
+  const { alvoradaRoadSurface } = await import("../src/alvorada-road-surface");
+  const { updateRoadMotion } = await import("../src/vehicle-road-motion");
+  const { sampleObservedMotion } = await import("../src/observed-motion");
+  const origin: [number, number] = [-43.360556, -22.995833];
+  const road = buildVehicleRoadNetwork(projectAlvoradaRoads(origin), alvoradaRoadSurface(origin));
+  function gps(coordinates: [number, number], time: number) {
+    const [x, z] = localPoint(origin, coordinates);
+    return { x, z, time };
+  }
+  const first = updateRoadMotion(road, undefined, gps([-43.3661, -23.00037], 1000), 0);
+  expect(first.position).toBeDefined();
+  if (!first.position) return;
+  expect(road.covers({ ...first.position, heading: first.position.heading + Math.PI / 2 })).toBe(false);
+  const second = updateRoadMotion(road, first, gps([-43.3663, -23.00037], 11000), 10_000);
+  expect(second.motion?.path).toBeDefined();
+  if (!second.motion) return;
+  for (let t = 0; t <= 1; t += 0.01) {
+    expect(road.covers(sampleObservedMotion(second.motion, 10_000 + t * second.motion.duration))).toBe(true);
+  }
+  const apron = updateRoadMotion(road, second, gps([-43.36601, -23.00198], 21000), 20_000);
+  expect(apron.motion).toBeUndefined();
+  const recovered = updateRoadMotion(road, apron, gps([-43.36634, -23.000372], 31000), 30_000);
+  expect(recovered.motion?.duration).toBe(0);
 });

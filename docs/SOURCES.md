@@ -56,3 +56,9 @@
 - As cenas de tráfego leve usam trechos direcionais mapeados pelo OSM nas avenidas das Américas e Ayrton Senna. Pedestres estilizados percorrem plataformas e caminhos selecionados na Cidade das Artes. Pessoas e automóveis são ambientação ilustrativa. Somente os ônibus do feed aparecem na frota observada ou alimentam o histórico e os registros do perímetro.
 - A onda é um efeito visual sobre os polígonos de água do mapa, com duas camadas de textura e brilho especular. Iluminação e sombra do terminal usam a posição solar aproximada. As animações contínuas respeitam a preferência do navegador por movimento reduzido.
 - Foram acrescentadas 273 projeções com alturas do cadastro IPP de 2013 no entorno imediato, sem sobrepor a implantação principal. Fachadas e acabamentos são interpretados. A ortofoto continua como camada geográfica do solo e contexto nos locais sem volumes disponíveis.
+
+### Encaixe dos ônibus na pista
+
+A visualização do Alvorada associa a leitura a um eixo viário mapeado em até 9 m. A área permitida deriva dos polígonos de pista do cenário. Ela exclui plataformas, passeios internos, água, projeções dos edifícios e os limites físicos das plataformas renderizadas. A cena testa uma projeção de 12,8 m × 3,4 m para representar a carroceria e os espelhos.
+
+A animação exige continuidade no mesmo eixo ou entre trechos com extremidade comum. Cada quadro é validado contra a área permitida. Se o trajeto não puder ser demonstrado, a cena atualiza somente a posição da leitura que cabe na pista. Sem encaixe seguro, a ficha preserva o GPS bruto e o histórico. Os registros de entrada e saída continuam usando o GPS recebido.

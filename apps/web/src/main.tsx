@@ -3,9 +3,11 @@ import "@fontsource/ibm-plex-mono/latin-400.css";
 import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./style.css";
 import { createRoot } from "react-dom/client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Building2, BusFront, Camera, ChevronRight, ClipboardCheck, Crosshair, MapPin, Minus, Pause, Play, Plus, Radio } from "lucide-react";
 import type { Vehicle } from "./fleet";
+import { buildVehicleRoadNetwork, projectAlvoradaRoads } from "./alvorada-road-path";
+import { alvoradaRoadSurface } from "./alvorada-road-surface";
 import { TerminalCrossings } from "./terminal-crossings";
 import { GateCamera } from "./gs-evidence";
 import { Scene, hasAlvoradaMap, ALVORADA_TERMINAL, type CameraAction, type CameraZoom } from "./scene";
@@ -36,12 +38,20 @@ function App() {
   const snapshot = result?.data;
   const area = snapshot?.area;
   const hasTerminal = hasAlvoradaMap(area);
+  const east = area?.origin[0], north = area?.origin[1];
+  const roadNetwork = useMemo(() => hasTerminal && east !== undefined && north !== undefined
+    ? buildVehicleRoadNetwork(projectAlvoradaRoads([east, north]), alvoradaRoadSurface([east, north]))
+    : undefined, [hasTerminal, east, north]);
   const provider = snapshot?.source ? observationSources[snapshot.source] : undefined;
   const vehicles = observedVehicles(snapshot);
   const observedVehicle = vehicles.find((item) => item.id === selected);
   const [lastSelected, setLastSelected] = useState<Vehicle>();
   const vehicle = observedVehicle ?? (lastSelected?.id === selected ? lastSelected : undefined);
   const observed = observedVehicle?.observation;
+  const hasRoad = (item: Vehicle) => !roadNetwork || Boolean(roadNetwork.match({
+    x: item.x, z: item.z,
+  }));
+  const canLocate = !!observedVehicle && hasRoad(observedVehicle);
   const site = area?.name ?? "Operação de ônibus";
   const current = snapshot?.state === "connected" && !result?.failed;
   const connection = current ? "GPS ao vivo"
@@ -54,7 +64,8 @@ function App() {
     Math.hypot(x - terminalCenter[0], z - terminalCenter[1]) < 230
   ).length;
   const defaultView = hasTerminal ? "terminal" : "home";
-  const action = view.type === "terminal" && !hasTerminal ? { type: "home" } as const : view;
+  const baseAction = useMemo<CameraAction>(() => ({ type: defaultView }), [defaultView]);
+  const action = (view.type === "terminal" && !hasTerminal) || (view.vehicle && !canLocate) ? baseAction : view;
 
   useEffect(() => {
     if (reviewing) reviewRegion.current?.focus();
@@ -73,7 +84,7 @@ function App() {
     if (!target) return;
     setLastSelected(target);
     setSelected(id);
-    setView({ type: "focus", vehicle: target });
+    setView(hasRoad(target) ? { type: "focus", vehicle: target } : { type: defaultView });
     setReviewing(false);
     contextRegion.current?.scrollTo({ top: 0 });
   }
@@ -102,7 +113,7 @@ function App() {
           <div className="viewport" data-ready={ready} data-camera-mode={action.type}>
             <Scene vehicles={vehicles} selected={selected} onSelect={selectVehicle}
               action={action} zoom={zoom} onReady={onReady} onFailure={onFailure}
-              demo={false} area={area} animateAmbience={animateAmbience} />
+              demo={false} area={area} animateAmbience={animateAmbience} roadNetwork={roadNetwork} />
             {!ready && !failed3d && <div className="load-label" role="status">Carregando mapa 3D…</div>}
             <div className="scene-caption">
               <span className="eyebrow"><Radio size={13} /> MONITORAMENTO GPS</span>
@@ -135,10 +146,26 @@ function App() {
               onClose={() => { setReviewing(false); reviewEntry.current?.focus(); }} />
           </aside>
           <aside className="side" aria-label="Contexto do pátio" hidden={reviewing} ref={contextRegion}>
+            {!vehicle && (
+              <section className="info operations-intro" aria-labelledby="operations-objective">
+                <div>
+                  <span className="eyebrow">CONFERÊNCIA DE SAÍDAS</span>
+                  <h2 id="operations-objective">O ônibus saiu no horário e com o prefixo da escala?</h2>
+                </div>
+                <p>Compare a escala com a portaria, investigue trocas, atrasos e saídas sem registro, e documente a conclusão do turno.</p>
+                <button className="shift-entry" ref={reviewEntry} aria-label="Revisar turno" onClick={() => setReviewing(true)}>
+                  <ClipboardCheck size={19} /><span><strong>Revisar turno</strong><small>Importe seus arquivos ou abra um caso de exemplo</small></span><ChevronRight size={16} />
+                </button>
+              </section>
+            )}
             {vehicle ? (
               <VehicleInspector key={vehicle.id} vehicle={vehicle} mode="LIVE" site={site} area={area} elapsed={0}
                 stale={!observedVehicle || !current || Date.now() - Date.parse(vehicle.observation?.observedAt ?? "") > 90000}
-                following={false} cameraDisabled={failed3d} onClose={resetView}
+                following={false} cameraDisabled={failed3d || !canLocate} onClose={resetView}
+                roadNotice={roadNetwork && observedVehicle
+                  ? canLocate ? "O mapa ajusta o ônibus à pista. A ficha mostra a coordenada original do GPS."
+                    : "Leitura sem correspondência segura com uma pista. Consulte a posição original e o histórico nesta ficha."
+                  : undefined}
                 onCamera={(type) => setView({ type, vehicle })} />
             ) : (
               <section className="info operating-fleet">
@@ -169,11 +196,8 @@ function App() {
                 </div> : <p className="quiet">{connection}</p>}
               </section>
             )}
-            <button className="shift-entry" ref={reviewEntry} aria-label="Revisar turno" onClick={() => setReviewing(true)}>
-              <ClipboardCheck size={19} /><span><strong>Revisar turno</strong><small>Confira divergências entre escala e portaria</small></span><ChevronRight size={16} />
-            </button>
             <button className="shift-entry" aria-label="Câmera do portão" onClick={() => setCameraOpen(true)}>
-              <Camera size={19} /><span><strong>Câmera do portão</strong><small>Consulte a gravação e seus cruzamentos</small></span><ChevronRight size={16} />
+              <Camera size={19} /><span><strong>Câmera do portão</strong><small>Confira a detecção e a hora da passagem na gravação</small></span><ChevronRight size={16} />
             </button>
             <TerminalCrossings enabled={hasTerminal} onSelect={selectVehicle} activeVehicleIds={new Set(vehicles.map(({ id }) => id))} />
             {provider && <p className="operating-source">{provider.title}{snapshot?.archiveState === "unavailable" && " · Histórico indisponível"}</p>}

@@ -1,7 +1,7 @@
 import { AlvoradaAmbience } from "./alvorada-ambience";
 import { useMemo } from "react";
 import buildings from "./alvorada-architecture-data.json";
-import streets from "./alvorada-map.json";
+import streets from "./alvorada-map.json" with { type: "json" };
 import streetFeatures from "./alvorada-street-detail-data.json";
 import { localPoint, type Area } from "./observations";
 import { Batch, Sign, part, seeded, type Part, type XYZ } from "./scenery-kit";
