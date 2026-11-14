@@ -35,6 +35,9 @@ def test_observation_uses_vehicle_clock_and_deduplicates():
     feed = feed_at(header_time)
     append_position(feed, "TEST-A1", position_time)
     append_position(feed, "TEST-A1", received - timedelta(seconds=66))
+    append_position(feed, "TEST-A1", position_time + timedelta(seconds=5), latitude=0)
+    append_position(feed, "TEST-E1", position_time, latitude=-23.5)
+    append_position(feed, "TEST-F1", position_time).vehicle.position.longitude = 0
     append_position(feed, "TEST-B1", received + timedelta(minutes=3))
     append_position(feed, "TEST-C1", position_time, latitude=95)
     append_position(feed, "TEST-D1", position_time, latitude=float("nan"))

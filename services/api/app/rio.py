@@ -13,6 +13,9 @@ from .sptrans import Observation
 RIO_SOURCE = "rio_mobi_gtfs_rt"
 RIO_FEED = "https://dados.mobilidade.rio/gtfs/realtime"
 MAX_FEED_BYTES = 2 * 1024 * 1024
+# Reject outliers before deduplication so a newer bad reading cannot mask a valid one.
+RIO_LATITUDE = (-23.2, -22.6)
+RIO_LONGITUDE = (-44, -43)
 VEHICLE_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,31}")
 PROTOBUF_TYPES = {
     "application/x-protobuf", "application/protobuf", "application/octet-stream",
@@ -48,6 +51,12 @@ def normalize_rio(payload: bytes, received_at: datetime) -> list[Observation]:
             or not vehicle.timestamp
         ):
             continue
+        position = vehicle.position
+        if not (
+            RIO_LATITUDE[0] < position.latitude < RIO_LATITUDE[1]
+            and RIO_LONGITUDE[0] < position.longitude < RIO_LONGITUDE[1]
+        ):
+            continue
         route = vehicle.trip.route_id
         try:
             observed = datetime.fromtimestamp(vehicle.timestamp, timezone.utc)
@@ -56,8 +65,8 @@ def normalize_rio(payload: bytes, received_at: datetime) -> list[Observation]:
             observation = RioObservation(
                 vehicleId=vehicle_id,
                 lineLabel=route if 0 < len(route) <= 32 and route.isprintable() else None,
-                latitude=vehicle.position.latitude,
-                longitude=vehicle.position.longitude,
+                latitude=position.latitude,
+                longitude=position.longitude,
                 observedAt=observed,
                 receivedAt=received_at,
             )

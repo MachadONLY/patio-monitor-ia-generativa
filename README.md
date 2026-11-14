@@ -24,6 +24,8 @@ Visualização 3D de operações de ônibus para equipes de mobilidade urbana. O
 
 ## Executar
 
+O [guia da demonstração integrada](deploy/README.md) inicia a interface, a câmera e o assistente no mesmo endereço e descreve como compartilhar a aplicação sem contratar hospedagem.
+
 Para usar o DEMO e a revisão de turno, execute na pasta que contém o `package.json`. Use Node 24, pnpm 11.25.0 e um navegador com WebGL 2.
 
 ```sh
@@ -90,10 +92,10 @@ Os arquivos de entrada são processados no navegador. As conclusões são locais
 | Modo | Origem | Estado desta entrega |
 |---|---|---|
 | DEMO | Cenário e frota sintéticos, identificados na tela | Disponível sem credenciais e sem rede externa |
-| LIVE | SPTrans Olho Vivo, servidor FastAPI e recorte do perímetro fornecido | Adaptador e conexão de UI implementados. Autenticação e cobertura real pendentes |
+| LIVE | Feed público do BRT do Rio no entorno do Terminal Alvorada, ou SPTrans Olho Vivo com configuração própria | Rio verificado com observações GPS reais. SPTrans depende de credencial e recorte verificado |
 | REPLAY | Captura histórica validada e assinada pelo operador | Leitura e busca temporal implementadas. Sem captura histórica fornecida |
 
-Para LIVE, configure **somente no processo FastAPI** a credencial via `SPTRANS_TOKEN` ou `SPTRANS_TOKEN_FILE` e defina `PATIO_AREA_FILE`. A variável opcional `SPTRANS_COMPANY_ID` escolhe a consulta de garagem por empresa. A credencial é emitida no [DevPlace da SPTrans](https://www.sptrans.com.br/desenvolvedores/api-do-olho-vivo-guia-de-referencia/). O arquivo de área é JSON com `name`, `source`, `origin` e `ring`. Use pares `[longitude, latitude]` em WGS84 e feche o anel repetindo o primeiro ponto. Registre fonte e licença do perímetro. GPS e perímetro usam a mesma projeção UTM 23S, em metros.
+Para usar **SPTrans Olho Vivo** no LIVE, configure **somente no processo FastAPI** a credencial via `SPTRANS_TOKEN` ou `SPTRANS_TOKEN_FILE` e defina `PATIO_AREA_FILE`. A variável opcional `SPTRANS_COMPANY_ID` escolhe a consulta de garagem por empresa. A credencial é emitida no [DevPlace da SPTrans](https://www.sptrans.com.br/desenvolvedores/api-do-olho-vivo-guia-de-referencia/). O arquivo de área é JSON com `name`, `source`, `origin` e `ring`. Use pares `[longitude, latitude]` em WGS84 e feche o anel repetindo o primeiro ponto. Registre fonte e licença do perímetro. GPS e perímetro usam a mesma projeção UTM 23S, em metros.
 
 Para REPLAY, configure `PATIO_REPLAY_FILE` e `PATIO_REPLAY_KEY` no servidor. O JSON contém `version: 1`, `source: "sptrans_olhovivo"`, `area` e `observations`, com os campos descritos em [contrato](packages/contracts/README.md). Um arquivo companheiro com sufixo `.json.sig` contém o HMAC-SHA256 hexadecimal dos bytes originais do JSON. Use uma chave privada de pelo menos 32 bytes e assine apenas dados com procedência já verificada. A timeline usa as leituras registradas e mantém seus horários originais.
 

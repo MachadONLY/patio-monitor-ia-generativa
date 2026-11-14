@@ -30,6 +30,8 @@ O recuperador remove acentos e palavras funcionais, aplica aliases simples de do
 
 Em perguntas livres de alta cobertura, o agente permite uma resposta composta exclusivamente de um trecho recuperado. Essa trilha exige cobertura a partir de 0,68 e uma diferença de pelo menos 0,16 para o segundo lugar. Uma ocorrência tipada usa o procedimento mais relacionado ao seu motivo. O modelo escolhe frases ou pares contíguos de frases do trecho. A aplicação valida fontes e recusa antes de devolver a resposta.
 
+O experimento usa um corpus fixo para permitir a reprodução das métricas. Nele, o trecho `p05` descreve o LIVE com o Olho Vivo. Na plataforma, o LIVE também pode consultar o feed público do BRT do Rio sem autenticação. A fonte ativa aparece no painel e na [documentação dos modos](../../README.md#modos-de-dados).
+
 ## Protocolo
 
 As três configurações usam o mesmo peso **Qwen2.5-0.5B-Instruct Q4_K_M**, licença Apache 2.0, CPU e `llama-cpp-python 0.3.36`. A avaliação registra temperatura zero, seed 42, metadados do peso e SHA-256. As execuções foram realizadas em Linux com uma thread por instância. [Ficha oficial do modelo](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF)
