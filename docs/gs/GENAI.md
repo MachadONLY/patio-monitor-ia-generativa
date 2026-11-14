@@ -8,9 +8,24 @@ O assistente orienta a revisão de uma saída de garagem. A saída inclui uma re
 
 [Repositório](https://github.com/MachadONLY/patio-monitor-ia-generativa) · [Vídeo da demonstração](genai/demonstracao.mp4) · [Captura da ocorrência com fonte](genai/ocorrencia-com-fontes.png)
 
+## Ficha técnica
+
+| Campo | Aplicação |
+|---|---|
+| Tarefa | Orientar a revisão de divergências entre escala e portaria de ônibus. |
+| Entrada | Pergunta curta e, na interface, o tipo da ocorrência e a origem do caso. |
+| Saída | Orientação de revisão com fontes ou recusa em JSON. |
+| Execução | Qwen2.5-0.5B-Instruct quantizado em CPU, FastAPI e recuperação local. |
+| Decisão operacional | O operador confere as evidências e registra a conclusão. |
+
 ## Dados e arquitetura
 
 O [corpus](../../services/api/app/assistant_data/corpus.json) reúne dez trechos UTF-8 com `id`, título, URL, direitos e conteúdo. As unidades correspondem a tópicos operacionais completos, oito originais do projeto e dois resumidos a partir da documentação pública do Olho Vivo. Os direitos de republicação do texto oficial não foram identificados. A base contém paráfrases próprias e aponta para a publicação oficial. [Documentação do Olho Vivo](https://www.sptrans.com.br/desenvolvedores/api-do-olho-vivo-guia-de-referencia/documentacao-api/)
+
+| Fonte | Formato consumido | Direitos do conteúdo | Trechos |
+|---|---|---|---:|
+| Regras operacionais do Pátio Monitor | UTF-8 em JSON | Texto original do projeto, uso acadêmico autorizado pelo projeto | 8 |
+| Documentação oficial da SPTrans Olho Vivo | Paráfrases originais em UTF-8 e JSON | Texto oficial referenciado, licença de republicação do original não identificada | 2 |
 
 O [gabarito](../../gs/genai/gold.json) tem 17 perguntas, onze respondíveis e seis sem evidência. Um conjunto separado de [calibração](../../gs/genai/calibration.json) inclui sete casos respondíveis e cinco desconhecidos. Ambos acompanham respostas esperadas ou fontes relevantes. O conjunto principal também contém padrões de correção lexical.
 
@@ -72,6 +87,10 @@ A tabela registra cinco erros observados na execução atual e uma regressão co
 | g12 · Senha do motorista | Na execução anterior, o agente respondeu com o endpoint de autenticação do Olho Vivo | Na execução anterior, o alias `senha → token` aproximava credenciais distintas. A remoção da equivalência, coberta por teste, fez o agente recusar esse caso antes de chamar o modelo. |
 
 O limite de citação valida que o ID pertence ao conjunto recuperado. Uma citação válida por si só ainda pode sustentar uma resposta insuficiente. O conjunto de avaliação e os cinco erros dão os pontos para a próxima iteração.
+
+## Conclusão técnica
+
+Usar recuperação e agente elevou a correção de 4 para 11 perguntas em 17 em relação ao modelo sem contexto. Os seis pedidos sem evidência foram recusados. Nas perguntas respondíveis, os principais erros vieram da seleção de frases incompletas ou de regras próximas no mesmo trecho. O fluxo de revisão envia ao modelo uma categoria de ocorrência e preserva a decisão no navegador. A próxima validação deve medir a qualidade em perguntas novas e em ocorrências autorizadas de uma garagem.
 
 ## Reprodutibilidade
 

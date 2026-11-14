@@ -13,7 +13,7 @@
 - **API e rastreamento.** 32 testes aprovados com a consulta externa do BRT habilitada. O adaptador rejeita posições fora da região do serviço antes de deduplicar por veículo.
 - **Visão.** O treino e a inferência foram reexecutados a partir das fontes com SHA-256 verificado. A avaliação e o evento de 7,44 s no quadro 186 foram reproduzidos, com direção esquerda para direita e escore 0,9871.
 - **IA.** A avaliação foi reexecutada com a versão e o peso do manifesto. Os totais se repetiram para o modelo sem contexto (4/17), RAG (8/17) e RAG com agente (10/17), assim como o Recall@1 e o Recall@3 das perguntas com fonte.
-- **Escopo de avaliação.** O navegador reproduz a saída offline da visão. O LIVE do Rio usa posições públicas e o REPLAY requer captura assinada. A entrega permite revisar saídas a partir de registros de portaria e escala. A passagem detectada em Praga e a posição observada no Rio são demonstrações independentes.
+- **Escopo de avaliação.** O navegador reproduz a saída offline da visão. Naquela versão, o LIVE do Rio usava posições públicas e o REPLAY exigia uma captura assinada. A revalidação abaixo documenta a coleta persistente. A entrega permite revisar saídas a partir de registros de portaria e escala. A passagem detectada em Praga e a posição observada no Rio são demonstrações independentes.
 
 ## Fluxo operacional com dados reais
 
