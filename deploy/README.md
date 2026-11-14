@@ -21,7 +21,25 @@ export PATIO_LIVE_PROVIDER=rio_brt
 python -m uvicorn app.hosted:app --app-dir services/api --host 127.0.0.1 --port 8000 --ws-max-size 4096 --ws-max-queue 8
 ```
 
-Abra http://127.0.0.1:8000. Para uma instalação em Windows, use os mesmos scripts e [o roteiro de ambiente Python em PowerShell](../gs/genai/README.md#reproduzir-no-terminal), ou use o Codespaces.
+Abra http://127.0.0.1:8000.
+
+### PowerShell
+
+```powershell
+npm.cmd install -g pnpm@11.25.0
+pnpm.cmd install --frozen-lockfile
+pnpm.cmd build
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r services/api/requirements.txt
+.\.venv\Scripts\python.exe -m pip install --only-binary=:all: --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu -r services/api/requirements-ai.txt
+.\.venv\Scripts\python.exe gs/genai/download_model.py runtime-data/qwen.gguf
+$env:PATIO_WEB_DIST = (Resolve-Path "apps/web/dist").Path
+$env:PATIO_LLM_MODEL_PATH = (Resolve-Path "runtime-data/qwen.gguf").Path
+$env:PATIO_LIVE_PROVIDER = "rio_brt"
+.\.venv\Scripts\python.exe -m uvicorn app.hosted:app --app-dir services/api --host 127.0.0.1 --port 8000 --ws-max-size 4096 --ws-max-queue 8
+```
+
+Com o túnel ativo, defina `$env:PATIO_PUBLIC_ORIGIN = "https://HOST.trycloudflare.com"` com o endereço real emitido e execute novamente o comando do Uvicorn.
 
 ## Compartilhar uma demonstração
 

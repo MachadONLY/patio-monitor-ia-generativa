@@ -66,7 +66,7 @@ Para observações do Olho Vivo, as coordenadas são as leituras recebidas e os 
 
 ## Fechamento de turno
 
-Abra **Revisar turno** no painel lateral para experimentar a fila com dados sintéticos identificados. Selecione uma saída para consultar escala, portaria e posição disponível na cena. Registre uma conclusão e exporte a revisão. O CSV de exportação registra a leitura de portaria e a decisão humana em campos separados.
+Abra **Fechamento de turno** no painel lateral para experimentar a fila com dados sintéticos identificados. Selecione uma saída para consultar escala, portaria e posição disponível na cena. Registre uma conclusão e exporte a revisão. O CSV de exportação registra a leitura de portaria e a decisão humana em campos separados.
 
 O conjunto de demonstração da revisão é um caso de conciliação próprio, separado do diário gerado pela simulação 3D.
 
@@ -146,5 +146,5 @@ python -m uvicorn app.main:app --app-dir services/api --host 127.0.0.1 --port 80
 ```
 
 - **Visão computacional.** Abra **Câmera do portão** para assistir à gravação anotada e ir diretamente aos instantes de cruzamento. A direção é relativa à imagem e a evidência visual mantém o vínculo com a gravação original. Consulte o [relatório e o roteiro de visão](docs/gs/cv/README.md).
-- **IA generativa.** Em **Revisar turno**, abra uma ocorrência e clique em **Explicar ocorrência** para consultar as fontes com a LLM local. O servidor recebe o tipo da ocorrência e sua origem. Os registros de CSV importados e as conclusões da equipe ficam no navegador. Consulte a [avaliação e a execução da LLM](gs/genai/README.md).
+- **IA generativa.** Em **Fechamento de turno**, abra uma ocorrência e clique em **Explicar ocorrência** para consultar as fontes com a LLM local. O servidor recebe o tipo da ocorrência e sua origem. Os registros de CSV importados e as conclusões da equipe ficam no navegador. Consulte a [avaliação e a execução da LLM](gs/genai/README.md).
 - **GPS real.** O servidor usa o Olho Vivo com a configuração da SPTrans. Para executar com o feed público do BRT do Rio, defina `PATIO_LIVE_PROVIDER=rio_brt` no servidor e escolha **LIVE** na interface. O recorte padrão fica no entorno do Terminal Alvorada e mostra posições observadas com horário de cada veículo. O recorte é geográfico e os dados têm atribuição à SMTR / MOBI-Rio sob CC BY 4.0. [Dados GTFS Realtime](https://dados.mobilidade.rio/gtfs/realtime) · [catálogo e licença](https://www.transit.land/data/feeds/f-75cj-mobi~rio~rt).

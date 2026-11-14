@@ -54,7 +54,7 @@ A recuperação obteve **Recall@1 100%** e **Recall@3 100%** sobre as 11 pergunt
 | RAG | 8/17 | 2/11 | 6/6 | 2/11 | 17/17 | 6.076 s |
 | RAG com agente | 10/17 | 5/11 | 5/6 | 5/11 | 13/13 | 4.794 s |
 
-Todas as configurações devolveram 17 objetos JSON válidos. A métrica de JSON da LLM conta só as chamadas efetivas. O agente recusou quatro consultas antes de gerar. A latência foi observada neste ambiente e pode variar com hardware e carga. A comparação confirma ganho de resposta fundamentada com o agente neste conjunto. O RAG simples recusou corretamente um caso a mais. A cobertura alta do recuperador deslocou o principal gargalo para a escolha de conteúdo e para a separação de assuntos aproximados.
+Todas as configurações devolveram 17 objetos JSON válidos. A métrica de JSON da LLM conta só as chamadas efetivas. O agente recusou quatro consultas antes de gerar. A latência foi observada neste ambiente e pode variar com hardware e carga. O agente teve dois acertos totais a mais que o RAG simples. Nos seis casos sem fonte, o modelo sem contexto respondeu indevidamente a dois, o RAG simples a nenhum e o agente a um. Nas onze perguntas com fonte, as três configurações emitiram, respectivamente, quatro, cinco e seis respostas incorretas pelo critério lexical. Esses números distinguem respostas indevidas sem fonte de erros em perguntas respondíveis. A cobertura alta do recuperador deslocou o principal gargalo para a escolha de conteúdo e para a separação de assuntos aproximados.
 
 Na ocorrência tipada g17, a LLM selecionou o procedimento de portaria `p01` e informou que o operador deve conferir registro OUT, veículo e horário. Essa chamada é reproduzível com os mesmos arquivos e os pesos registrados.
 
