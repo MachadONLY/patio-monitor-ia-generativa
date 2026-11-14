@@ -45,3 +45,5 @@
 O mapa do LIVE e do REPLAY no entorno do Terminal Alvorada usa um recorte dos eixos viários do [OpenStreetMap](https://www.openstreetmap.org/#map=15/-22.9958/-43.3606), coletado em 14/11/2026. © OpenStreetMap contributors, [ODbL](https://www.openstreetmap.org/copyright).
 
 O arquivo `apps/web/src/alvorada-map.json` contém essa extração em WGS84. Cada item armazena a classe visual da via e seus vértices em ordem longitude, latitude. A posição GPS continua vindo do feed da SMTR / MOBI-Rio e é desenhada na coordenada observada.
+
+`apps/web/src/alvorada-buildings.json` também usa essa extração ODbL, com contornos de edificações e coberturas do entorno imediato. As alturas e os materiais são ilustrativos.

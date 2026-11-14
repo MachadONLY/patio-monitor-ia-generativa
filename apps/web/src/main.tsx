@@ -83,6 +83,11 @@ function App() {
   function selectVehicle(vehicleId: string) {
     setSelected(vehicleId);
     if (!reviewing) contextRegion.current?.scrollTo({ top: 0 });
+    if (mode !== "DEMO") {
+      const target = vehicles.find((item) => item.id === vehicleId);
+      if (target) setAction({ type: "focus", vehicle: target });
+      return;
+    }
     if (action.type !== "follow" || action.vehicle?.id === vehicleId) return;
     const target = vehicles.find((item) => item.id === vehicleId);
     if (target) setAction({ type: "follow", vehicle: target });
@@ -236,7 +241,7 @@ function App() {
                   ? demoPose?.phase === "away" && action.type === "follow"
                     ? "Em rota fora da área 3D · aguardando retorno"
                     : "Cenário inspirado no Terminal Pirituba"
-                  : (area?.source ?? "Perímetro verificado indisponível")}
+                  : (action.type === "terminal" ? "Implantação do terminal · alturas ilustrativas" : area?.source ?? "Perímetro verificado indisponível")}
               </span>
             </div>
             {noData && (
@@ -270,6 +275,12 @@ function App() {
                 >
                   <Crosshair size={19} />
                 </button>
+                {!demo && hasAlvoradaMap(area) && (
+                  <button className="icon" aria-label="Ver Terminal Alvorada" title="Ver Terminal Alvorada"
+                    aria-pressed={action.type === "terminal"} onClick={() => setAction({ type: "terminal" })}>
+                    <Building2 size={19} />
+                  </button>
+                )}
                 {demo && (
                   <button
                     className="icon"

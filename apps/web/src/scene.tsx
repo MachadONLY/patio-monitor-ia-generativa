@@ -24,6 +24,7 @@ import {
 } from "three";
 import type { Vehicle } from "./fleet";
 import { localPoint, type Area } from "./observations";
+import buildings from "./alvorada-buildings.json";
 import alvorada from "./alvorada-map.json";
 import { Scenery } from "./scenery";
 import { Pedestrians } from "./scene-pedestrians";
@@ -34,13 +35,14 @@ const MODEL = "/models/sp-standard-bus.glb";
 const DEFAULT_TARGET = new Vector3(0, 0.6, 0);
 const TERMINAL_TARGET = new Vector3(2, 0.6, -2);
 const DEFAULT_VIEW = new Vector3(38, 38, 59);
+const ALVORADA_TERMINAL: [number, number] = [-43.366102, -23.001922];
 const DISTRICT_TARGET = new Vector3(7, 0, -14);
 const DISTRICT_VIEW = new Vector3(75, 56, 90);
 const clamp = (n: number, min: number, max: number) =>
   Math.min(max, Math.max(min, n));
 
 export type CameraAction = {
-  type: "home" | "district" | "focus" | "follow" | "profile" | "top";
+  type: "home" | "terminal" | "district" | "focus" | "follow" | "profile" | "top";
   vehicle?: Vehicle;
 };
 
@@ -75,7 +77,9 @@ function CameraRig({
   extent,
   demo,
   elapsed,
+  area,
 }: {
+  area?: Area;
   action: CameraAction;
   zoom?: CameraZoom;
   extent: number;
@@ -99,6 +103,11 @@ function CameraRig({
         .multiplyScalar(Math.max(1, extent / 27));
       if (demo) camera.position.add(new Vector3(TERMINAL_TARGET.x, 0, TERMINAL_TARGET.z));
       camera.zoom = base;
+    } else if (action.type === "terminal" && area) {
+      const [x, z] = localPoint(area.origin, ALVORADA_TERMINAL);
+      orbit.target.set(x, 1, z);
+      camera.position.copy(orbit.target).add(new Vector3(480, 510, 660));
+      camera.zoom = Math.min(size.width, size.height) / 540;
     } else if (action.type === "district") {
       orbit.target.copy(DISTRICT_TARGET);
       camera.position.copy(DISTRICT_TARGET).add(DISTRICT_VIEW);
@@ -123,7 +132,7 @@ function CameraRig({
     camera.updateProjectionMatrix();
     orbit.update();
     invalidate();
-  }, [action, base, camera, demo, elapsed, extent, invalidate]);
+  }, [action, area?.origin[0], area?.origin[1], base, camera, demo, elapsed, extent, invalidate, size.height, size.width]);
   useEffect(() => {
     if (!zoom || !(camera instanceof OrthographicCamera)) return;
     camera.zoom = clamp(camera.zoom * zoom.factor, 0.08, 68);
@@ -352,16 +361,30 @@ function AlvoradaBasemap({ area }: { area: Area }) {
     );
   }, [area]);
   useEffect(() => () => streets.forEach((street) => street.dispose()), [streets]);
-  const [x, z] = localPoint(area.origin, [-43.366102, -23.001922]);
+  const structures = useMemo(() => buildings.map(({ points, roof }) => ({
+    footprint: new Shape(points.map((point) => {
+      const [x, z] = localPoint(area.origin, point as [number, number]);
+      return new Vector2(x, -z);
+    })),
+    height: roof ? 4 : 7,
+    roof,
+  })), [area.origin[0], area.origin[1]]);
+  const [x, z] = localPoint(area.origin, ALVORADA_TERMINAL);
 
   return (
     <>
       {streets.map((geometry, index) => (
         <lineSegments key={index} geometry={geometry}>
-          <lineBasicMaterial color={["#9caaa2", "#f9f8ea", "#28765e"][index]} />
+          <lineBasicMaterial color={["#95a69f", "#f9f7ed", "#398674"][index]} />
         </lineSegments>
       ))}
-      <Html position={[x, 3, z]} center zIndexRange={[3, 1]} style={{ pointerEvents: "none" }}>
+      {structures.map(({ footprint, height, roof }, index) => (
+        <mesh key={index} position={[0, roof ? 1.7 : 0.3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <extrudeGeometry args={[footprint, { depth: height, bevelEnabled: false }]} />
+          <meshStandardMaterial color={roof ? "#f0efe5" : "#768e85"} roughness={0.86} />
+        </mesh>
+      ))}
+      <Html position={[x, 12, z]} center zIndexRange={[3, 1]} style={{ pointerEvents: "none" }}>
         <span className="terminal-map-label">Terminal Alvorada</span>
       </Html>
     </>
@@ -495,6 +518,7 @@ export function Scene({
           action={action}
           zoom={zoom}
           extent={extent}
+          area={area}
           demo={demo}
           elapsed={demoSimulation?.elapsed}
         />
@@ -502,19 +526,13 @@ export function Scene({
           <SimulationClock simulation={demoSimulation} />
           {demo ? <Scenery /> : <ObservedTerrain ring={ring} extent={extent} area={area} />}
           {demoSimulation && <Pedestrians elapsed={demoSimulation.elapsed} />}
-          {!demo && extent > 200 && action.type === "home" && vehicles.map((vehicle) => (
-            <mesh
-              key={`position:${vehicle.id}`}
-              position={[vehicle.x, 2, vehicle.z]}
-              rotation={[-Math.PI / 2, 0, 0]}
-              onClick={(event) => {
-                event.stopPropagation();
-                onSelect(vehicle.id);
-              }}
-            >
-              <circleGeometry args={[extent / 75, 24]} />
-              <meshBasicMaterial color={selected === vehicle.id ? "#18583e" : "#286e58"} />
-            </mesh>
+          {!demo && (action.type === "home" || action.type === "terminal") && vehicles.map((vehicle) => (
+            <Html key={`position:${vehicle.id}`} position={[vehicle.x, 8, vehicle.z]} center zIndexRange={[10, 4]}>
+              <button type="button" className="live-bus-pin" aria-label={`Localizar ônibus ${vehicle.id}`}
+                aria-pressed={selected === vehicle.id} onClick={() => onSelect(vehicle.id)}>
+                <BusFront size={16} aria-hidden="true" />
+              </button>
+            </Html>
           ))}
           {vehicles.map((vehicle) => (
             <Bus
