@@ -818,3 +818,101 @@ button:disabled {
   .operating-app .location { display: none; }
   .operating-app .viewport-footer > span:last-child { display: none; }
 }
+
+.operating-app {
+  background: #eef1ea;
+  --paper: #fbfcf7;
+}
+
+.operating-app .topbar { background: #f9fbf5; }
+.operating-app .viewport { background: #dce2d6; }
+
+.fleet-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 12px;
+}
+
+.fleet-heading h2 { margin: 3px 0 0; font-size: 19px; }
+
+.fleet-total {
+  display: grid;
+  place-items: center;
+  min-width: 39px;
+  height: 38px;
+  padding-inline: 7px;
+  border-radius: 9px;
+  background: #e5efe4;
+  color: #174f39;
+  font: 600 16px var(--mono);
+}
+
+.operating-fleet .vehicle-list { max-height: 270px; margin-bottom: 0; }
+.operating-fleet .vehicle-list button { padding: 9px 5px; gap: 9px; border-bottom: 1px solid #e9ede4; }
+.operating-fleet .vehicle-list button > svg:first-child { color: #2a604b; }
+
+.fleet-vehicle {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.fleet-vehicle span {
+  color: var(--muted);
+  font-size: 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.operating-fleet time {
+  color: #3f6253;
+  font: 500 10px var(--mono);
+  white-space: nowrap;
+}
+
+@media (min-width: 1001px) {
+  .operating-app .workspace-inspector { grid-template-columns: minmax(0, 1fr) 290px; }
+}
+
+@media (max-width: 720px) {
+  .operating-app .topbar { display: flex; }
+  .operating-app .side > * { min-width: 0; }
+  .operating-app .operating-source { grid-column: 1 / -1; }
+}
+
+.terminal-bus-pin {
+  width: 21px;
+  height: 21px;
+  border-width: 1px;
+  border-radius: 6px;
+  transform: translateY(-9px);
+}
+
+.terminal-bus-pin svg { width: 12px; height: 12px; }
+
+.fleet-note {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 6px;
+  padding: 8px 9px;
+  border-radius: 7px;
+  background: #edf1e8;
+  color: #455c4f;
+  font-size: 10px;
+}
+
+.fleet-note button {
+  justify-self: start;
+  padding: 1px 0;
+  border: 0;
+  background: transparent;
+  color: #165e42;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: underline;
+}

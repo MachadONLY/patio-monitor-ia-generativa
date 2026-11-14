@@ -11,9 +11,8 @@ import {
   type ReactNode,
 } from "react";
 import {
-  BufferGeometry,
   Color,
-  Float32BufferAttribute,
+  DirectionalLight,
   Group,
   Mesh,
   MeshStandardMaterial,
@@ -24,8 +23,9 @@ import {
 } from "three";
 import type { Vehicle } from "./fleet";
 import { localPoint, type Area } from "./observations";
+import { AlvoradaStreetDetail } from "./alvorada-street-detail";
 import buildings from "./alvorada-buildings.json";
-import alvorada from "./alvorada-map.json";
+import { AlvoradaCartography } from "./alvorada-cartography";
 import { Scenery } from "./scenery";
 import { Pedestrians } from "./scene-pedestrians";
 import { sampleSimulation } from "./simulation";
@@ -35,7 +35,7 @@ const MODEL = "/models/sp-standard-bus.glb";
 const DEFAULT_TARGET = new Vector3(0, 0.6, 0);
 const TERMINAL_TARGET = new Vector3(2, 0.6, -2);
 const DEFAULT_VIEW = new Vector3(38, 38, 59);
-const ALVORADA_TERMINAL: [number, number] = [-43.366102, -23.001922];
+export const ALVORADA_TERMINAL: [number, number] = [-43.366102, -23.001922];
 const DISTRICT_TARGET = new Vector3(7, 0, -14);
 const DISTRICT_VIEW = new Vector3(75, 56, 90);
 const clamp = (n: number, min: number, max: number) =>
@@ -106,8 +106,8 @@ function CameraRig({
     } else if (action.type === "terminal" && area) {
       const [x, z] = localPoint(area.origin, ALVORADA_TERMINAL);
       orbit.target.set(x, 1, z);
-      camera.position.copy(orbit.target).add(new Vector3(480, 510, 660));
-      camera.zoom = Math.min(size.width, size.height) / 540;
+      camera.position.copy(orbit.target).add(new Vector3(395, 650, 580));
+      camera.zoom = Math.min(size.width / 620, size.height / 520);
     } else if (action.type === "district") {
       orbit.target.copy(DISTRICT_TARGET);
       camera.position.copy(DISTRICT_TARGET).add(DISTRICT_VIEW);
@@ -349,30 +349,6 @@ class SceneError extends Component<
 }
 
 function AlvoradaBasemap({ area }: { area: Area }) {
-  const streets = useMemo(() => {
-    const vertices: number[][] = [[], [], []];
-    const halfWidths = [3.5, 8, 4.6];
-    for (const [kind, coordinates] of alvorada as [number, [number, number][]][]) {
-      const points = coordinates.map((point) => localPoint(area.origin, point));
-      for (let i = 1; i < points.length; i++) {
-        const [x1, z1] = points[i - 1];
-        const [x2, z2] = points[i];
-        const length = Math.hypot(x2 - x1, z2 - z1);
-        if (!length) continue;
-        const dx = (z2 - z1) / length * halfWidths[kind];
-        const dz = (x1 - x2) / length * halfWidths[kind];
-        const y = 0.2 + kind * 0.06;
-        vertices[kind].push(
-          x1 + dx, y, z1 + dz, x1 - dx, y, z1 - dz, x2 + dx, y, z2 + dz,
-          x2 + dx, y, z2 + dz, x1 - dx, y, z1 - dz, x2 - dx, y, z2 - dz,
-        );
-      }
-    }
-    return vertices.map((points) =>
-      new BufferGeometry().setAttribute("position", new Float32BufferAttribute(points, 3)),
-    );
-  }, [area.origin[0], area.origin[1]]);
-  useEffect(() => () => streets.forEach((street) => street.dispose()), [streets]);
   const structures = useMemo(() => buildings.map(({ points, roof, height }) => ({
     footprint: new Shape(points.map((point) => {
       const [x, z] = localPoint(area.origin, point as [number, number]);
@@ -385,17 +361,14 @@ function AlvoradaBasemap({ area }: { area: Area }) {
 
   return (
     <>
-      {streets.map((geometry, index) => (
-        <mesh key={index} geometry={geometry}>
-          <meshBasicMaterial side={2} color={["#c5c9be", "#a6afa9", "#657e73"][index]} />
-        </mesh>
-      ))}
+      <AlvoradaCartography origin={area.origin} />
       {structures.map(({ footprint, height, roof }, index) => (
         <mesh key={index} position={[0, roof ? 1.7 : 0.3, 0]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow>
           <extrudeGeometry args={[footprint, { depth: height, bevelEnabled: false }]} />
           <meshStandardMaterial color={roof ? "#f2f0e7" : ["#a2aca1", "#c5c8ba", "#9eafa9"][index % 3]} roughness={0.86} />
         </mesh>
       ))}
+      <AlvoradaStreetDetail area={area} />
       <Html position={[x, 12, z]} center zIndexRange={[3, 1]} style={{ pointerEvents: "none" }}>
         <span className="terminal-map-label">Terminal Alvorada</span>
       </Html>
@@ -435,14 +408,41 @@ function ObservedTerrain({
         <meshStandardMaterial color="#bec8bb" />
       </mesh>
       {ring.length > 0 && (
-        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
           <shapeGeometry args={[outline]} />
-          <meshStandardMaterial color={hasAlvoradaMap(area) ? "#b5c6b7" : "#819e92"} side={2} />
+          <meshStandardMaterial color={hasAlvoradaMap(area) ? "#bec5a6" : "#819e92"} side={2} />
         </mesh>
       )}
       {area && hasAlvoradaMap(area) && <AlvoradaBasemap area={area} />}
     </>
   );
+}
+
+function TerminalSun({ area }: { area?: Area }) {
+  const light = useRef<DirectionalLight>(null);
+  const { gl, invalidate } = useThree();
+  const isAlvorada = hasAlvoradaMap(area);
+  const [x, z] = area && isAlvorada ? localPoint(area.origin, ALVORADA_TERMINAL) : [0, 0];
+  const span = isAlvorada ? 410 : 75;
+
+  useEffect(() => {
+    const sun = light.current;
+    if (!sun) return;
+    sun.target.position.set(x, 0, z);
+    sun.target.updateMatrixWorld();
+    sun.shadow.camera.updateProjectionMatrix();
+    sun.shadow.needsUpdate = true;
+    gl.shadowMap.needsUpdate = true;
+    invalidate();
+  }, [x, z, gl, invalidate]);
+
+  return <directionalLight ref={light} color="#fff0d6" intensity={isAlvorada ? 2.5 : 2.85}
+    position={isAlvorada ? [x - 320, 485, z + 245] : [-43, 80, 45]} castShadow
+    shadow-mapSize={isAlvorada ? [2048, 2048] : [1536, 1536]}
+    shadow-camera-left={-span} shadow-camera-right={span}
+    shadow-camera-top={span} shadow-camera-bottom={-span}
+    shadow-camera-near={1} shadow-camera-far={isAlvorada ? 1300 : 215}
+    shadow-normalBias={isAlvorada ? 0.55 : 0.025} shadow-bias={-0.00015} />;
 }
 
 export function Scene({
@@ -507,25 +507,8 @@ export function Scene({
       >
         <color attach="background" args={["#c8dce9"]} />
         {demo && <fog attach="fog" args={["#c8dce9", 196, 295]} />}
-        <hemisphereLight
-          color="#e0efff"
-          groundColor="#968b73"
-          intensity={1.38}
-        />
-        <directionalLight
-          color="#fff4dd"
-          intensity={2.85}
-          position={[-43, 80, 45]}
-          castShadow
-          shadow-mapSize={[1536, 1536]}
-          shadow-camera-left={-70}
-          shadow-camera-right={70}
-          shadow-camera-top={68}
-          shadow-camera-bottom={-64}
-          shadow-camera-far={215}
-          shadow-normalBias={0.025}
-          shadow-bias={-0.00015}
-        />
+        <hemisphereLight color="#e0efff" groundColor="#a99e88" intensity={demo ? 1.38 : 1.05} />
+        <TerminalSun area={demo ? undefined : area} />
         <CameraRig
           action={action}
           zoom={zoom}
@@ -538,9 +521,9 @@ export function Scene({
           <SimulationClock simulation={demoSimulation} />
           {demo ? <Scenery /> : <ObservedTerrain ring={ring} extent={extent} area={area} />}
           {demoSimulation && <Pedestrians elapsed={demoSimulation.elapsed} />}
-          {!demo && action.type === "home" && vehicles.map((vehicle) => (
-            <Html key={`position:${vehicle.id}`} position={[vehicle.x, 8, vehicle.z]} center zIndexRange={[10, 4]}>
-              <button type="button" className="live-bus-pin" aria-label={`Localizar ônibus ${vehicle.id}`}
+          {!demo && (action.type === "home" || action.type === "terminal") && vehicles.map((vehicle) => (
+            <Html key={`position:${vehicle.id}`} position={[vehicle.x, action.type === "terminal" ? 16 : 8, vehicle.z]} center zIndexRange={[10, 4]}>
+              <button type="button" className={action.type === "terminal" ? "live-bus-pin terminal-bus-pin" : "live-bus-pin"} aria-label={`Localizar ônibus ${vehicle.id}`}
                 aria-pressed={selected === vehicle.id} onClick={() => onSelect(vehicle.id)}>
                 <BusFront size={16} aria-hidden="true" />
               </button>
@@ -552,7 +535,7 @@ export function Scene({
               vehicle={vehicle}
               selected={selected === vehicle.id}
               onSelect={onSelect}
-              scale={!demo && action.type === "terminal" ? 2.5 : 1}
+              scale={!demo && action.type === "terminal" ? 1.65 : 1}
               showTag={action.type !== "top" && action.type !== "profile"}
               elapsed={demoSimulation?.elapsed}
             />

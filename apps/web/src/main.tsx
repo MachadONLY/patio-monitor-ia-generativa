@@ -7,10 +7,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Building2, BusFront, Camera, ChevronRight, ClipboardCheck, Crosshair, MapPin, Minus, Plus, Radio } from "lucide-react";
 import type { Vehicle } from "./fleet";
 import { GateCamera } from "./gs-evidence";
-import { Scene, hasAlvoradaMap, type CameraAction, type CameraZoom } from "./scene";
+import { Scene, hasAlvoradaMap, ALVORADA_TERMINAL, type CameraAction, type CameraZoom } from "./scene";
 import { ShiftReview } from "./shift-review";
-import { readingTime, VehicleInspector } from "./vehicle-inspector";
-import { observedVehicles, observationSources, useObservations } from "./observations";
+import { VehicleInspector } from "./vehicle-inspector";
+import { localPoint, observedVehicles, observationSources, useObservations } from "./observations";
+
+const fleetClock = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: "America/Sao_Paulo", timeStyle: "medium",
+});
 
 function App() {
   const [selected, setSelected] = useState<string | null>(null);
@@ -39,6 +43,10 @@ function App() {
     : snapshot?.state === "no_observations" && !result?.failed ? "Sem veículos no recorte"
     : !result?.failed && (!snapshot || snapshot.state === "connecting") ? "Conectando ao GPS"
     : "GPS indisponível";
+  const terminalCenter = hasTerminal && area ? localPoint(area.origin, ALVORADA_TERMINAL) : undefined;
+  const terminalVehicles = terminalCenter && vehicles.filter(({ x, z }) =>
+    Math.hypot(x - terminalCenter[0], z - terminalCenter[1]) < 230
+  ).length;
   const defaultView = hasTerminal ? "terminal" : "home";
   const action = view.type === "terminal" && !hasTerminal ? { type: "home" } as const : view;
 
@@ -69,7 +77,7 @@ function App() {
         </div>
         <div className="location">
           <MapPin size={16} />
-          <div><strong>{site}</strong><small>{provider?.location ?? "Mobilidade urbana"}</small></div>
+          <div><strong>{hasTerminal ? "Barra da Tijuca" : site}</strong><small>{provider?.location ?? "Mobilidade urbana"}</small></div>
         </div>
         <div className="connection-state" data-connected={current} role="status"><i />{connection}</div>
       </header>
@@ -84,7 +92,7 @@ function App() {
             <div className="scene-caption">
               <span className="eyebrow"><Radio size={13} /> MONITORAMENTO GPS</span>
               <h1>{hasTerminal ? "Terminal Alvorada" : site}</h1>
-              <span>{hasTerminal ? "Implantação cartográfica · volumes ilustrativos" : area?.source}</span>
+              <span>{hasTerminal ? "Barra da Tijuca · Rio de Janeiro" : area?.source}</span>
             </div>
             {!failed3d && (
               <div className="camera operating-camera" aria-label="Controles da câmera">
@@ -98,7 +106,7 @@ function App() {
               </div>
             )}
             {hasTerminal && <a className="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a>}
-            <div className="viewport-footer"><span className="view-mode">3D</span><span>Selecione um ônibus para abrir sua ficha</span></div>
+            <div className="viewport-footer"><span className="view-mode">3D</span><span>Detalhes arquitetônicos e urbanos ilustrativos</span></div>
           </div>
           <aside className="side" aria-label="Painel de revisão" hidden={!reviewing} ref={reviewRegion} tabIndex={-1}>
             <ShiftReview mode="LIVE" vehicles={snapshot?.source === "rio_mobi_gtfs_rt" ? [] : vehicles}
@@ -113,14 +121,27 @@ function App() {
                 onCamera={(type) => setView({ type, vehicle })} />
             ) : (
               <section className="info operating-fleet">
-                <span className="eyebrow">FROTA OBSERVADA</span>
-                <h2>{vehicles.length} {vehicles.length === 1 ? "veículo" : "veículos"} no entorno</h2>
+                <div className="fleet-heading">
+                  <div><span className="eyebrow">FROTA OBSERVADA</span><h2>Ônibus no entorno</h2></div>
+                  <strong className="fleet-total" aria-label={`${vehicles.length} veículos`}>{vehicles.length}</strong>
+                </div>
+                {terminalVehicles === 0 && vehicles.length > 0 && action.type === "terminal" && (
+                  <div className="fleet-note">
+                    <span>Sem leitura GPS a até 230 m do terminal.</span>
+                    <button type="button" onClick={() => setView({ type: "home" })}>Ver ônibus no entorno</button>
+                  </div>
+                )}
                 {vehicles.length > 0 ? <div className="vehicle-list">
                   {vehicles.map((item) => (
                     <button key={item.id} aria-label={`Inspecionar ônibus ${item.id}`} onClick={() => selectVehicle(item.id)}>
                       <BusFront size={16} />
-                      <strong>{item.id}</strong>
-                      {item.observation && <small>{readingTime.format(new Date(item.observation.observedAt))}</small>}
+                      <span className="fleet-vehicle">
+                        <strong>{item.id}</strong>
+                        <span>{item.line === "Não informada" ? "Linha indisponível" : `Linha ${item.line}`}</span>
+                      </span>
+                      {item.observation && <time dateTime={item.observation.observedAt}>
+                        {fleetClock.format(new Date(item.observation.observedAt))}
+                      </time>}
                       <ChevronRight size={14} />
                     </button>
                   ))}
