@@ -11,7 +11,9 @@ import {
   type ReactNode,
 } from "react";
 import {
+  BufferGeometry,
   Color,
+  Float32BufferAttribute,
   Group,
   Mesh,
   MeshStandardMaterial,
@@ -22,6 +24,7 @@ import {
 } from "three";
 import type { Vehicle } from "./fleet";
 import { localPoint, type Area } from "./observations";
+import alvorada from "./alvorada-map.json";
 import { Scenery } from "./scenery";
 import { Pedestrians } from "./scene-pedestrians";
 import { sampleSimulation } from "./simulation";
@@ -333,10 +336,49 @@ class SceneError extends Component<
   }
 }
 
+function AlvoradaBasemap({ area }: { area: Area }) {
+  const streets = useMemo(() => {
+    const vertices: number[][] = [[], [], []];
+    for (const [kind, coordinates] of alvorada as [number, [number, number][]][]) {
+      const points = coordinates.map((point) => localPoint(area.origin, point));
+      for (let i = 1; i < points.length; i++) {
+        const [x1, z1] = points[i - 1];
+        const [x2, z2] = points[i];
+        vertices[kind].push(x1, 0.2 + kind * 0.05, z1, x2, 0.2 + kind * 0.05, z2);
+      }
+    }
+    return vertices.map((points) =>
+      new BufferGeometry().setAttribute("position", new Float32BufferAttribute(points, 3)),
+    );
+  }, [area]);
+  useEffect(() => () => streets.forEach((street) => street.dispose()), [streets]);
+  const [x, z] = localPoint(area.origin, [-43.366102, -23.001922]);
+
+  return (
+    <>
+      {streets.map((geometry, index) => (
+        <lineSegments key={index} geometry={geometry}>
+          <lineBasicMaterial color={["#9caaa2", "#f9f8ea", "#28765e"][index]} />
+        </lineSegments>
+      ))}
+      <Html position={[x, 3, z]} center zIndexRange={[3, 1]} style={{ pointerEvents: "none" }}>
+        <span className="terminal-map-label">Terminal Alvorada</span>
+      </Html>
+    </>
+  );
+}
+
+export function hasAlvoradaMap(area?: Area) {
+  return Boolean(area && Math.abs(area.origin[0] + 43.360556) < 0.008 &&
+    Math.abs(area.origin[1] + 22.995833) < 0.008);
+}
+
 function ObservedTerrain({
   ring,
   extent,
+  area,
 }: {
+  area?: Area;
   ring: [number, number][];
   extent: number;
 }) {
@@ -360,9 +402,10 @@ function ObservedTerrain({
       {ring.length > 0 && (
         <mesh rotation={[-Math.PI / 2, 0, 0]}>
           <shapeGeometry args={[outline]} />
-          <meshStandardMaterial color="#819e92" side={2} />
+          <meshStandardMaterial color={hasAlvoradaMap(area) ? "#b5c6b7" : "#819e92"} side={2} />
         </mesh>
       )}
+      {area && hasAlvoradaMap(area) && <AlvoradaBasemap area={area} />}
     </>
   );
 }
@@ -457,7 +500,7 @@ export function Scene({
         />
         <Suspense fallback={null}>
           <SimulationClock simulation={demoSimulation} />
-          {demo ? <Scenery /> : <ObservedTerrain ring={ring} extent={extent} />}
+          {demo ? <Scenery /> : <ObservedTerrain ring={ring} extent={extent} area={area} />}
           {demoSimulation && <Pedestrians elapsed={demoSimulation.elapsed} />}
           {!demo && extent > 200 && action.type === "home" && vehicles.map((vehicle) => (
             <mesh
@@ -469,7 +512,7 @@ export function Scene({
                 onSelect(vehicle.id);
               }}
             >
-              <ringGeometry args={[extent / 75, extent / 50, 24]} />
+              <circleGeometry args={[extent / 75, 24]} />
               <meshBasicMaterial color={selected === vehicle.id ? "#18583e" : "#286e58"} />
             </mesh>
           ))}

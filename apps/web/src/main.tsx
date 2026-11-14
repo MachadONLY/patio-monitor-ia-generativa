@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { fleet, type Vehicle } from "./fleet";
 import { GateCamera } from "./gs-evidence";
-import { Scene, type CameraAction, type CameraZoom } from "./scene";
+import { Scene, hasAlvoradaMap, type CameraAction, type CameraZoom } from "./scene";
 import { ShiftReview } from "./shift-review";
 import { OperationFeed, useDemoOperation } from "./operation-demo";
 import { sampleSimulation } from "./simulation";
@@ -296,6 +296,11 @@ function App() {
                   <Minus size={19} />
                 </button>
               </div>
+            )}
+            {!demo && hasAlvoradaMap(area) && (
+              <a className="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+                © OpenStreetMap
+              </a>
             )}
             <div className="viewport-footer">
               <span className="view-mode">3D</span>

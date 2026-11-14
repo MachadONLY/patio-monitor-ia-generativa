@@ -744,3 +744,26 @@ button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+.terminal-map-label {
+  display: inline-block;
+  padding: 5px 8px;
+  background: #f9fcf5;
+  border: 1px solid #92a99b;
+  border-radius: 5px;
+  color: #184533;
+  font: 600 12px var(--sans, sans-serif);
+  white-space: nowrap;
+}
+
+.map-attribution {
+  position: absolute;
+  right: 18px;
+  bottom: 62px;
+  z-index: 16;
+  background: #f9fcf5;
+  border-radius: 4px;
+  padding: 3px 6px;
+  color: #21533e;
+  font-size: 10px;
+}
