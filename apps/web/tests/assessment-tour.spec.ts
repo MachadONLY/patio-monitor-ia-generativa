@@ -18,21 +18,26 @@ test("teacher can review the example, request a source and inspect a real video 
   const start = page.getByRole("button", { name: "Iniciar teste guiado" });
   await start.click();
   const tour = page.getByRole("dialog");
-  await expect(tour.getByRole("heading", { name: "Encontre a divergência" })).toBeFocused();
-  await expect(tour.getByText("8 2361", { exact: false })).toBeVisible();
-  await expect(tour.getByText("7 8042", { exact: false })).toBeVisible();
-  await expect(tour.locator('[aria-current="step"]')).toContainText("Escala e portaria");
+  await expect(tour.getByRole("heading", { name: "Confira uma saída de garagem" })).toBeFocused();
+  await expect(page.locator(".spotlight-shade")).toHaveCount(4);
+  await expect(page.getByRole("button", { name: "Revisar turno", exact: true })).toBeVisible();
+  await tour.getByRole("button", { name: "Abrir caso de exemplo" }).click();
+  const evidence = page.getByRole("region", { name: "Conferência do caso de exemplo" });
+  await expect(evidence.getByText("8 2361", { exact: false })).toBeVisible();
+  await expect(evidence.getByText("7 8042", { exact: false })).toBeVisible();
+  await expect(evidence.getByText("Dados divergentes", { exact: true })).toBeVisible();
   await tour.getByRole("button", { name: "Ir para a explicação" }).click();
-  await tour.getByRole("button", { name: "Explicar ocorrência" }).click();
-  await expect(tour.getByRole("link", { name: "Regra de troca de veículo" })).toBeVisible();
+  await evidence.getByRole("button", { name: "Explicar ocorrência" }).click();
+  await expect(evidence.getByRole("link", { name: "Regra de troca de veículo" })).toBeVisible();
 
   const report = page.waitForResponse((response) => new URL(response.url()).pathname === vision && response.ok());
   await tour.getByRole("button", { name: "Ver gravação" }).click();
   await report;
-  const crossing = tour.getByRole("button", { name: /Esquerda.*direita.*00:07,4/ });
+  const videoEvidence = page.getByRole("region", { name: "Evidência em vídeo" });
+  const crossing = videoEvidence.getByRole("button", { name: /Esquerda.*direita.*00:07,4/ });
   await crossing.click();
   await expect(crossing).toHaveAttribute("aria-pressed", "true");
-  await expect.poll(() => tour.locator("video").evaluate((video) => Math.abs((video as HTMLVideoElement).currentTime - 7.44))).toBeLessThan(0.05);
+  await expect.poll(() => videoEvidence.locator("video").evaluate((video) => Math.abs((video as HTMLVideoElement).currentTime - 7.44))).toBeLessThan(0.05);
   await tour.getByRole("button", { name: "Concluir teste" }).click();
   await expect(tour).toHaveCount(0);
   await expect(start).toBeFocused();
@@ -44,15 +49,21 @@ test("direct link opens the guide and fits a narrow mobile viewport", async ({ p
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/?tour=1");
   const tour = page.getByRole("dialog");
-  await expect(tour.getByRole("heading", { name: "Encontre a divergência" })).toBeFocused();
+  await expect(tour.getByRole("heading", { name: "Confira uma saída de garagem" })).toBeFocused();
   expect(await tour.evaluate((node) => node.scrollWidth)).toBeLessThanOrEqual(360);
-  await tour.getByRole("button", { name: "Ir para a explicação" }).click();
-  await expect(tour.getByRole("heading", { name: "Descubra o que verificar" })).toBeFocused();
+  await tour.getByRole("button", { name: "Abrir caso de exemplo" }).click();
+  await expect(tour.getByRole("heading", { name: "Veja por que a saída foi sinalizada" })).toBeFocused();
   await tour.getByRole("button", { name: "Voltar" }).click();
-  await expect(tour.getByRole("heading", { name: "Encontre a divergência" })).toBeFocused();
+  await expect(tour.getByRole("heading", { name: "Confira uma saída de garagem" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(tour).toHaveCount(0);
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole("button", { name: "Iniciar teste guiado" })).toBeFocused();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+  const dimensions = await page.evaluate(() => ({
+    width: document.documentElement.scrollWidth,
+    height: document.documentElement.scrollHeight,
+    viewport: window.innerHeight,
+  }));
+  expect(dimensions.width).toBeLessThanOrEqual(360);
+  expect(dimensions.height).toBe(dimensions.viewport);
 });

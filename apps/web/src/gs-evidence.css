@@ -126,7 +126,7 @@
 
 .gs-explain { display: grid; gap: 7px; min-width: 0; margin-top: 11px; }
 .gs-explain > button { justify-self: start; }
-.gs-explain > p { margin: 0; color: #785222; font-size: 12px; }
+.gs-explain-failure { margin: 0; color: #785222; font-size: 12px; }
 .gs-explain-result {
   display: grid;
   gap: 6px;

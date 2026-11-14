@@ -2,15 +2,17 @@ import "@fontsource-variable/plus-jakarta-sans";
 import "@fontsource/ibm-plex-mono/latin-400.css";
 import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./style.css";
+import "./operation-design.css";
 import { createRoot } from "react-dom/client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Building2, BusFront, Camera, ChevronRight, ClipboardCheck, Crosshair, MapPin, Minus, Pause, Play, Plus, CircleHelp } from "lucide-react";
+import { ArrowLeft, Building2, BusFront, Camera, ChevronRight, ClipboardCheck, Crosshair, MapPin, Minus, Pause, Play, Plus, ListChecks } from "lucide-react";
 import type { Vehicle } from "./fleet";
 import { buildVehicleRoadNetwork, projectAlvoradaRoads } from "./alvorada-road-path";
 import { alvoradaRoadSurface } from "./alvorada-road-surface";
 import { TerminalCrossings } from "./terminal-crossings";
-import { AssessmentTour } from "./assessment-tour";
-import { GateCamera } from "./gs-evidence";
+import { AssessmentExample } from "./assessment-example";
+import { AssessmentTour, assessmentSteps } from "./assessment-tour";
+import { GateCamera, GateEvidence } from "./gs-evidence";
 import { Scene, hasAlvoradaMap, ALVORADA_TERMINAL, type CameraAction, type CameraZoom } from "./scene";
 import { ShiftReview } from "./shift-review";
 import { VehicleInspector } from "./vehicle-inspector";
@@ -26,15 +28,19 @@ function App() {
   const [zoom, setZoom] = useState<CameraZoom>();
   const [reviewing, setReviewing] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
-  const [showFleet, setShowFleet] = useState(false);
-  const [tourOpen, setTourOpen] = useState(() => new URLSearchParams(window.location.search).get("tour") === "1");
+  const [fleetPage, setFleetPage] = useState(0);
+  const [showCrossings, setShowCrossings] = useState(false);
+  const [tourStep, setTourStep] = useState<number | null>(() => new URLSearchParams(window.location.search).get("tour") === "1" ? 0 : null);
   const [animateAmbience, setAnimateAmbience] = useState(true);
   const [ready, setReady] = useState(false);
   const [failed3d, setFailed3d] = useState(false);
   const onReady = useCallback(() => setReady(true), []);
   const onFailure = useCallback(() => setFailed3d(true), []);
   const reviewEntry = useRef<HTMLButtonElement>(null);
+  const crossingsEntry = useRef<HTMLButtonElement>(null);
+  const crossingsBack = useRef<HTMLButtonElement>(null);
   const tourEntry = useRef<HTMLButtonElement>(null);
+  const tourTarget = useRef<HTMLDivElement>(null);
   const reviewRegion = useRef<HTMLElement>(null);
   const contextRegion = useRef<HTMLElement>(null);
 
@@ -48,6 +54,9 @@ function App() {
     : undefined, [hasTerminal, east, north]);
   const provider = snapshot?.source ? observationSources[snapshot.source] : undefined;
   const vehicles = observedVehicles(snapshot);
+  const pageSize = 3;
+  const pageCount = Math.max(1, Math.ceil(vehicles.length / pageSize));
+  const currentPage = Math.min(fleetPage, pageCount - 1);
   const observedVehicle = vehicles.find((item) => item.id === selected);
   const [lastSelected, setLastSelected] = useState<Vehicle>();
   const vehicle = observedVehicle ?? (lastSelected?.id === selected ? lastSelected : undefined);
@@ -76,6 +85,10 @@ function App() {
   }, [reviewing]);
 
   useEffect(() => {
+    if (showCrossings) crossingsBack.current?.focus({ preventScroll: true });
+  }, [showCrossings]);
+
+  useEffect(() => {
     if (!observed) return;
     setLastSelected((previous) => {
       if (previous?.id === observed.vehicleId && previous.observation?.observedAt === observed.observedAt) return previous;
@@ -90,11 +103,13 @@ function App() {
     setSelected(id);
     setView(hasRoad(target) ? { type: "focus", vehicle: target } : { type: defaultView });
     setReviewing(false);
-    contextRegion.current?.scrollTo({ top: 0 });
+    setShowCrossings(false);
+    contextRegion.current?.querySelector(".operation-panel-content")?.scrollTo({ top: 0 });
   }
 
   function closeTour() {
-    setTourOpen(false);
+    setTourStep(null);
+    requestAnimationFrame(() => tourEntry.current?.focus({ preventScroll: true }));
     const url = new URL(window.location.href);
     if (url.searchParams.get("tour") === "1") {
       url.searchParams.delete("tour");
@@ -108,8 +123,8 @@ function App() {
   }
 
   return (
-    <div className="app operating-app">
-      <header className="topbar">
+    <div className="app operating-app" data-tour-step={tourStep ?? undefined}>
+      <header className="topbar" inert={tourStep !== null}>
         <div className="identity">
           <div className="logo"><BusFront size={23} strokeWidth={2.2} /></div>
           <div className="brand">Pátio Monitor</div>
@@ -119,34 +134,22 @@ function App() {
           <div><strong>{hasTerminal ? "Barra da Tijuca" : site}</strong><small>{provider?.location ?? "Mobilidade urbana"}</small></div>
         </div>
         <div className="header-actions">
-          <div className="connection-state" data-connected={current} role="status"><i />{connection}</div>
-          <button type="button" className="header-guide" onClick={() => setTourOpen(true)} aria-label="Abrir guia de uso">
-            <CircleHelp size={17} aria-hidden="true" /> <span>Guia de uso</span>
+          <div className="connection-state" data-connected={current} role="status"><i /><span>{connection}</span></div>
+          <button type="button" className="operation-primary header-guide" ref={tourEntry} onClick={() => {
+            setReviewing(false);
+            setTourStep(0);
+          }}>
+            <Play size={15} aria-hidden="true" /> Iniciar teste guiado
           </button>
         </div>
       </header>
-      {tourOpen && <AssessmentTour onClose={closeTour} fallbackFocus={tourEntry} />}
       {cameraOpen && <GateCamera onClose={() => setCameraOpen(false)} />}
       <main className="layout operating-layout">
-        <section className="operation-hero" aria-labelledby="operations-objective">
-          <div>
-            <h1 id="operations-objective">Conferência de saídas</h1>
-            <p>Compare a escala com a portaria para identificar atrasos, trocas de veículo e saídas sem registro.</p>
-          </div>
-          <div className="operation-actions">
-            <button type="button" className="operation-secondary" ref={reviewEntry} aria-label="Revisar turno" onClick={() => setReviewing(true)}>
-              <ClipboardCheck size={17} aria-hidden="true" /> Revisar turno
-            </button>
-            <button type="button" className="operation-primary" ref={tourEntry} onClick={() => setTourOpen(true)}>
-              <Play size={15} aria-hidden="true" /> Iniciar teste guiado <ArrowRight size={16} aria-hidden="true" />
-            </button>
-          </div>
-        </section>
         <section className={reviewing ? "workspace workspace-review" : "workspace workspace-inspector"} aria-label="Operação do pátio">
-          <div className="viewport" data-ready={ready} data-camera-mode={action.type}>
+          <div className="viewport" inert={tourStep !== null} data-ready={ready} data-camera-mode={action.type}>
             <Scene vehicles={vehicles} selected={selected} onSelect={selectVehicle}
               action={action} zoom={zoom} onReady={onReady} onFailure={onFailure}
-              demo={false} area={area} animateAmbience={animateAmbience} roadNetwork={roadNetwork} />
+              demo={false} area={area} animateAmbience={animateAmbience && tourStep === null} roadNetwork={roadNetwork} />
             {!ready && !failed3d && <div className="load-label" role="status">Carregando mapa 3D…</div>}
             <div className="scene-caption">
               <h2>{hasTerminal ? "Terminal Alvorada" : site}</h2>
@@ -172,66 +175,96 @@ function App() {
             </div>}
             <div className="viewport-footer"><span className="view-mode">3D</span><span>Ônibus via GPS · carros e pessoas ilustrativos</span></div>
           </div>
-          <aside className="side" aria-label="Painel de revisão" hidden={!reviewing} ref={reviewRegion} tabIndex={-1}>
+          <aside className="side review-panel" aria-label="Painel de revisão" hidden={!reviewing} inert={tourStep !== null} ref={reviewRegion} tabIndex={-1}>
             <ShiftReview mode="LIVE" vehicles={snapshot?.source === "rio_mobi_gtfs_rt" ? [] : vehicles}
               canFocusVehicle={ready && !failed3d} onFocusVehicle={selectVehicle}
               onClose={() => { setReviewing(false); reviewEntry.current?.focus(); }} />
           </aside>
-          <aside className="side" aria-label="Contexto do pátio" hidden={reviewing} ref={contextRegion}>
-            {vehicle ? (
-              <VehicleInspector key={vehicle.id} vehicle={vehicle} mode="LIVE" site={site} area={area} elapsed={0}
-                stale={!observedVehicle || !current || Date.now() - Date.parse(vehicle.observation?.observedAt ?? "") > 90000}
-                following={false} cameraDisabled={failed3d || !canLocate} onClose={resetView}
-                roadNotice={roadNetwork && observedVehicle
-                  ? canLocate ? "O mapa ajusta o ônibus à pista. A ficha mostra a coordenada original do GPS."
-                    : "Leitura sem correspondência segura com uma pista. Consulte a posição original e o histórico nesta ficha."
-                  : undefined}
-                onCamera={(type) => setView({ type, vehicle })} />
-            ) : (
-              <section className="info operating-fleet">
-                <div className="fleet-heading">
-                  <div><h2>Ônibus no entorno</h2><p>Últimas posições registradas</p></div>
-                  <strong className="fleet-total" aria-label={`${vehicles.length} veículos`}>{vehicles.length}</strong>
-                </div>
-                {terminalVehicles === 0 && vehicles.length > 0 && action.type === "terminal" && (
-                  <div className="fleet-note">
-                    <span>Sem leitura GPS a até 230 m do terminal.</span>
-                    <button type="button" onClick={() => setView({ type: "home" })}>Ver ônibus no entorno</button>
+          <aside className="side operation-panel" aria-label="Contexto do pátio" hidden={reviewing} ref={contextRegion}>
+            <div className="operation-links" inert={tourStep !== null && tourStep > 0} ref={tourStep === 0 ? tourTarget : undefined}>
+              <button type="button" className="shift-entry operation-camera" ref={reviewEntry} aria-label="Revisar turno" onClick={() => tourStep === 0 ? setTourStep(1) : setReviewing(true)}>
+                <span className="operation-camera-icon"><ClipboardCheck size={18} aria-hidden="true" /></span>
+                <span><strong>Revisar turno</strong><small>Compare escala e portaria</small></span><ChevronRight size={16} aria-hidden="true" />
+              </button>
+              <button type="button" className="shift-entry operation-camera" aria-label="Câmera do portão" onClick={() => tourStep === 0 ? setTourStep(3) : setCameraOpen(true)}>
+                <span className="operation-camera-icon"><Camera size={18} aria-hidden="true" /></span>
+                <span><strong>Câmera do portão</strong><small>Confira passagens no vídeo</small></span><ChevronRight size={16} aria-hidden="true" />
+              </button>
+            </div>
+            <div className="operation-panel-content" inert={tourStep !== null}>
+              <div className="crossings-panel" hidden={!showCrossings || !hasTerminal}>
+                <button type="button" className="operation-secondary panel-return" ref={crossingsBack} onClick={() => {
+                  setShowCrossings(false);
+                  requestAnimationFrame(() => crossingsEntry.current?.focus({ preventScroll: true }));
+                }}><ArrowLeft size={15} /> Voltar à frota</button>
+                <TerminalCrossings enabled={hasTerminal} onSelect={selectVehicle} activeVehicleIds={new Set(vehicles.map(({ id }) => id))} />
+              </div>
+              {(!showCrossings || !hasTerminal) && (vehicle ? (
+                <VehicleInspector key={vehicle.id} vehicle={vehicle} mode="LIVE" site={site} area={area} elapsed={0}
+                  stale={!observedVehicle || !current || Date.now() - Date.parse(vehicle.observation?.observedAt ?? "") > 90000}
+                  following={false} cameraDisabled={failed3d || !canLocate} onClose={resetView}
+                  roadNotice={roadNetwork && observedVehicle
+                    ? canLocate ? "O mapa ajusta o ônibus à pista. A ficha mostra a coordenada original do GPS."
+                      : "Leitura sem correspondência segura com uma pista. Consulte a posição original e o histórico nesta ficha."
+                    : undefined}
+                  onCamera={(type) => setView({ type, vehicle })} />
+              ) : (
+                <section className="info operating-fleet">
+                  <div className="fleet-heading">
+                    <div><h2>Ônibus no entorno</h2><p>Últimas posições registradas</p></div>
+                    <strong className="fleet-total" aria-label={`${vehicles.length} veículos`}>{vehicles.length}</strong>
                   </div>
-                )}
-                {vehicles.length > 0 ? <div className="vehicle-list">
-                  {(showFleet ? vehicles : vehicles.slice(0, 5)).map((item) => (
-                    <button key={item.id} aria-label={`Inspecionar ônibus ${item.id}`} onClick={() => selectVehicle(item.id)}>
-                      <BusFront size={16} />
-                      <span className="fleet-vehicle">
-                        <strong>{item.id}</strong>
-                        <span>{item.line === "Não informada" ? "Linha indisponível" : `Linha ${item.line}`}</span>
-                      </span>
-                      {item.observation && <time dateTime={item.observation.observedAt}>
-                        {fleetClock.format(new Date(item.observation.observedAt))}
-                      </time>}
-                      <ChevronRight size={14} />
-                    </button>
-                  ))}
-                </div> : <p className="quiet">{connection}</p>}
-                {vehicles.length > 5 && (
-                  <button type="button" className="fleet-expand" aria-expanded={showFleet}
-                    onClick={() => setShowFleet((expanded) => !expanded)}>
-                    {showFleet ? "Mostrar menos" : `Ver os ${vehicles.length} ônibus`}
-                    <ChevronRight size={14} aria-hidden="true" />
-                  </button>
-                )}
-              </section>
-            )}
-            <button type="button" className="shift-entry operation-camera" aria-label="Câmera do portão" onClick={() => setCameraOpen(true)}>
-              <span className="operation-camera-icon"><Camera size={19} aria-hidden="true" /></span>
-              <span><strong>Câmera do portão</strong><small>Veja a passagem na gravação anotada</small></span><ChevronRight size={16} aria-hidden="true" />
-            </button>
-            <TerminalCrossings enabled={hasTerminal} onSelect={selectVehicle} activeVehicleIds={new Set(vehicles.map(({ id }) => id))} />
+                  {terminalVehicles === 0 && vehicles.length > 0 && action.type === "terminal" && (
+                    <div className="fleet-note">
+                      <span>Sem leitura GPS a até 230 m do terminal.</span>
+                      <button type="button" onClick={() => setView({ type: "home" })}>Ver ônibus no entorno</button>
+                    </div>
+                  )}
+                  {vehicles.length > 0 ? <div className="vehicle-list">
+                    {vehicles.slice(currentPage * pageSize, (currentPage + 1) * pageSize).map((item) => (
+                      <button key={item.id} aria-label={`Inspecionar ônibus ${item.id}`} onClick={() => selectVehicle(item.id)}>
+                        <BusFront size={16} />
+                        <span className="fleet-vehicle">
+                          <strong>{item.id}</strong>
+                          <span>{item.line === "Não informada" ? "Linha indisponível" : `Linha ${item.line}`}</span>
+                        </span>
+                        {item.observation && <time dateTime={item.observation.observedAt}>
+                          {fleetClock.format(new Date(item.observation.observedAt))}
+                        </time>}
+                        <ChevronRight size={14} />
+                      </button>
+                    ))}
+                  </div> : <p className="quiet">{connection}</p>}
+                  {pageCount > 1 && (
+                    <nav className="fleet-pages" aria-label="Páginas da frota">
+                      <button type="button" className="icon" disabled={!currentPage} aria-label="Ônibus anteriores" onClick={() => setFleetPage(currentPage - 1)}><ArrowLeft size={15} /></button>
+                      <span>{currentPage + 1} de {pageCount}</span>
+                      <button type="button" className="icon" disabled={currentPage + 1 === pageCount} aria-label="Próximos ônibus" onClick={() => setFleetPage(currentPage + 1)}><ChevronRight size={16} /></button>
+                    </nav>
+                  )}
+                  {hasTerminal && <button type="button" className="crossings-entry" ref={crossingsEntry} onClick={() => setShowCrossings(true)}>
+                    <ListChecks size={16} aria-hidden="true" /> Entradas e saídas <ChevronRight size={16} aria-hidden="true" />
+                  </button>}
+                </section>
+              ))}
+            </div>
             {provider && <p className="operating-source">{provider.title}{snapshot?.archiveState === "unavailable" && " · Histórico indisponível"}</p>}
           </aside>
         </section>
+        {tourStep !== null && tourStep > 0 && (
+          <div className="tour-stage" ref={tourTarget} data-step={tourStep}>
+            {tourStep < 3 ? <AssessmentExample explain={tourStep === 2} /> : (
+              <section className="tour-feature" aria-label="Evidência em vídeo">
+                <header className="tour-feature-heading"><div><p>Gravação de referência</p><h2>Câmera do portão</h2></div></header>
+                <GateEvidence />
+              </section>
+            )}
+          </div>
+        )}
       </main>
+      {tourStep !== null && <AssessmentTour step={tourStep} target={tourTarget} onClose={closeTour}
+        onBack={() => setTourStep(tourStep - 1)}
+        onAdvance={() => tourStep + 1 === assessmentSteps.length ? closeTour() : setTourStep(tourStep + 1)} />}
     </div>
   );
 }

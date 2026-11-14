@@ -205,7 +205,7 @@ function reason(item: ShiftCase) {
   }
 }
 
-function StatusBadge({ status }: { status: ShiftStatus }) {
+export function StatusBadge({ status }: { status: ShiftStatus }) {
   return <span className="shift-badge" data-status={status}>{SHIFT_STATUS_LABELS[status]}</span>;
 }
 
@@ -224,6 +224,44 @@ function EvidenceRow({ icon, name, children, at }: {
       </div>
       {at && <time dateTime={at}>{timestamp(at, true)}</time>}
     </li>
+  );
+}
+
+export function ShiftEvidence({ item, gpsSource, gpsAt, stale }: {
+  item: ShiftCase;
+  gpsSource?: string;
+  gpsAt?: string;
+  stale?: boolean;
+}) {
+  return (
+      <ul className="shift-timeline">
+        <EvidenceRow icon={<CalendarClock size={14} />} name="Escala" at={item.trip.plannedAt}>
+          Veículo {item.trip.vehicleId}{item.trip.route ? ` · Linha ${item.trip.route}` : ""}
+        </EvidenceRow>
+        {item.gate ? (
+          <EvidenceRow icon={<LogOut size={14} />} name="Portaria" at={item.gate.observedAt}>
+            Passagem de {item.gate.vehicleId} · {item.gate.eventId}
+          </EvidenceRow>
+        ) : item.candidates.length ? (
+          <>
+            {item.candidates.slice(0, 3).map((candidate) => (
+              <EvidenceRow key={candidate.eventId} icon={<LogOut size={14} />} name="Portaria · associação em análise" at={candidate.observedAt}>
+                Veículo {candidate.vehicleId} · {candidate.eventId}
+              </EvidenceRow>
+            ))}
+            {item.candidates.length > 3 && (
+              <li className="shift-candidate-count">+{item.candidates.length - 3} registros candidatos</li>
+            )}
+          </>
+        ) : (
+          <EvidenceRow icon={<LogOut size={14} />} name="Portaria">
+            Saída sem registro associado
+          </EvidenceRow>
+        )}
+        {gpsSource && <EvidenceRow icon={<Radio size={14} />} name={gpsSource} at={gpsAt}>
+          {gpsAt ? stale ? "Posição desatualizada · evidência auxiliar" : "Última posição disponível · evidência auxiliar" : "Posição indisponível para esta saída"}
+        </EvidenceRow>}
+      </ul>
   );
 }
 
@@ -264,34 +302,7 @@ function OccurrenceDetail({ item, demo, decision, onDecision, sceneVehicle, gpsA
           }).format(item.delayMinutes)} min
         </span>
       )}
-      <ul className="shift-timeline">
-        <EvidenceRow icon={<CalendarClock size={14} />} name="Escala" at={item.trip.plannedAt}>
-          Veículo {item.trip.vehicleId}{item.trip.route ? ` · Linha ${item.trip.route}` : ""}
-        </EvidenceRow>
-        {item.gate ? (
-          <EvidenceRow icon={<LogOut size={14} />} name="Portaria" at={item.gate.observedAt}>
-            Passagem de {item.gate.vehicleId} · {item.gate.eventId}
-          </EvidenceRow>
-        ) : item.candidates.length ? (
-          <>
-            {item.candidates.slice(0, 3).map((candidate) => (
-              <EvidenceRow key={candidate.eventId} icon={<LogOut size={14} />} name="Portaria · associação em análise" at={candidate.observedAt}>
-                Veículo {candidate.vehicleId} · {candidate.eventId}
-              </EvidenceRow>
-            ))}
-            {item.candidates.length > 3 && (
-              <li className="shift-candidate-count">+{item.candidates.length - 3} registros candidatos</li>
-            )}
-          </>
-        ) : (
-          <EvidenceRow icon={<LogOut size={14} />} name="Portaria">
-            Saída sem registro associado
-          </EvidenceRow>
-        )}
-        <EvidenceRow icon={<Radio size={14} />} name={gpsSource} at={gpsAt}>
-          {gpsAt ? stale ? "Posição desatualizada · evidência auxiliar" : "Última posição disponível · evidência auxiliar" : "Posição indisponível para esta saída"}
-        </EvidenceRow>
-      </ul>
+      <ShiftEvidence item={item} gpsSource={gpsSource} gpsAt={gpsAt} stale={stale} />
       {item.match && (
         <p className="shift-match">
           {item.match === "explicit"

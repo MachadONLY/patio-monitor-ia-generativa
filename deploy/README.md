@@ -4,7 +4,7 @@ O Pátio Monitor abre direto na visão operacional. A tela reúne posições rea
 
 ## Teste do avaliador
 
-Na página inicial, abra **Iniciar teste guiado**. O guia usa um caso de escala e portaria de exemplo para demonstrar a conciliação, chama a API local de IA e abre a gravação anotada com os cruzamentos detectados. O mapa mantém o feed GPS público. Para abrir o guia diretamente em um link de avaliação, acrescente `?tour=1` ao endereço da plataforma.
+Na página inicial, abra **Iniciar teste guiado**. O guia escurece o mapa e destaca, em sequência, a revisão de turno, os registros divergentes, a explicação com IA e a gravação com os cruzamentos detectados. Clique em **Explicar ocorrência** para consultar a API local e selecione um cruzamento para levar o vídeo ao instante da passagem. O mapa mantém o feed GPS público. Para abrir o guia diretamente em um link de avaliação, acrescente `?tour=1` ao endereço da plataforma.
 
 ## Executar localmente
 

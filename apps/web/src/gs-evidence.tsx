@@ -225,12 +225,16 @@ function isExplanation(result: Explanation) {
     && result.actions.every(isText);
 }
 
-export function ExplainOccurrence({ item, demo }: { item: ShiftCase; demo: boolean }) {
+export function ExplainOccurrence({ item, demo, scrollIntoView = false }: { item: ShiftCase; demo: boolean; scrollIntoView?: boolean }) {
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<string>();
   const [result, setResult] = useState<Explanation>();
   const active = useRef<AbortController | null>(null);
+  const feedback = useRef<HTMLDivElement>(null);
   useEffect(() => () => active.current?.abort(), []);
+  useEffect(() => {
+    if (scrollIntoView && (result || failure)) feedback.current?.scrollIntoView({ block: "nearest" });
+  }, [failure, result, scrollIntoView]);
 
   async function explain() {
     if (active.current) return;
@@ -276,9 +280,9 @@ export function ExplainOccurrence({ item, demo }: { item: ShiftCase; demo: boole
         <FileSearch size={15} /> {pending ? "Consultando fontes…" : result ? "Consultar novamente" : "Explicar ocorrência"}
       </button>
       {!demo && !result && <small>Envia ao assistente apenas a classificação da ocorrência.</small>}
-      {failure && <p role="status">{failure}</p>}
+      {failure && <div ref={feedback} className="gs-explain-failure" role="status">{failure}</div>}
       {result && (
-        <div className="gs-explain-result" aria-live="polite">
+        <div ref={feedback} className="gs-explain-result" aria-live="polite">
           <strong>{result.refused ? "Explicação sem suporte nas fontes" : "Orientação gerada pelo assistente"}</strong>
           <small>{demo ? "Caso de exemplo" : "Classificação de arquivos locais"} · {result.model}</small>
           <p>{result.answer}</p>

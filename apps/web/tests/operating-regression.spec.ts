@@ -90,7 +90,7 @@ test("vehicle inspection preserves the rendered terrain across terminal, focus, 
   const canvas = viewport.locator("canvas");
   await expect(viewport).toHaveAttribute("data-ready", "true", { timeout: 20_000 });
   await expect(viewport).toHaveAttribute("data-camera-mode", "terminal");
-  await expect(page.getByRole("heading", { name: "Conferência de saídas" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Terminal Alvorada" })).toBeVisible();
   await verifyMapFrame(canvas, page, "desktop-terminal");
 
   await page.getByRole("button", { name: "Inspecionar ônibus 50103" }).click();
@@ -152,6 +152,7 @@ test("operating view displays estimated terminal crossing intervals and evidence
       betweenFrom: "2026-11-14T18:29:30Z", betweenTo: "2026-11-14T18:29:55Z", confirmedAt: "2026-11-14T18:30:22Z" },
   ];
   await startOperatingPage(page, snapshot([gpsSample(new Date().toISOString())]), { status: "active", events });
+  await page.getByRole("button", { name: "Entradas e saídas", exact: true }).click();
   const crossing = page.getByRole("region", { name: "Entradas e saídas" });
   const recorded = crossing.getByRole("list", { name: "Últimos cruzamentos" });
   await expect(recorded.locator('[data-kind="entry"]')).toContainText("Entrada · 50103");
