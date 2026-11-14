@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import buildings from "./alvorada-buildings.json";
+import buildings from "./alvorada-architecture-data.json";
 import streets from "./alvorada-map.json";
 import streetFeatures from "./alvorada-street-detail-data.json";
 import { localPoint, type Area } from "./observations";
@@ -7,11 +7,12 @@ import { Batch, Sign, part, seeded, type Part, type XYZ } from "./scenery-kit";
 
 type Point = [number, number];
 
-const platforms: { label: string; start: Point; end: Point; canopy: boolean }[] = [
-  { label: "B", start: [-43.367726, -23.001359], end: [-43.36449, -23.001298], canopy: true },
-  { label: "C", start: [-43.367543, -23.001501], end: [-43.364617, -23.001444], canopy: true },
-  { label: "D", start: [-43.367283, -23.001601], end: [-43.36485, -23.001554], canopy: false },
-  { label: "E", start: [-43.367122, -23.00188], end: [-43.365168, -23.001844], canopy: true },
+const platforms: { label: string; start: Point; end: Point }[] = [
+  { label: "A", start: [-43.3678905, -23.0010918], end: [-43.3644751, -23.0010388] },
+  { label: "B", start: [-43.367726, -23.001359], end: [-43.36449, -23.001298] },
+  { label: "C", start: [-43.367543, -23.001501], end: [-43.364617, -23.001444] },
+  { label: "D", start: [-43.367283, -23.001601], end: [-43.36485, -23.001554] },
+  { label: "E", start: [-43.367122, -23.00188], end: [-43.365168, -23.001844] },
 ];
 
 const connectors: [Point, Point][] = [
@@ -46,7 +47,7 @@ function buildDetail(origin: Point) {
   const random = seeded(81426);
   const project = (point: Point) => localPoint(origin, point);
 
-  platforms.forEach(({ label, start, end, canopy }, platformIndex) => {
+  platforms.forEach(({ label, start, end }, platformIndex) => {
     const [x, z] = project(start);
     const [endX, endZ] = project(end);
     const length = Math.hypot(endX - x, endZ - z);
@@ -64,20 +65,7 @@ function buildDetail(origin: Point) {
     for (const edge of [-1, 1]) {
       hardscape.push(part(at(length / 2, 0.83, edge * (apron / 2 - 0.64)), [length - 3, 0.08, 0.42], "#d8ad46", rotation));
     }
-    const canopyLength = length * 0.66;
-    if (canopy) {
-      furnishings.push(part(at(length / 2, 4.25), [canopyLength, 0.55, 5.4], "#4a5d58", rotation));
-      furnishings.push(part(at(length / 2, 4.61), [canopyLength, 0.24, 5.14], "#eee8da", rotation));
-      for (let distance = (length - canopyLength) / 2 + 4; distance < (length + canopyLength) / 2; distance += 9) {
-        furnishings.push(part(at(distance, 4.76), [0.11, 0.12, 4.94], "#adae9c", rotation));
-      }
-    } else {
-      for (let distance = 11; distance < length - 9; distance += 6.8) {
-        furnishings.push(part(at(distance, 5.78), [0.14, 0.12, 4.7], "#acada3", rotation));
-      }
-    }
     for (let distance = length * 0.2; distance < length * 0.82; distance += 15) {
-      furnishings.push(part(at(distance, 2.5), [0.34, 3.55, 0.48], "#465952", rotation));
       if (Math.round(distance / 15) % 2 === 0) {
         furnishings.push(part(at(distance + 1.4, 1.26, 1.25), [2.3, 0.16, 0.6], "#ad6846", rotation));
         furnishings.push(part(at(distance + 1.4, 1.02, 1.26), [1.6, 0.28, 0.26], "#57645e", rotation));
@@ -90,17 +78,20 @@ function buildDetail(origin: Point) {
       furnishings.push(part(at(position, 1.95, 0.45), [0.21, 2.5, 0.24], "#395855", rotation));
       furnishings.push(part(at(position, 3.36, 0.45), [4.6, 0.93, 0.2], "#245c65", rotation));
       signs.push({ text: `PLATAFORMA ${label}`, at: at(position, 3.36, 0.57), rotation: bearing });
+      signs.push({ text: `PLATAFORMA ${label}`, at: at(position, 3.36, 0.33), rotation: bearing + Math.PI });
     }
 
     for (let i = 0; i < 13; i++) {
       const distance = (0.1 + random() * 0.8) * length;
       const offset = (random() < 0.5 ? -1 : 1) * (0.72 + random() * 1.08);
-      const stature = 1.7 + random() * 0.45;
+      const stature = 1.55 + random() * 0.34;
       const color = shirts[(platformIndex + i) % shirts.length];
       const yaw: XYZ = [0, random() * Math.PI * 2, 0];
-      furnishings.push(part(at(distance, 0.83 + stature * 0.23, offset), [0.41, stature * 0.46, 0.31], "#42515b", yaw));
-      furnishings.push(part(at(distance, 0.83 + stature * 0.62, offset), [0.67, stature * 0.43, 0.38], color, yaw));
-      heads.push(part(at(distance, 0.83 + stature * 0.94, offset), [0.42, 0.47, 0.42], i % 3 ? "#bc8a6a" : "#815947"));
+      for (const side of [-1, 1]) {
+        furnishings.push(part(at(distance + side * 0.093, 0.83 + stature * 0.24, offset), [0.135, stature * 0.48, 0.2], "#42515b", yaw));
+      }
+      furnishings.push(part(at(distance, 0.83 + stature * 0.65, offset), [0.4, stature * 0.38, 0.25], color, yaw));
+      heads.push(part(at(distance, 0.83 + stature * 0.92, offset), [0.235, 0.25, 0.226], i % 3 ? "#bc8a6a" : "#815947"));
     }
   });
 

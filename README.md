@@ -12,7 +12,7 @@ O Pátio Monitor acompanha ônibus pelo GPS e ajuda a revisar divergências entr
 
 | Campo | Pátio Monitor |
 |---|---|
-| Cidadão e território | Passageiros e equipes de operação de terminais urbanos. Cenário 3D inspirado em Pirituba (SP) e recorte GPS do BRT no entorno do Terminal Alvorada (RJ). |
+| Cidadão e território | Passageiros e equipes de operação de terminais urbanos. Terminal Alvorada e entorno na Barra da Tijuca (RJ), com posições do BRT em tempo real. |
 | Problema | Divergências entre escala, portaria e posição dificultam a conferência de saídas e a investigação de atrasos. |
 | Proposta de valor | Reunir posição e evidência por veículo, destacar ocorrências de turno e oferecer uma explicação com fonte para revisão humana. |
 | Arquitetura | Vite, React, Three.js, FastAPI, WebSocket, análise de vídeo com OpenCV e inferência local via llama.cpp. |
@@ -31,9 +31,10 @@ Siga o [guia para Windows e Linux](deploy/README.md). Ele inicia o frontend, o F
 - **Terminal** aproxima a câmera das pistas e coberturas do Alvorada. **Entorno** amplia o enquadramento. As duas ações mudam apenas a câmera.
 - Selecione um ônibus no mapa ou na lista para abrir a ficha com prefixo, linha, coordenadas e horário da leitura. **Histórico** consulta posições coletadas pelo servidor quando a persistência está configurada.
 - **Câmera do portão** dá acesso à gravação processada e aos cruzamentos identificados. Confira a procedência exibida no player.
+- **Entradas e saídas** lista as travessias estimadas pelo GPS, com horário e acesso à ficha dos veículos presentes no recorte.
 - **Revisar turno** compara os CSVs de escala e portaria da operação e permite consultar uma explicação com fonte.
 
-Os contornos de vias e edificações vêm do OpenStreetMap. Alturas, larguras estilizadas das vias e a representação dos ônibus servem à visualização. A posição do ônibus segue a observação GPS. O [registro das fontes](docs/SOURCES.md) identifica o recorte e as atribuições.
+A cena 3D usa ortofoto e alturas fotogramétricas do IPP, além da cartografia do OpenStreetMap. A ficha preserva a coordenada recebida. [Procedência e limites do modelo](docs/SOURCES.md#terminal-alvorada).
 
 ## Fechamento de turno
 
@@ -64,11 +65,15 @@ O feed público da SMTR / MOBI-Rio fornece posições para o entorno do Alvorada
 
 Com `PATIO_ARCHIVE_FILE` apontando para um SQLite gravável, o servidor arquiva as observações originais dentro do recorte. A persistência separa fonte, perímetro e filtro por empresa, deduplica por veículo e instante e limita a retenção a 14 dias ou um milhão de linhas. O histórico por ônibus está na ficha, junto da observação mais recente.
 
+A vista única combina o GPS com cartografia OSM, ortofoto do IPP e alturas de edifícios medidas pelo município quando há correspondência suficiente. A câmera acompanha a posição do veículo durante a inspeção. [Fontes e parâmetros da cena](docs/SOURCES.md#terminal-alvorada).
+
+No Alvorada, o painel **Entradas e saídas** registra cruzamentos inferidos a partir de duas leituras consecutivas dentro e fora do perímetro, com margem de 15 m ao redor do limite. O evento traz o intervalo entre a última leitura do lado de origem e a primeira do lado de destino. O acompanhamento começa quando o SQLite está habilitado. O painel mantém até 14 dias de eventos dentro dos limites de retenção e mostra até 40 passagens recentes.
+
 A posição recebida expressa uma leitura GPS. Para confirmar saída ou entrada física, use registros de portaria. A gravação pública fornecida na entrega é de Praga e tem procedência própria.
 
 ## Execução em contêiner local
 
-Com Docker Compose, crie `runtime-data` na raiz e execute `docker compose up --build`. Abra `http://127.0.0.1:8080`. O Caddy publica a interface apenas no loopback, encaminha a API e faz a atualização WebSocket na mesma origem. Os processos usam UID 10001, sistema de arquivos de contêiner somente leitura e nenhuma capability adicional.
+Com Docker Compose, crie `runtime-data` na raiz e execute `docker compose up --build`. Abra `http://127.0.0.1:8080`. O Caddy publica a interface apenas no loopback, encaminha a API e faz a atualização WebSocket na mesma origem. Os processos usam UID 10001, sistema de arquivos de contêiner somente leitura e nenhuma capability adicional. A API grava os dados GPS e os cruzamentos no volume local `patio_observations`.
 
 Para ativar a SPTrans nessa configuração, coloque o token e o perímetro em `runtime-data`, com permissões de leitura para o UID 10001. Copie `.env.example` para `.env` e defina `SPTRANS_TOKEN_FILE=/run/patio/sptrans-token.txt` e `PATIO_AREA_FILE=/run/patio/area.json`. O diretório é montado somente para leitura na API. A interface recebe apenas as observações normalizadas.
 
@@ -91,7 +96,7 @@ Os testes de navegador iniciam a API offline em 8000 e o frontend de produção 
 
 O build contém câmera, inspeção de malha, sessão SPTrans server-side, polling compartilhado, deduplicação por prefixo, projeção métrica e replay assinado. A sessão usa HTTPS, timeout, renovação após 401/403 e espera crescente em falhas. O canal `/api/vehicles/live` transmite os snapshots aos navegadores conectados e limita a origem e o número de conexões. A interface recupera dados por HTTP enquanto tenta restabelecer o canal. Observações antigas mantêm o horário original e aparecem sinalizadas.
 
-Permanecem pendentes para operação institucional a validação de um pátio real e da cobertura GPS, modelo georreferenciado, persistência PostgreSQL/PostGIS, retenção, autenticação da plataforma, observabilidade e testes em dispositivos de operadores. O blueprint original registra os marcos de implementação e as integrações restantes. Para a referência visual, use `references/00-APPROVED-visual-target.png` do handoff v3.
+Uma implantação institucional requer validação da cobertura GPS e dos portões em campo, credenciais, autenticação da plataforma, observabilidade e testes nos dispositivos usados pelos operadores.
 
 ## Componentes da Global Solution
 

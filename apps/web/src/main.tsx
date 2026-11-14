@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Building2, BusFront, Camera, ChevronRight, ClipboardCheck, Crosshair, MapPin, Minus, Plus, Radio } from "lucide-react";
 import type { Vehicle } from "./fleet";
+import { TerminalCrossings } from "./terminal-crossings";
 import { GateCamera } from "./gs-evidence";
 import { Scene, hasAlvoradaMap, ALVORADA_TERMINAL, type CameraAction, type CameraZoom } from "./scene";
 import { ShiftReview } from "./shift-review";
@@ -36,10 +37,14 @@ function App() {
   const hasTerminal = hasAlvoradaMap(area);
   const provider = snapshot?.source ? observationSources[snapshot.source] : undefined;
   const vehicles = observedVehicles(snapshot);
-  const vehicle = vehicles.find((item) => item.id === selected);
+  const observedVehicle = vehicles.find((item) => item.id === selected);
+  const [lastSelected, setLastSelected] = useState<Vehicle>();
+  const vehicle = observedVehicle ?? (lastSelected?.id === selected ? lastSelected : undefined);
+  const observed = observedVehicle?.observation;
   const site = area?.name ?? "Operação de ônibus";
   const current = snapshot?.state === "connected" && !result?.failed;
   const connection = current ? "GPS ao vivo"
+    : snapshot?.state === "stale" && !result?.failed ? "GPS desatualizado"
     : snapshot?.state === "no_observations" && !result?.failed ? "Sem veículos no recorte"
     : !result?.failed && (!snapshot || snapshot.state === "connecting") ? "Conectando ao GPS"
     : "GPS indisponível";
@@ -54,9 +59,18 @@ function App() {
     if (reviewing) reviewRegion.current?.focus();
   }, [reviewing]);
 
+  useEffect(() => {
+    if (!observed) return;
+    setLastSelected((previous) => {
+      if (previous?.id === observed.vehicleId && previous.observation?.observedAt === observed.observedAt) return previous;
+      return observedVehicle;
+    });
+  }, [observed, observedVehicle]);
+
   function selectVehicle(id: string) {
     const target = vehicles.find((item) => item.id === id);
     if (!target) return;
+    setLastSelected(target);
     setSelected(id);
     setView({ type: "focus", vehicle: target });
     setReviewing(false);
@@ -105,8 +119,11 @@ function App() {
                 <button className="icon" aria-label="Afastar câmera" onClick={() => setZoom({ factor: 1 / 1.22 })}><Minus size={18} /></button>
               </div>
             )}
-            {hasTerminal && <a className="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a>}
-            <div className="viewport-footer"><span className="view-mode">3D</span><span>Detalhes arquitetônicos e urbanos ilustrativos</span></div>
+            {hasTerminal && <div className="map-attribution">
+              <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a>
+              <a href="https://pgeo3.rio.rj.gov.br/arcgis/rest/services/Imagens/Mosaico_2019/ImageServer" target="_blank" rel="noreferrer">Ortofoto 2019 · IPP / PCRJ</a>
+            </div>}
+            <div className="viewport-footer"><span className="view-mode">3D</span><span>Posições GPS · cena 3D georreferenciada</span></div>
           </div>
           <aside className="side" aria-label="Painel de revisão" hidden={!reviewing} ref={reviewRegion} tabIndex={-1}>
             <ShiftReview mode="LIVE" vehicles={snapshot?.source === "rio_mobi_gtfs_rt" ? [] : vehicles}
@@ -115,8 +132,8 @@ function App() {
           </aside>
           <aside className="side" aria-label="Contexto do pátio" hidden={reviewing} ref={contextRegion}>
             {vehicle ? (
-              <VehicleInspector vehicle={vehicle} mode="LIVE" site={site} area={area} elapsed={0}
-                stale={!current || Date.now() - Date.parse(vehicle.observation?.observedAt ?? "") > 90000}
+              <VehicleInspector key={vehicle.id} vehicle={vehicle} mode="LIVE" site={site} area={area} elapsed={0}
+                stale={!observedVehicle || !current || Date.now() - Date.parse(vehicle.observation?.observedAt ?? "") > 90000}
                 following={false} cameraDisabled={failed3d} onClose={resetView}
                 onCamera={(type) => setView({ type, vehicle })} />
             ) : (
@@ -154,6 +171,7 @@ function App() {
             <button className="shift-entry" aria-label="Câmera do portão" onClick={() => setCameraOpen(true)}>
               <Camera size={19} /><span><strong>Câmera do portão</strong><small>Consulte a gravação e seus cruzamentos</small></span><ChevronRight size={16} />
             </button>
+            <TerminalCrossings enabled={hasTerminal} onSelect={selectVehicle} activeVehicleIds={new Set(vehicles.map(({ id }) => id))} />
             {provider && <p className="operating-source">{provider.title}{snapshot?.archiveState === "unavailable" && " · Histórico indisponível"}</p>}
           </aside>
         </section>

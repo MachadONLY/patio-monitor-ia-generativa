@@ -916,3 +916,6 @@ button:disabled {
   font-weight: 700;
   text-decoration: underline;
 }
+
+.map-attribution { display: flex; flex-wrap: wrap; gap: 4px 9px; justify-content: end; max-width: calc(100% - 20px); }
+.map-attribution a { color: inherit; }

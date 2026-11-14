@@ -16,15 +16,19 @@ import {
   Group,
   Mesh,
   MeshStandardMaterial,
+  Object3D,
   OrthographicCamera,
   Shape,
   Vector2,
   Vector3,
 } from "three";
 import type { Vehicle } from "./fleet";
+import { sampleObservedMotion, updateObservedMotion, type ObservedMotion } from "./observed-motion";
 import { localPoint, type Area } from "./observations";
 import { AlvoradaStreetDetail } from "./alvorada-street-detail";
-import buildings from "./alvorada-buildings.json";
+import { alvoradaSun } from "./alvorada-sun";
+import { AlvoradaArchitecture } from "./alvorada-architecture";
+import { pathAlongAlvoradaRoad, projectAlvoradaRoads } from "./alvorada-road-path";
 import { AlvoradaCartography } from "./alvorada-cartography";
 import { Scenery } from "./scenery";
 import { Pedestrians } from "./scene-pedestrians";
@@ -34,7 +38,7 @@ import { TERMINAL_GATE } from "./terminal-layout";
 const MODEL = "/models/sp-standard-bus.glb";
 const DEFAULT_TARGET = new Vector3(0, 0.6, 0);
 const TERMINAL_TARGET = new Vector3(2, 0.6, -2);
-const DEFAULT_VIEW = new Vector3(38, 38, 59);
+const DEFAULT_VIEW = new Vector3(38, 43, 59);
 export const ALVORADA_TERMINAL: [number, number] = [-43.366102, -23.001922];
 const DISTRICT_TARGET = new Vector3(7, 0, -14);
 const DISTRICT_VIEW = new Vector3(75, 56, 90);
@@ -78,8 +82,10 @@ function CameraRig({
   demo,
   elapsed,
   area,
+  vehicleGroups,
 }: {
   area?: Area;
+  vehicleGroups: Map<string, Group>;
   action: CameraAction;
   zoom?: CameraZoom;
   extent: number;
@@ -118,21 +124,24 @@ function CameraRig({
         : action.vehicle;
       const unavailable = "visible" in pose && !pose.visible;
       const target = unavailable ? TERMINAL_GATE : pose;
-      orbit.target.set(target.x, 1.3, target.z);
+      const rendered = !demo ? vehicleGroups.get(action.vehicle.id)?.position : undefined;
+      orbit.target.set(rendered?.x ?? target.x, 1.3, rendered?.z ?? target.z);
       previousPose.current.copy(orbit.target);
       const offset =
         action.type === "top"
           ? new Vector3(0.01, 44, 0.01)
           : action.type === "profile"
-            ? new Vector3(42, 5, 0.01)
+            ? new Vector3(42, 8, 0.01)
             : new Vector3(28, 21, 38);
+      // Orthographic distance preserves framing while keeping the front clip plane above the terrain.
+      offset.setLength(demo ? 550 : Math.max(3000, extent * 2));
       camera.position.copy(orbit.target).add(offset);
       camera.zoom = clamp(base * (action.type === "follow" ? 1.65 : 2.12), 9, 68);
     }
     camera.updateProjectionMatrix();
     orbit.update();
     invalidate();
-  }, [action, area?.origin[0], area?.origin[1], base, camera, demo, elapsed, extent, invalidate, size.height, size.width]);
+  }, [action, area?.origin[0], area?.origin[1], base, camera, demo, elapsed, extent, invalidate, size.height, size.width, vehicleGroups]);
   useEffect(() => {
     if (!zoom || !(camera instanceof OrthographicCamera)) return;
     camera.zoom = clamp(camera.zoom * zoom.factor, 0.08, 68);
@@ -142,10 +151,14 @@ function CameraRig({
 
   useFrame(() => {
     const orbit = controls.current;
-    if (action.type !== "follow" || !action.vehicle || !elapsed || !orbit) return;
-    const pose = sampleSimulation(action.vehicle, elapsed.current);
-    // Keep the camera at the gate while the vehicle is outside the modeled area.
-    const target = pose.visible ? pose : TERMINAL_GATE;
+    if (!action.vehicle || !orbit) return;
+    const simulated = action.type === "follow" && elapsed
+      ? sampleSimulation(action.vehicle, elapsed.current)
+      : undefined;
+    const target = simulated
+      ? simulated.visible ? simulated : TERMINAL_GATE
+      : !demo ? vehicleGroups.get(action.vehicle.id)?.position : undefined;
+    if (!target) return;
     const previous = previousPose.current;
     const dx = target.x - previous.x;
     const dz = target.z - previous.z;
@@ -156,7 +169,7 @@ function CameraRig({
     camera.position.x += dx;
     camera.position.z += dz;
     orbit.update();
-  }, -1);
+  }, -0.5);
 
   return (
     <OrbitControls
@@ -165,7 +178,7 @@ function CameraRig({
       minZoom={0.08}
       maxZoom={68}
       minPolarAngle={0.06}
-      maxPolarAngle={1.43}
+      maxPolarAngle={1.37}
       enableDamping={false}
       enablePan={action.type !== "follow"}
     />
@@ -177,21 +190,44 @@ function Bus({
   selected,
   onSelect,
   showTag,
-  scale = 1,
+  pinHeight,
+  groundHeight,
+  roads,
   elapsed,
+  vehicleGroups,
 }: {
   vehicle: Vehicle;
   selected: boolean;
   onSelect: (id: string) => void;
   showTag: boolean;
-  scale?: number;
+  pinHeight?: number;
+  groundHeight: number;
+  roads?: ReturnType<typeof projectAlvoradaRoads>;
+  vehicleGroups: Map<string, Group>;
   elapsed?: SceneSimulation["elapsed"];
 }) {
   const { scene } = useGLTF(MODEL);
   const { gl, invalidate } = useThree();
   const group = useRef<Group>(null);
+  const motion = useRef<ObservedMotion>(undefined);
+  const wheelPivots = useRef<Object3D[]>([]);
+  const wheelAngle = useRef(0);
+  const gpsTime = Date.parse(vehicle.observation?.observedAt ?? "");
+  useEffect(() => {
+    const bus = group.current;
+    if (!bus) return;
+    vehicleGroups.set(vehicle.id, bus);
+    return () => { vehicleGroups.delete(vehicle.id); };
+  }, [vehicle.id, vehicleGroups]);
+  useEffect(() => {
+    motion.current = updateObservedMotion(motion.current,
+      { x: vehicle.x, z: vehicle.z, time: gpsTime }, performance.now(),
+      roads ? (from, to) => pathAlongAlvoradaRoad(roads, from, to) : undefined);
+    invalidate();
+  }, [vehicle.x, vehicle.z, gpsTime, roads, invalidate]);
   const tag = useRef<HTMLDivElement>(null);
   const hovering = useRef(false);
+  const initialPosition = useRef<[number, number, number]>([vehicle.x, groundHeight, vehicle.z]);
   useEffect(
     () => () => {
       if (hovering.current) document.body.style.cursor = "";
@@ -206,15 +242,24 @@ function Bus({
   useFrame(() => {
     const bus = group.current;
     if (!bus) return;
+    const now = performance.now();
+    const observed = motion.current;
     const pose = elapsed
       ? sampleSimulation(vehicle, elapsed.current)
-      : { x: vehicle.x, z: vehicle.z, heading: 0, visible: true };
+      : { ...(observed ? sampleObservedMotion(observed, now) : { x: vehicle.x, z: vehicle.z, heading: 0 }), visible: true };
+    if (observed && now < observed.startsAt + observed.duration) invalidate();
     if (
+      bus.position.y !== groundHeight ||
       bus.position.x !== pose.x ||
       bus.position.z !== pose.z ||
       bus.rotation.y !== pose.heading
     ) {
-      bus.position.set(pose.x, 0.018, pose.z);
+      const meters = Math.hypot(pose.x - bus.position.x, pose.z - bus.position.z);
+      if ((elapsed || observed?.duration) && meters < 16) {
+        wheelAngle.current = (wheelAngle.current + meters / 0.505) % (Math.PI * 2);
+        for (const wheel of wheelPivots.current) wheel.rotation.x = wheelAngle.current;
+      }
+      bus.position.set(pose.x, groundHeight, pose.z);
       bus.rotation.y = pose.heading;
       bus.updateMatrixWorld(true);
       gl.shadowMap.needsUpdate = true;
@@ -254,10 +299,16 @@ function Bus({
     });
     return instance;
   }, [scene, paint]);
+  useEffect(() => {
+    const wheels: Object3D[] = [];
+    object.traverse((child) => {
+      if (child.name.startsWith("Wheels") && child.name.endsWith("pivot")) wheels.push(child);
+    });
+    wheelPivots.current = wheels;
+  }, [object]);
   return (
-    <group ref={group} position={[vehicle.x, 0.018, vehicle.z]}>
+    <group ref={group} position={initialPosition.current}>
       <primitive
-        scale={scale}
         object={object}
         onClick={(event: { stopPropagation: () => void }) => {
           if (group.current?.visible === false) return;
@@ -276,28 +327,36 @@ function Bus({
           document.body.style.cursor = "";
         }}
       />
+      {pinHeight !== undefined && (
+        <Html position={[0, pinHeight, 0]} center zIndexRange={[10, 4]}>
+          <button type="button" className={pinHeight === 16 ? "live-bus-pin terminal-bus-pin" : "live-bus-pin"}
+            aria-label={`Localizar ônibus ${vehicle.id}`} aria-pressed={selected} onClick={() => onSelect(vehicle.id)}>
+            <BusFront size={16} aria-hidden="true" />
+          </button>
+        </Html>
+      )}
       {selected && (
         <>
-          <mesh position={[0, 0.027, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <mesh position={[0, 0.11, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[3.48, 12.8]} />
             <meshBasicMaterial
               color="#3cf0bc"
-              opacity={0.24}
+              opacity={0.19}
               transparent
               depthWrite={false}
             />
           </mesh>
           {(
             [
-              [0, 0.054, 6.45, 3.57, 0.065],
-              [0, 0.054, -6.45, 3.57, 0.065],
-              [-1.78, 0.054, 0, 0.065, 12.96],
-              [1.78, 0.054, 0, 0.065, 12.96],
+              [0, 0.13, 6.45, 3.57, 0.065],
+              [0, 0.13, -6.45, 3.57, 0.065],
+              [-1.78, 0.13, 0, 0.065, 12.96],
+              [1.78, 0.13, 0, 0.065, 12.96],
             ] as const
           ).map(([x, y, z, w, d], i) => (
             <mesh key={i} position={[x, y, z]}>
               <boxGeometry args={[w, 0.028, d]} />
-              <meshBasicMaterial color="#69ffcf" toneMapped={false} />
+              <meshBasicMaterial color="#6cffc8" toneMapped={false} />
             </mesh>
           ))}
           {showTag && (
@@ -349,29 +408,11 @@ class SceneError extends Component<
 }
 
 function AlvoradaBasemap({ area }: { area: Area }) {
-  const structures = useMemo(() => buildings.map(({ points, roof, height }) => ({
-    footprint: new Shape(points.map((point) => {
-      const [x, z] = localPoint(area.origin, point as [number, number]);
-      return new Vector2(x, -z);
-    })),
-    height,
-    roof,
-  })), [area.origin[0], area.origin[1]]);
-  const [x, z] = localPoint(area.origin, ALVORADA_TERMINAL);
-
   return (
     <>
       <AlvoradaCartography origin={area.origin} />
-      {structures.map(({ footprint, height, roof }, index) => (
-        <mesh key={index} position={[0, roof ? 1.7 : 0.3, 0]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow>
-          <extrudeGeometry args={[footprint, { depth: height, bevelEnabled: false }]} />
-          <meshStandardMaterial color={roof ? "#f2f0e7" : ["#a2aca1", "#c5c8ba", "#9eafa9"][index % 3]} roughness={0.86} />
-        </mesh>
-      ))}
+      <AlvoradaArchitecture area={area} />
       <AlvoradaStreetDetail area={area} />
-      <Html position={[x, 12, z]} center zIndexRange={[3, 1]} style={{ pointerEvents: "none" }}>
-        <span className="terminal-map-label">Terminal Alvorada</span>
-      </Html>
     </>
   );
 }
@@ -428,13 +469,27 @@ function TerminalSun({ area }: { area?: Area }) {
   useEffect(() => {
     const sun = light.current;
     if (!sun) return;
-    sun.target.position.set(x, 0, z);
-    sun.target.updateMatrixWorld();
-    sun.shadow.camera.updateProjectionMatrix();
-    sun.shadow.needsUpdate = true;
-    gl.shadowMap.needsUpdate = true;
-    invalidate();
-  }, [x, z, gl, invalidate]);
+    function updateLight() {
+      if (!sun) return;
+      const [east, elevation, south] = alvoradaSun(new Date());
+      if (isAlvorada) {
+        // Low-fill lighting keeps the operational view readable after sunset.
+        sun.position.set(x + east * 660, Math.max(0.25, elevation) * 660, z + south * 660);
+        sun.intensity = elevation > 0 ? 1.65 + Math.min(1, elevation * 2) * 0.8 : 1.05;
+        sun.color.set(elevation > 0.35 ? "#fff2dc" : elevation > 0 ? "#ffdfbc" : "#d2e0fb");
+      }
+      sun.target.position.set(x, 0, z);
+      sun.target.updateMatrixWorld();
+      sun.shadow.camera.updateProjectionMatrix();
+      sun.shadow.needsUpdate = true;
+      gl.shadowMap.needsUpdate = true;
+      invalidate();
+    }
+    updateLight();
+    if (!isAlvorada) return;
+    const timer = window.setInterval(updateLight, 60_000);
+    return () => window.clearInterval(timer);
+  }, [x, z, gl, invalidate, isAlvorada]);
 
   return <directionalLight ref={light} color="#fff0d6" intensity={isAlvorada ? 2.5 : 2.85}
     position={isAlvorada ? [x - 320, 485, z + 245] : [-43, 80, 45]} castShadow
@@ -469,11 +524,16 @@ export function Scene({
   simulation?: SceneSimulation;
 }) {
   const demoSimulation = demo ? simulation : undefined;
+  const vehicleGroups = useRef(new Map<string, Group>()).current;
   const ring = useMemo(
     () =>
       area ? area.ring.map((point) => localPoint(area.origin, point)) : [],
     [area],
   );
+  const east = area?.origin[0];
+  const north = area?.origin[1];
+  const roads = useMemo(() => east !== undefined && north !== undefined && hasAlvoradaMap(area)
+    ? projectAlvoradaRoads([east, north]) : undefined, [east, north]);
   const extent = Math.max(
     demo ? 64 : 27,
     ...ring.map(([x, z]) => Math.max(Math.abs(x), Math.abs(z))),
@@ -516,26 +576,24 @@ export function Scene({
           area={area}
           demo={demo}
           elapsed={demoSimulation?.elapsed}
+          vehicleGroups={vehicleGroups}
         />
         <Suspense fallback={null}>
           <SimulationClock simulation={demoSimulation} />
           {demo ? <Scenery /> : <ObservedTerrain ring={ring} extent={extent} area={area} />}
           {demoSimulation && <Pedestrians elapsed={demoSimulation.elapsed} />}
-          {!demo && (action.type === "home" || action.type === "terminal") && vehicles.map((vehicle) => (
-            <Html key={`position:${vehicle.id}`} position={[vehicle.x, action.type === "terminal" ? 16 : 8, vehicle.z]} center zIndexRange={[10, 4]}>
-              <button type="button" className={action.type === "terminal" ? "live-bus-pin terminal-bus-pin" : "live-bus-pin"} aria-label={`Localizar ônibus ${vehicle.id}`}
-                aria-pressed={selected === vehicle.id} onClick={() => onSelect(vehicle.id)}>
-                <BusFront size={16} aria-hidden="true" />
-              </button>
-            </Html>
-          ))}
           {vehicles.map((vehicle) => (
             <Bus
               key={`${demo ? "demo" : "observed"}:${vehicle.id}`}
               vehicle={vehicle}
               selected={selected === vehicle.id}
               onSelect={onSelect}
-              scale={!demo && action.type === "terminal" ? 1.65 : 1}
+              vehicleGroups={vehicleGroups}
+              roads={roads}
+              groundHeight={!demo && hasAlvoradaMap(area) ? 0.27 : 0.018}
+              pinHeight={!demo && (action.type === "home" || action.type === "terminal")
+                ? action.type === "terminal" ? 16 : 8
+                : undefined}
               showTag={action.type !== "top" && action.type !== "profile"}
               elapsed={demoSimulation?.elapsed}
             />

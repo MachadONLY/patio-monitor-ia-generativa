@@ -7,3 +7,8 @@ DEMO é cenário local e nunca é retornado no endpoint de observações. LIVE c
 `GET /api/vehicles/{vehicle_id}/history?at=<ISO-8601 com fuso>` retorna até 20 observações únicas do prefixo até o cursor, em ordem decrescente, a partir do arquivo assinado ou do histórico persistido.
 
 Com `PATIO_ARCHIVE_FILE`, o servidor persiste leituras recentes dentro do recorte. `REPLAY` usa esse histórico quando não há uma captura assinada com observações. Ambos os modos podem referenciar `rio_mobi_gtfs_rt` ou `sptrans_olhovivo`. O endpoint de histórico aceita `mode=LIVE` ou `mode=REPLAY` e devolve até 20 observações do veículo até `at`.
+
+
+### Cruzamentos GPS do Terminal Alvorada
+
+`GET /api/vehicles/terminal-crossings` retorna `status` (`active`, `unavailable` ou `disabled`) e `events` em ordem decrescente de confirmação. Cada evento inclui `id`, `kind` (`entry` ou `exit`), `vehicleId`, `line`, `betweenFrom`, `betweenTo` e `confirmedAt`. Os três campos temporais usam ISO 8601. O intervalo representa a travessia inferida entre leituras em lados opostos. A confirmação chega em uma leitura posterior. O recurso requer o provedor Rio e um arquivo SQLite gravável. Quando disponível, a resposta também informa `source`, `perimeter` e `boundaryBufferMeters`.

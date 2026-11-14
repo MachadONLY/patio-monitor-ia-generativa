@@ -94,6 +94,19 @@ export function useObservations(mode: Mode, at: string) {
     let active = true;
     let retry = 2000;
 
+  function acceptSnapshot(previous: ObservationResult | undefined, data: Snapshot, transport: "http" | "websocket"): ObservationResult {
+    const prior = previous?.data;
+    if (mode === "LIVE" && prior?.source === data.source && prior?.area?.origin[0] === data.area?.origin[0] &&
+        prior?.area?.origin[1] === data.area?.origin[1] && prior?.vehicles.length && data.vehicles.length) {
+      const last = new Map(prior.vehicles.map((reading) => [reading.vehicleId, reading]));
+      data = { ...data, vehicles: data.vehicles.map((reading) => {
+        const known = last.get(reading.vehicleId);
+        return known && Date.parse(known.observedAt) >= Date.parse(reading.observedAt) ? known : reading;
+      }) };
+    }
+    return { mode, data, transport };
+  }
+
     const refresh = async () => {
       const request = new AbortController();
       controller = request;
@@ -108,7 +121,7 @@ export function useObservations(mode: Mode, at: string) {
         if (!response.ok) throw new Error("Provider unavailable");
         const data: unknown = await response.json();
         if (!validateSnapshot(data, mode)) throw new Error("Invalid snapshot");
-        if (active && !connected) setResult({ mode, data, transport: "http" });
+        if (active && !connected) setResult((previous) => acceptSnapshot(previous, data, "http"));
       } catch {
         if (active && !connected) {
           setResult((previous) => ({
@@ -130,7 +143,7 @@ export function useObservations(mode: Mode, at: string) {
       url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
       const connection = new WebSocket(url);
       socket = connection;
-      const deadline = setTimeout(() => connection.close(), 10_000);
+      let deadline = setTimeout(() => connection.close(), 10_000);
       connection.onmessage = (event) => {
         if (!active || socket !== connection) return;
         try {
@@ -142,8 +155,9 @@ export function useObservations(mode: Mode, at: string) {
           connected = true;
           retry = 2000;
           clearTimeout(deadline);
+          deadline = setTimeout(() => connection.close(), 50_000);
           clearTimeout(pollTimer);
-          setResult({ mode, data, transport: "websocket" });
+          setResult((previous) => acceptSnapshot(previous, data, "websocket"));
         } catch {
           connection.close();
         }

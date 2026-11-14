@@ -7,6 +7,7 @@ import sqlite3
 
 from pydantic import TypeAdapter
 
+from . import gate_events
 from .rio import RioObservation
 from .sptrans import Observation
 
@@ -18,9 +19,10 @@ RECENT_SECONDS = 90
 
 
 class ObservationArchive:
-    def __init__(self, path: Path, scope: str):
+    def __init__(self, path: Path, scope: str, *, terminal_events: bool = False):
         self.path = path
         self.scope = scope
+        self.terminal_events = terminal_events
 
     def initialize(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -38,15 +40,24 @@ class ObservationArchive:
                 CREATE INDEX IF NOT EXISTS observations_vehicle
                     ON observations (scope, vehicle, observed DESC);
             """)
+            if self.terminal_events:
+                gate_events.initialize(db)
 
     def save(self, rows: list[Observation], now: datetime):
         cutoff = self.cutoff(now)
+        recent = [row for row in rows if now - timedelta(seconds=RECENT_SECONDS) <= row.observedAt <= now]
         records = [
             (self.scope, self.stamp(row.observedAt), row.vehicleId, row.model_dump_json())
-            for row in rows if now - timedelta(seconds=RECENT_SECONDS) <= row.observedAt <= now
+            for row in recent
         ]
         with closing(sqlite3.connect(self.path)) as db, db:
             db.executemany("INSERT OR IGNORE INTO observations VALUES (?, ?, ?, ?)", records)
+            if self.terminal_events:
+                for row in sorted(recent, key=lambda item: item.observedAt):
+                    if isinstance(row, RioObservation):
+                        gate_events.observe(db, self.scope, row, self.stamp(row.observedAt))
+                gate_events.prune(db, self.stamp(now - gate_events.STATE_RETENTION),
+                                  self.stamp(now - gate_events.EVENT_RETENTION))
             db.execute("DELETE FROM observations WHERE observed < ?", (cutoff,))
             overflow = db.execute("SELECT count(*) FROM observations").fetchone()[0] - MAX_ROWS
             if overflow > 0:
@@ -55,6 +66,9 @@ class ObservationArchive:
                         SELECT scope, observed, vehicle FROM observations ORDER BY observed LIMIT ?
                     )
                 """, (overflow,))
+
+    def crossings(self, now: datetime):
+        return gate_events.list_recent(self.path, self.scope, self.stamp(now - gate_events.EVENT_RETENTION))
 
     def bounds(self):
         cutoff = self.cutoff(datetime.now(timezone.utc))

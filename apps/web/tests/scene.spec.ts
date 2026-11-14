@@ -64,3 +64,32 @@ test("the operating scene opens the terminal and focuses a GPS observation", asy
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
+
+test("live motion respects chronology, measured endpoints, and interval limits", async () => {
+  const { sampleObservedMotion, updateObservedMotion } = await import("../src/observed-motion");
+  const first = updateObservedMotion(undefined, { x: 0, z: 0, time: 1000 }, 20)!;
+  const second = updateObservedMotion(first, { x: 20, z: 0, time: 16000 }, 30)!;
+  expect(updateObservedMotion(second, { x: -100, z: -100, time: 16000 }, 50)).toBe(second);
+  expect(updateObservedMotion(second, { x: -100, z: -100, time: 8000 }, 60)).toBe(second);
+  expect(sampleObservedMotion(second, 30 + second.duration / 2)).toEqual({ x: 10, z: 0, heading: Math.PI / 2 });
+  expect(sampleObservedMotion(second, 30000)).toEqual({ x: 20, z: 0, heading: Math.PI / 2 });
+  const stationary = updateObservedMotion(second, { x: 20.4, z: 0, time: 31000 }, 2000)!;
+  expect(stationary.duration).toBe(0);
+  expect(stationary.to.heading).toBe(second.to.heading);
+  expect(updateObservedMotion(stationary, { x: 1000, z: 0, time: 32000 }, 3000)?.duration).toBe(0);
+  const mapped = updateObservedMotion(second, { x: 30, z: 10, time: 31000 }, 2000,
+    (from, to) => [from, { x: 30, z: 0 }, to])!;
+  expect(sampleObservedMotion(mapped, 2000 + mapped.duration / 2)).toMatchObject({ x: 30, z: 0 });
+  expect(sampleObservedMotion(mapped, 2000 + mapped.duration)).toMatchObject({ x: 30, z: 10 });
+});
+
+test("Alvorada solar direction follows Rio local morning and afternoon", async () => {
+  const { alvoradaSun } = await import("../src/alvorada-sun");
+  const morning = alvoradaSun(new Date("2026-11-14T12:00:00Z"));
+  const afternoon = alvoradaSun(new Date("2026-11-14T19:00:00Z"));
+  const night = alvoradaSun(new Date("2026-11-14T03:00:00Z"));
+  expect(morning[0]).toBeGreaterThan(0);
+  expect(afternoon[0]).toBeLessThan(0);
+  expect(morning[1]).toBeGreaterThan(0);
+  expect(night[1]).toBeLessThan(0);
+});

@@ -1,9 +1,10 @@
-import { useId, useState, type KeyboardEvent } from "react";
+import { useId, useMemo, useState, type KeyboardEvent } from "react";
 import {
   ArrowDownLeft, ArrowUpRight, Check, ChevronRight, Clock3, Crosshair,
   History, MapPin, Navigation, Route, X,
 } from "lucide-react";
 import type { Vehicle } from "./fleet";
+import { projectAlvoradaRoads } from "./alvorada-road-path";
 import { localPoint, useRecordedVehicleHistory, type Area, type Mode } from "./observations";
 import { clockLabel, simulationPhaseLabel } from "./operation-demo";
 import { simulationVehicleDetails, type SimulationPose } from "./simulation";
@@ -56,19 +57,27 @@ export function SiteMap({ pose, details }: { pose?: SimulationPose; details?: De
 }
 
 function GpsMap({ area, vehicle }: { area: Area; vehicle: Vehicle }) {
-  const points = area.ring.map((point) => localPoint(area.origin, point));
-  const xs = points.map(([x]) => x);
-  const zs = points.map(([, z]) => z);
-  const minX = Math.min(...xs, vehicle.x);
-  const minZ = Math.min(...zs, vehicle.z);
-  const width = Math.max(...xs, vehicle.x) - minX;
-  const height = Math.max(...zs, vehicle.z) - minZ;
-  const pad = Math.max(width, height, 1) * 0.11;
+  const isAlvorada = Math.abs(area.origin[0] + 43.360556) < 0.008 && Math.abs(area.origin[1] + 22.995833) < 0.008;
+  const [longitude, latitude] = area.origin;
+  const roads = useMemo(() => isAlvorada ? projectAlvoradaRoads([longitude, latitude]) : [],
+    [isAlvorada, longitude, latitude]);
+  const { x, z } = vehicle;
+  const bounds = { left: x - 200, right: x + 200, top: z - 115, bottom: z + 115 };
+  const nearby = roads.filter((road) => road.right >= bounds.left && road.left <= bounds.right &&
+    road.bottom >= bounds.top && road.top <= bounds.bottom);
+  const ring = !nearby.length ? area.ring.map((point) => localPoint(area.origin, point)) : [];
   return (
-    <svg viewBox={`${minX - pad} ${minZ - pad} ${width + pad * 2} ${height + pad * 2}`}
-      aria-label="Posição registrada no perímetro operacional" role="img">
-      <polygon points={points.map(([x, z]) => `${x},${z}`).join(" ")} fill="#c6dbcf" stroke="#80a58f" vectorEffect="non-scaling-stroke" />
-      <circle cx={vehicle.x} cy={vehicle.z} r={pad * 0.23} fill="#12694b" stroke="white" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+    <svg viewBox={`${bounds.left} ${bounds.top} 400 230`}
+      aria-label="Posição registrada no mapa do entorno" role="img">
+      <rect x={bounds.left} y={bounds.top} width="400" height="230" fill="#dbe4d7" />
+      {ring.length > 0 && <polygon points={ring.map(([east, north]) => `${east},${north}`).join(" ")} fill="#c6dbcf" stroke="#80a58f" />}
+      <g fill="none" stroke="#faf9ef" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
+        {nearby.map((road, index) =>
+          <polyline key={index} points={road.points.map((point) => `${point.x},${point.z}`).join(" ")} />
+        )}
+      </g>
+      <circle cx={x} cy={z} r="17" fill="#1a6d4f" opacity=".18" />
+      <circle cx={x} cy={z} r="8" fill="#12694b" stroke="white" strokeWidth="3" />
     </svg>
   );
 }

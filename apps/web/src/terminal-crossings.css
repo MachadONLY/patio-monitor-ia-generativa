@@ -1,0 +1,111 @@
+.terminal-crossings {
+  padding: 16px;
+  border: 1px solid #d8e3d9;
+  border-radius: 16px;
+  background: #f8faf5;
+}
+.terminal-crossings h2 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 5px;
+  font-size: 15px;
+}
+.terminal-crossings h2 svg {
+  color: #12634c;
+  flex: none;
+}
+.terminal-crossings p,
+.terminal-crossings details {
+  color: #526961;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.terminal-crossings p {
+  margin: 0;
+}
+.terminal-crossings .crossing-message {
+  margin: 10px 0;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: #eaf1e9;
+}
+.terminal-crossings ul {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  max-height: 230px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.crossing-item,
+.crossing-item button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+}
+.crossing-item {
+  border-bottom: 1px solid #e1e9e0;
+}
+.crossing-item button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  padding: 3px;
+  text-align: start;
+}
+.crossing-item button:hover {
+  background: #edf5ee;
+}
+.crossing-item button:focus-visible {
+  outline: 2px solid #15765a;
+  outline-offset: -2px;
+}
+.crossing-icon {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  flex: none;
+  border-radius: 7px;
+  background: #dfefe4;
+  color: #0f6248;
+}
+.crossing-item[data-kind="exit"] .crossing-icon {
+  color: #754b15;
+  background: #f3ebd9;
+}
+.crossing-details {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.crossing-details > span {
+  color: #526961;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.crossing-chevron {
+  flex: none;
+  margin-inline-start: auto;
+}
+.terminal-crossings details {
+  margin-top: 8px;
+}
+.terminal-crossings summary {
+  color: #1d5747;
+  cursor: pointer;
+}
+.terminal-crossings details p {
+  margin: 6px 0;
+}
+.terminal-crossings details a {
+  color: #1d5747;
+}

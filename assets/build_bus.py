@@ -113,19 +113,20 @@ for side in (-1,1):
             box("Doors", (1.331,y+offset,1.83), (.03,.46,1.38), glass, .018)
             box("Doors", (1.33,y+offset,.76), (.025,.47,.34), metal, .018)
         box("Doors", (1.345,y,1.0), (.025,.022,.25), amber, .005)
-    for axle in axles:
-        for family, x, radius, depth, mat in [
-            ("Wheels",1.14,.505,.25,rubber),("Wheels",1.28,.31,.035,metal),
-            ("Wheels",1.303,.151,.04,trim),("Wheels",1.328,.090,.018,metal)]:
+    for axle_index, axle in enumerate(axles):
+        wheel = f"Wheels {axle_index} {side:+d}"
+        for x, radius, depth, mat in [
+            (1.14,.505,.25,rubber),(1.28,.31,.035,metal),
+            (1.303,.151,.04,trim),(1.328,.090,.018,metal)]:
             bpy.ops.mesh.primitive_cylinder_add(vertices=24, radius=radius, depth=depth,
                 location=(side*x,axle,.505), rotation=(0,math.pi/2,0))
             obj = bpy.context.object
             for face in obj.data.polygons:
                 face.use_smooth = len(face.vertices)==4
-            register(obj, mat, family)
+            register(obj, mat, wheel)
         for i in range(6):
             theta = i*math.tau/6
-            box("Wheels",(side*1.307,axle+.21*math.cos(theta),.505+.21*math.sin(theta)),
+            box(wheel,(side*1.307,axle+.21*math.cos(theta),.505+.21*math.sin(theta)),
                 (.024,.034,.034),trim,.005)
     box("Mirrors", (side*1.43,-5.64,2.50), (.40,.10,.085), trim, .035)
     box("Mirrors", (side*1.59,-5.73,2.36), (.18,.24,.43), trim, .045)
@@ -177,6 +178,17 @@ for (family, mat_name), group in parts.items():
     if len(group) > 1:
         bpy.ops.object.join()
     bpy.context.object.name = family + " · " + mat_name
+
+for side in (-1, 1):
+    for axle_index, axle in enumerate(axles):
+        name = f"Wheels {axle_index} {side:+d}"
+        pivot = bpy.data.objects.new(name + " pivot", None)
+        bpy.context.collection.objects.link(pivot)
+        pivot.location = (side * 1.2, axle, .505)
+        bpy.context.view_layer.update()
+        for child in [obj for obj in bpy.context.scene.objects if obj.name.startswith(name + " · ")]:
+            child.parent = pivot
+            child.matrix_parent_inverse = pivot.matrix_world.inverted()
 
 output = Path("apps/web/public/models/sp-standard-bus.glb").resolve()
 bpy.ops.export_scene.gltf(filepath=str(output), export_format="GLB", export_draco_mesh_compression_enable=False)

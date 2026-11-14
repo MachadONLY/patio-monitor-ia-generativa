@@ -13,8 +13,10 @@ services:
       PATIO_VISION_DIR: ${PATIO_VISION_DIR:-/app/vision-artifacts}
       PATIO_LIVE_PROVIDER: ${PATIO_LIVE_PROVIDER:-sptrans}
       PATIO_PUBLIC_ORIGIN: ${PATIO_PUBLIC_ORIGIN:-}
+      PATIO_ARCHIVE_FILE: /app/observations/observations.sqlite3
     volumes:
       - ./runtime-data:/run/patio:ro
+      - patio_observations:/app/observations
     read_only: true
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]
@@ -37,3 +39,6 @@ services:
       - /tmp:mode=1777
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]
+
+volumes:
+  patio_observations:

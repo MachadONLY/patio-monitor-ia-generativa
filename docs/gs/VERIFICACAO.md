@@ -21,3 +21,10 @@
 - **Visão.** O comando de inferência analisou uma gravação fornecida por arquivo, com linha configurável, e gerou vídeo anotado e relatório consultável no painel local. A verificação usou a gravação pública licenciada como entrada do fluxo, sem vinculá-la a uma garagem real.
 - **IA.** A nova execução obteve 4/17 sem contexto, 8/17 com RAG e 11/17 com RAG e agente. O agente recusou corretamente os seis casos sem evidência. As saídas do notebook e o relatório usam o mesmo JSON de avaliação.
 - **Verificação integrada.** Build de produção aprovado, 35 testes de API e rastreamento com o feed externo habilitado e 36 testes de interface aprovados. No navegador, um servidor local serviu o feed real, o REPLAY armazenado, o vídeo reprocessado e a conciliação de CSVs de teste com uma resposta do Qwen citando a regra de troca de veículo.
+
+## Reconstrução e verificação da vista operacional do Alvorada
+
+- **Registro real.** O coletor público recebeu posições sucessivas, persistiu o histórico em SQLite e registrou uma saída inferida do veículo E902004 em 14/11/2026, entre 17h16min28s e 17h16min58s no Rio, confirmada às 17h17min28s. O intervalo é uma estimativa baseada na travessia do perímetro cartográfico.
+- **Navegador.** A inspeção foi verificada em Terminal, Foco, Perfil e Superior, em desktop e tela estreita. Os testes com leituras controladas conferem ausência de faixa de recorte, atualização do ônibus selecionado e transição a GPS desatualizado.
+- **Fluxo integrado.** Um servidor local serviu posições públicas, histórico por veículo, vídeo anotado com busca no cruzamento aos 7,44 s e revisão com resposta do Qwen à ocorrência importada.
+- **Geografia.** A cena usa a ortofoto municipal, duas coberturas medidas do terminal, 61 alturas de edifícios medidas pelo município, pistas e estacionamento georreferenciados. A documentação de [fontes e representação](../SOURCES.md#terminal-alvorada) informa o que vem de medição e o que foi estimado.

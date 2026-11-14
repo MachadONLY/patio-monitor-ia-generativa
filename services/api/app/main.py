@@ -18,6 +18,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import AwareDatetime, BaseModel, Field, ValidationError, model_validator
 
 from .archive import ObservationArchive
+from .gate_events import BOUNDARY_BUFFER_METERS, PERIMETER, coverage_sample
 from .assistant import router as assistant_router
 from .rio import RIO_SOURCE, RioBrt
 from .sptrans import Observation, OlhoVivo
@@ -222,7 +223,10 @@ async def lifespan(app: FastAPI):
     if ingestion.area and archive_path:
         company_id = str(company) if company is not None else ""
         scope = hashlib.sha256(f"{ingestion.source}|{company_id}|{ingestion.area.model_dump_json()}".encode()).hexdigest()
-        ingestion.archive = ObservationArchive(Path(archive_path), scope)
+        terminal_events = ingestion.source == RIO_SOURCE and all(
+            ingestion.area.contains(*point) for point in coverage_sample()
+        )
+        ingestion.archive = ObservationArchive(Path(archive_path), scope, terminal_events=terminal_events)
         await asyncio.to_thread(ingestion.archive.initialize)
     if provider and ingestion.area:
         ingestion.state = "connecting"
@@ -303,6 +307,26 @@ def snapshot(ingestion: Ingestion, mode: Literal["LIVE", "REPLAY"], at: datetime
 def get_snapshot(mode: Literal["LIVE", "REPLAY"] = Query(),
                  at: datetime | None = None):
     return snapshot(app.state.ingestion, mode, at)
+
+
+@app.get("/api/vehicles/terminal-crossings")
+def get_terminal_crossings():
+    ingestion = app.state.ingestion
+    archive = ingestion.archive
+    if not archive or not archive.terminal_events:
+        return {"status": "disabled", "events": []}
+    try:
+        events = archive.crossings(datetime.now(timezone.utc))
+    except sqlite3.Error:
+        return {"status": "unavailable", "events": []}
+    active = snapshot(ingestion, "LIVE", None)["state"] in {"connected", "no_observations"} and not ingestion.archive_error
+    return {
+        "status": "active" if active else "unavailable",
+        "events": events,
+        "source": ingestion.source,
+        "perimeter": PERIMETER["source"],
+        "boundaryBufferMeters": BOUNDARY_BUFFER_METERS,
+    }
 
 
 @app.get("/api/vehicles/{vehicle_id}/history")
