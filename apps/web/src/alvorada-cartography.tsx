@@ -1,5 +1,6 @@
+import { useFrame, useThree } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BufferGeometry, DoubleSide, Float32BufferAttribute, PlaneGeometry, ShapeUtils, SRGBColorSpace, TextureLoader, Vector2, type Texture } from "three";
 import map from "./alvorada-cartography-data.json";
 import { makeSurfaceMaterial, type Surface } from "./alvorada-cartography-materials";
@@ -26,7 +27,7 @@ type Appearance = {
 };
 
 const appearance: Appearance[] = [
-  { kind: "water", color: "#5e9fac", elevation: 0.016, surface: "water", period: 32, roughness: 0.3, bumpScale: 0.32 },
+  { kind: "water", color: "#68a0a6", elevation: 0.016, surface: "water", period: 24, roughness: 0.19, bumpScale: 0.25 },
   { kind: "yard", color: "#babaac", elevation: 0.034, surface: "paving", period: 10, roughness: 0.94, bumpScale: 0.045 },
   { kind: "grass", color: "#889e68", elevation: 0.05, surface: "meadow", period: 26, roughness: 0.99, bumpScale: 0.13 },
   { kind: "verge", color: "#adad9d", elevation: 0.105, surface: "soil", period: 12, roughness: 1, bumpScale: 0.05 },
@@ -172,7 +173,7 @@ function createEdges(polygons: number[][][], depth: number) {
   return geometry;
 }
 
-export function AlvoradaCartography({ origin }: { origin: Coordinate }) {
+export function AlvoradaCartography({ origin, active }: { origin: Coordinate; active: boolean }) {
   const layers = useMemo(() => appearance.map((layer) => ({
     ...layer,
     geometry: createGeometry(map.layers[layer.kind], layer.period ?? 1),
@@ -203,6 +204,16 @@ export function AlvoradaCartography({ origin }: { origin: Coordinate }) {
     color.dispose();
     bumpMap.dispose();
   }), [materials]);
+  const waterTime = useRef(0);
+  const invalidate = useThree((state) => state.invalidate);
+  useEffect(() => { if (active) invalidate(); }, [active, invalidate]);
+  useFrame((_, delta) => {
+    if (!active) return;
+    waterTime.current += Math.min(delta, 0.1);
+    const time = waterTime.current;
+    materials.water.map.offset.set((time * 0.019) % 1, (time * 0.011) % 1);
+    materials.water.bumpMap.offset.set((time * -0.032) % 1, (time * 0.025) % 1);
+  });
   const [offsetX, offsetZ] = localPoint(origin, mapOrigin);
   const [aerialX, aerialZ] = localPoint(mapOrigin, orthoOrigin);
 
@@ -230,7 +241,9 @@ export function AlvoradaCartography({ origin }: { origin: Coordinate }) {
             <meshStandardMaterial
               color={color}
               roughness={roughness}
-              metalness={kind === "water" ? 0.1 : 0}
+              metalness={kind === "water" ? 0.24 : 0}
+              emissive={kind === "water" ? "#316780" : "#000000"}
+              emissiveIntensity={kind === "water" ? 0.15 : 0}
               side={DoubleSide}
               map={surface ? materials[surface].map : undefined}
               bumpMap={surface ? materials[surface].bumpMap : undefined}

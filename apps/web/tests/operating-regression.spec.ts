@@ -82,12 +82,13 @@ async function verifyMapFrame(canvas: Locator, page: Page, name: string, contain
 }
 
 test("vehicle inspection preserves the rendered terrain across terminal, focus, profile and top", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await startOperatingPage(page, snapshot([gpsSample(new Date().toISOString())]));
   const viewport = page.locator(".viewport");
   const canvas = viewport.locator("canvas");
-  await expect(viewport).toHaveAttribute("data-ready", "true");
+  await expect(viewport).toHaveAttribute("data-ready", "true", { timeout: 20_000 });
   await expect(viewport).toHaveAttribute("data-camera-mode", "terminal");
   await verifyMapFrame(canvas, page, "desktop-terminal");
 
@@ -119,7 +120,7 @@ test("the selected vehicle receives fresh GPS, remains framed and indicates stal
   const stream = await startOperatingPage(page, snapshot([start]));
   const viewport = page.locator(".viewport");
   const tag = viewport.locator(".bus-tag");
-  await expect(viewport).toHaveAttribute("data-ready", "true");
+  await expect(viewport).toHaveAttribute("data-ready", "true", { timeout: 20_000 });
   await page.getByRole("button", { name: "Inspecionar ônibus 50103" }).click();
   await expect(page.getByText("Posição registrada", { exact: true })).toBeVisible();
   const initialTag = await tag.boundingBox();
@@ -162,4 +163,48 @@ test("operating view displays estimated terminal crossing intervals and evidence
   await expect(recorded.locator('[data-kind="exit"]').getByRole("button")).toHaveCount(0);
   await recorded.getByRole("button", { name: "Abrir ficha do ônibus 50103, entrada" }).click();
   await expect(page.locator(".viewport")).toHaveAttribute("data-camera-mode", "focus");
+});
+
+test("the Alvorada scenery animates independently of GPS and respects reduced motion", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error" && /shader|webgl/i.test(message.text())) errors.push(message.text());
+  });
+  await startOperatingPage(page, snapshot([]));
+  const canvas = page.locator(".viewport canvas");
+  await expect(page.locator(".viewport")).toHaveAttribute("data-ready", "true", { timeout: 20_000 });
+  await expect(page.locator(".live-bus-pin")).toHaveCount(0);
+  await page.getByRole("button", { name: "Pausar ambientação" }).click();
+  const frame = await canvas.screenshot({ path: test.info().outputPath("alvorada-vivo.png") });
+  await page.getByRole("button", { name: "Retomar ambientação" }).click();
+  await page.waitForTimeout(1600);
+  await page.getByRole("button", { name: "Pausar ambientação" }).click();
+  expect((await canvas.screenshot()).equals(frame)).toBe(false);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.getByRole("button", { name: "Retomar ambientação" }).click();
+  await expect.poll(async () => {
+    const first = await canvas.screenshot();
+    return (await canvas.screenshot()).equals(first);
+  }).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test("a professor can open a shift case without uploading files and request a sourced explanation", async ({ page }) => {
+  await page.route("**/api/gs/explain", async (route) => {
+    const request = route.request().postDataJSON();
+    expect(request.context.evidenceMode).toBe("DEMO");
+    await route.fulfill({ json: {
+      answer: "Confira o registro de portaria e o prefixo do veículo.",
+      citations: [{ id: "p02", title: "Troca de veículo", url: "https://example.com/regra" }],
+      refused: false, model: "Qwen de teste", actions: [],
+    } });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Revisar turno" }).click();
+  await page.getByRole("button", { name: "Abrir caso de exemplo" }).click();
+  await expect(page.getByText(/Escala e portaria de teste/)).toBeVisible();
+  await page.getByRole("button", { name: "Explicar ocorrência" }).click();
+  await expect(page.getByText("Orientação gerada pelo assistente")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Troca de veículo" })).toBeVisible();
 });

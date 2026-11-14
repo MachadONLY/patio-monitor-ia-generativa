@@ -353,7 +353,7 @@ function DatasetView({ dataset, mode, vehicles, onFocusVehicle, canFocusVehicle,
   const exceptions = cases.filter((item) => item.status !== "on_time");
   const visible = all ? dataset.cases : exceptions;
   const selected = visible.find((item) => item.trip.tripId === selectedId) ?? visible[0];
-  const spatial = dataset.isDemo || mode !== "DEMO";
+  const spatial = dataset.isDemo ? mode === "DEMO" : mode !== "DEMO";
   const vehicleFor = (item: ShiftCase) => {
     if (!spatial) return;
     const id = item.gate?.vehicleId ?? item.trip.vehicleId;
@@ -488,6 +488,7 @@ export function ShiftReview({
   referenceAt,
 }: ShiftReviewProps) {
   const [uploaded, setUploaded] = useState<ImportedShift>();
+  const [example, setExample] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<{ schedule?: File; gate?: File }>({});
   const [draft, setDraft] = useState<ImportDraft>();
   const [archive, setArchive] = useState(savedShifts);
@@ -496,7 +497,7 @@ export function ShiftReview({
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [revision, setRevision] = useState(0);
-  const dataset = uploaded ?? (mode === "DEMO" ? DEMO_DATASET : undefined);
+  const dataset = uploaded ?? (mode === "DEMO" || example ? DEMO_DATASET : undefined);
   const uploadedKey = uploaded?.storageKey?.split(":").at(-1);
 
   function selectFile(kind: keyof ImportDraft, file?: File) {
@@ -521,6 +522,7 @@ export function ShiftReview({
   }
 
   function activateShift(schedule: ScheduleRow[], gate: GateRow[], storageKey: string | null) {
+    setExample(false);
     setUploaded({ schedule, gate, storageKey, cases: reconcileShift(schedule, gate), isDemo: false });
     setPendingFiles({});
     setDraft(undefined);
@@ -628,11 +630,16 @@ export function ShiftReview({
       </header>
       <div className="shift-body">
         {dataset?.isDemo ? (
-          <p className="shift-source-note"><span>DEMO</span> Escala, portaria e GPS simulados.</p>
+          <p className="shift-source-note"><span>EXEMPLO</span> Escala e portaria de teste. {mode === "LIVE" ? "O mapa continua com GPS público." : "GPS simulado."}</p>
         ) : dataset ? (
           <p className="shift-source-note"><span>CSV LOCAL</span> Escala e portaria fornecidas pelo usuário. {mode === "DEMO" && "A cena 3D permanece ilustrativa."}</p>
         ) : (
-          <p className="shift-source-note">Carregue a escala e a portaria da mesma garagem e turno.</p>
+          <p className="shift-source-note">Abra um caso de exemplo ou carregue a escala e a portaria da mesma garagem e turno.</p>
+        )}
+        {mode === "LIVE" && !uploaded && (
+          <button type="button" className="shift-button shift-example" onClick={() => setExample((open) => !open)}>
+            {example ? "Fechar caso de exemplo" : "Abrir caso de exemplo"}
+          </button>
         )}
         <details className="shift-import" key={uploaded ? revision : "import"} open={!dataset ? true : undefined}>
           <summary><FileUp size={16} /> Importar arquivos CSV <ChevronDown size={15} /></summary>

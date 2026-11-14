@@ -632,3 +632,5 @@
 .shift-archive li small {
   flex-basis: 100%;
 }
+
+.shift-example { margin-block: 0 12px; justify-self: start; }

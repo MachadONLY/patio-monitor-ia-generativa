@@ -26,6 +26,7 @@ import type { Vehicle } from "./fleet";
 import { sampleObservedMotion, updateObservedMotion, type ObservedMotion } from "./observed-motion";
 import { localPoint, type Area } from "./observations";
 import { AlvoradaStreetDetail } from "./alvorada-street-detail";
+import { useAmbientMotion } from "./alvorada-ambience";
 import { alvoradaSun } from "./alvorada-sun";
 import { AlvoradaArchitecture } from "./alvorada-architecture";
 import { pathAlongAlvoradaRoad, projectAlvoradaRoads } from "./alvorada-road-path";
@@ -212,6 +213,7 @@ function Bus({
   const motion = useRef<ObservedMotion>(undefined);
   const wheelPivots = useRef<Object3D[]>([]);
   const wheelAngle = useRef(0);
+  const lastShadowUpdate = useRef(-Infinity);
   const gpsTime = Date.parse(vehicle.observation?.observedAt ?? "");
   useEffect(() => {
     const bus = group.current;
@@ -262,7 +264,10 @@ function Bus({
       bus.position.set(pose.x, groundHeight, pose.z);
       bus.rotation.y = pose.heading;
       bus.updateMatrixWorld(true);
-      gl.shadowMap.needsUpdate = true;
+      if (now - lastShadowUpdate.current >= 250) {
+        gl.shadowMap.needsUpdate = true;
+        lastShadowUpdate.current = now;
+      }
     }
     if (bus.visible !== pose.visible) {
       bus.visible = pose.visible;
@@ -407,12 +412,13 @@ class SceneError extends Component<
   }
 }
 
-function AlvoradaBasemap({ area }: { area: Area }) {
+function AlvoradaBasemap({ area, animate }: { area: Area; animate: boolean }) {
+  const active = useAmbientMotion() && animate;
   return (
     <>
-      <AlvoradaCartography origin={area.origin} />
+      <AlvoradaCartography origin={area.origin} active={active} />
       <AlvoradaArchitecture area={area} />
-      <AlvoradaStreetDetail area={area} />
+      <AlvoradaStreetDetail area={area} active={active} />
     </>
   );
 }
@@ -426,9 +432,11 @@ function ObservedTerrain({
   ring,
   extent,
   area,
+  animate,
 }: {
   area?: Area;
   ring: [number, number][];
+  animate: boolean;
   extent: number;
 }) {
   const outline = useMemo(
@@ -454,7 +462,7 @@ function ObservedTerrain({
           <meshStandardMaterial color={hasAlvoradaMap(area) ? "#bec5a6" : "#819e92"} side={2} />
         </mesh>
       )}
-      {area && hasAlvoradaMap(area) && <AlvoradaBasemap area={area} />}
+      {area && hasAlvoradaMap(area) && <AlvoradaBasemap area={area} animate={animate} />}
     </>
   );
 }
@@ -475,7 +483,7 @@ function TerminalSun({ area }: { area?: Area }) {
       if (isAlvorada) {
         // Low-fill lighting keeps the operational view readable after sunset.
         sun.position.set(x + east * 660, Math.max(0.25, elevation) * 660, z + south * 660);
-        sun.intensity = elevation > 0 ? 1.65 + Math.min(1, elevation * 2) * 0.8 : 1.05;
+        sun.intensity = elevation > 0 ? 1.88 + Math.min(1, elevation * 2) * 0.92 : 1.15;
         sun.color.set(elevation > 0.35 ? "#fff2dc" : elevation > 0 ? "#ffdfbc" : "#d2e0fb");
       }
       sun.target.position.set(x, 0, z);
@@ -493,7 +501,7 @@ function TerminalSun({ area }: { area?: Area }) {
 
   return <directionalLight ref={light} color="#fff0d6" intensity={isAlvorada ? 2.5 : 2.85}
     position={isAlvorada ? [x - 320, 485, z + 245] : [-43, 80, 45]} castShadow
-    shadow-mapSize={isAlvorada ? [2048, 2048] : [1536, 1536]}
+    shadow-mapSize={isAlvorada ? [1536, 1536] : [1024, 1024]}
     shadow-camera-left={-span} shadow-camera-right={span}
     shadow-camera-top={span} shadow-camera-bottom={-span}
     shadow-camera-near={1} shadow-camera-far={isAlvorada ? 1300 : 215}
@@ -511,6 +519,7 @@ export function Scene({
   demo,
   area,
   simulation,
+  animateAmbience = true,
 }: {
   vehicles: Vehicle[];
   selected: string | null;
@@ -522,6 +531,7 @@ export function Scene({
   demo: boolean;
   area?: Area;
   simulation?: SceneSimulation;
+  animateAmbience?: boolean;
 }) {
   const demoSimulation = demo ? simulation : undefined;
   const vehicleGroups = useRef(new Map<string, Group>()).current;
@@ -549,7 +559,7 @@ export function Scene({
       <Canvas
         orthographic
         shadows
-        dpr={[1, 1.4]}
+        dpr={[1, 1.25]}
         frameloop="demand"
         fallback={fallback}
         camera={{
@@ -580,7 +590,7 @@ export function Scene({
         />
         <Suspense fallback={null}>
           <SimulationClock simulation={demoSimulation} />
-          {demo ? <Scenery /> : <ObservedTerrain ring={ring} extent={extent} area={area} />}
+          {demo ? <Scenery /> : <ObservedTerrain ring={ring} extent={extent} area={area} animate={animateAmbience} />}
           {demoSimulation && <Pedestrians elapsed={demoSimulation.elapsed} />}
           {vehicles.map((vehicle) => (
             <Bus

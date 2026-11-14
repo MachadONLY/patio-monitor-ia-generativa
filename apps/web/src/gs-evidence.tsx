@@ -272,7 +272,7 @@ export function ExplainOccurrence({ item, demo }: { item: ShiftCase; demo: boole
       {result && (
         <div className="gs-explain-result" aria-live="polite">
           <strong>{result.refused ? "Explicação sem suporte nas fontes" : "Orientação gerada pelo assistente"}</strong>
-          <small>{demo ? "Ocorrência DEMO" : "Classificação de arquivos locais"} · {result.model}</small>
+          <small>{demo ? "Caso de exemplo" : "Classificação de arquivos locais"} · {result.model}</small>
           <p>{result.answer}</p>
           {result.citations.length ? (
             <>

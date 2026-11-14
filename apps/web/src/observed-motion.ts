@@ -12,6 +12,29 @@ export type ObservedMotion = {
   path?: { points: Point[]; lengths: number[]; total: number };
 };
 
+function shortestAngle(from: number, to: number) {
+  return Math.atan2(Math.sin(to - from), Math.cos(to - from));
+}
+
+function pathHeading(path: NonNullable<ObservedMotion["path"]>, index: number, progress: number) {
+  const { points, lengths } = path;
+  const a = points[index];
+  const b = points[index + 1];
+  const angle = Math.atan2(b.x - a.x, b.z - a.z);
+  const before = points[index - 1];
+  const after = points[index + 2];
+  const easing = (phase: number) => Math.max(0, Math.min(1, phase));
+  if (progress < 0.5 && before && lengths[index - 1] > 0) {
+    const previous = Math.atan2(a.x - before.x, a.z - before.z);
+    return angle + shortestAngle(angle, previous) * (1 - easing(progress * lengths[index] / 5)) * 0.5;
+  }
+  if (progress >= 0.5 && after && lengths[index + 1] > 0) {
+    const next = Math.atan2(after.x - b.x, after.z - b.z);
+    return angle + shortestAngle(angle, next) * (1 - easing((1 - progress) * lengths[index] / 5)) * 0.5;
+  }
+  return angle;
+}
+
 export function sampleObservedMotion(motion: ObservedMotion, now: number): VisualPose {
   if (motion.duration === 0 || now >= motion.startsAt + motion.duration) return motion.to;
   const progress = Math.max(0, (now - motion.startsAt) / motion.duration);
@@ -24,16 +47,16 @@ export function sampleObservedMotion(motion: ObservedMotion, now: number): Visua
         const b = points[index + 1];
         const fraction = remaining / lengths[index];
         return { x: a.x + (b.x - a.x) * fraction, z: a.z + (b.z - a.z) * fraction,
-          heading: Math.atan2(b.x - a.x, b.z - a.z) };
+          heading: pathHeading(motion.path, index, fraction) };
       }
       remaining -= lengths[index];
     }
   }
-  const turn = motion.to.heading - motion.from.heading;
+  const turn = shortestAngle(motion.from.heading, motion.to.heading);
   return {
     x: motion.from.x + (motion.to.x - motion.from.x) * progress,
     z: motion.from.z + (motion.to.z - motion.from.z) * progress,
-    heading: motion.from.heading + Math.atan2(Math.sin(turn), Math.cos(turn)) * Math.min(1, progress * 2),
+    heading: motion.from.heading + turn * Math.min(1, progress * 2),
   };
 }
 
@@ -66,6 +89,6 @@ export function updateObservedMotion(
     to: { x: reading.x, z: reading.z, heading },
     startsAt: motion ? now : 0,
     path,
-    duration: ready ? Math.min(3500, Math.max(600, distance * 48)) : 0,
+    duration: ready ? Math.max(650, Math.min(12_000, seconds * 820, distance * 155)) : 0,
   };
 }

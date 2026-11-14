@@ -1,3 +1,4 @@
+import { AlvoradaAmbience } from "./alvorada-ambience";
 import { useMemo } from "react";
 import buildings from "./alvorada-architecture-data.json";
 import streets from "./alvorada-map.json";
@@ -27,7 +28,9 @@ const treeBands: [Point, Point][] = [
   [[-43.36414, -23.00225], [-43.36369, -23.00047]],
 ];
 
-const shirts = ["#165c72", "#df8055", "#e8b749", "#603e69", "#fbf4e0"];
+const platformWalks = platforms.map(({ start, end }) =>
+  [0.11, 0.89].map((f): Point => [start[0] + (end[0] - start[0]) * f, start[1] + (end[1] - start[1]) * f]),
+);
 
 function distanceToSegment([x, z]: Point, [ax, az]: Point, [bx, bz]: Point) {
   const dx = bx - ax;
@@ -42,12 +45,11 @@ function buildDetail(origin: Point) {
   const furnishings: Part[] = [];
   const foliage: Part[] = [];
   const trunks: Part[] = [];
-  const heads: Part[] = [];
   const signs: { text: string; at: XYZ; rotation: number }[] = [];
   const random = seeded(81426);
   const project = (point: Point) => localPoint(origin, point);
 
-  platforms.forEach(({ label, start, end }, platformIndex) => {
+  platforms.forEach(({ label, start, end }) => {
     const [x, z] = project(start);
     const [endX, endZ] = project(end);
     const length = Math.hypot(endX - x, endZ - z);
@@ -81,18 +83,7 @@ function buildDetail(origin: Point) {
       signs.push({ text: `PLATAFORMA ${label}`, at: at(position, 3.36, 0.33), rotation: bearing + Math.PI });
     }
 
-    for (let i = 0; i < 13; i++) {
-      const distance = (0.1 + random() * 0.8) * length;
-      const offset = (random() < 0.5 ? -1 : 1) * (0.72 + random() * 1.08);
-      const stature = 1.55 + random() * 0.34;
-      const color = shirts[(platformIndex + i) % shirts.length];
-      const yaw: XYZ = [0, random() * Math.PI * 2, 0];
-      for (const side of [-1, 1]) {
-        furnishings.push(part(at(distance + side * 0.093, 0.83 + stature * 0.24, offset), [0.135, stature * 0.48, 0.2], "#42515b", yaw));
-      }
-      furnishings.push(part(at(distance, 0.83 + stature * 0.65, offset), [0.4, stature * 0.38, 0.25], color, yaw));
-      heads.push(part(at(distance, 0.83 + stature * 0.92, offset), [0.235, 0.25, 0.226], i % 3 ? "#bc8a6a" : "#815947"));
-    }
+
   });
 
   connectors.forEach(([a, b]) => {
@@ -165,10 +156,10 @@ function buildDetail(origin: Point) {
     }
   });
 
-  return { hardscape, furnishings, foliage, trunks, heads, signs };
+  return { hardscape, furnishings, foliage, trunks, signs };
 }
 
-export function AlvoradaStreetDetail({ area }: { area: Area }) {
+export function AlvoradaStreetDetail({ area, active }: { area: Area; active: boolean }) {
   const [longitude, latitude] = area.origin;
   const detail = useMemo(() => buildDetail([longitude, latitude]), [longitude, latitude]);
 
@@ -178,7 +169,7 @@ export function AlvoradaStreetDetail({ area }: { area: Area }) {
       <Batch parts={detail.furnishings} cast />
       <Batch parts={detail.trunks} shape="trunk" cast />
       <Batch parts={detail.foliage} shape="leaf" cast />
-      <Batch parts={detail.heads} shape="leaf" />
+      <AlvoradaAmbience origin={area.origin} platforms={platformWalks} active={active} />
       {detail.signs.map(({ text, at, rotation }, index) => (
         <Sign key={index} text={text} at={at} width={4.3} height={0.82} rotationY={rotation} />
       ))}

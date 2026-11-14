@@ -4,7 +4,7 @@ import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./style.css";
 import { createRoot } from "react-dom/client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Building2, BusFront, Camera, ChevronRight, ClipboardCheck, Crosshair, MapPin, Minus, Plus, Radio } from "lucide-react";
+import { Building2, BusFront, Camera, ChevronRight, ClipboardCheck, Crosshair, MapPin, Minus, Pause, Play, Plus, Radio } from "lucide-react";
 import type { Vehicle } from "./fleet";
 import { TerminalCrossings } from "./terminal-crossings";
 import { GateCamera } from "./gs-evidence";
@@ -23,6 +23,7 @@ function App() {
   const [zoom, setZoom] = useState<CameraZoom>();
   const [reviewing, setReviewing] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [animateAmbience, setAnimateAmbience] = useState(true);
   const [ready, setReady] = useState(false);
   const [failed3d, setFailed3d] = useState(false);
   const onReady = useCallback(() => setReady(true), []);
@@ -101,7 +102,7 @@ function App() {
           <div className="viewport" data-ready={ready} data-camera-mode={action.type}>
             <Scene vehicles={vehicles} selected={selected} onSelect={selectVehicle}
               action={action} zoom={zoom} onReady={onReady} onFailure={onFailure}
-              demo={false} area={area} />
+              demo={false} area={area} animateAmbience={animateAmbience} />
             {!ready && !failed3d && <div className="load-label" role="status">Carregando mapa 3D…</div>}
             <div className="scene-caption">
               <span className="eyebrow"><Radio size={13} /> MONITORAMENTO GPS</span>
@@ -115,6 +116,9 @@ function App() {
                 <button className="icon labelled-camera" aria-label="Restaurar vista geral" onClick={() => {
                   setSelected(null); setView({ type: "home" });
                 }}><Crosshair size={17} /> Entorno</button>
+                {hasTerminal && <button className="icon" aria-label={animateAmbience ? "Pausar ambientação" : "Retomar ambientação"}
+                  title={animateAmbience ? "Pausar ambientação" : "Retomar ambientação"}
+                  onClick={() => setAnimateAmbience((playing) => !playing)}>{animateAmbience ? <Pause size={16} /> : <Play size={16} />}</button>}
                 <button className="icon" aria-label="Aproximar câmera" onClick={() => setZoom({ factor: 1.22 })}><Plus size={18} /></button>
                 <button className="icon" aria-label="Afastar câmera" onClick={() => setZoom({ factor: 1 / 1.22 })}><Minus size={18} /></button>
               </div>
@@ -123,7 +127,7 @@ function App() {
               <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a>
               <a href="https://pgeo3.rio.rj.gov.br/arcgis/rest/services/Imagens/Mosaico_2019/ImageServer" target="_blank" rel="noreferrer">Ortofoto 2019 · IPP / PCRJ</a>
             </div>}
-            <div className="viewport-footer"><span className="view-mode">3D</span><span>Posições GPS · cena 3D georreferenciada</span></div>
+            <div className="viewport-footer"><span className="view-mode">3D</span><span>Ônibus via GPS · carros e pessoas ilustrativos</span></div>
           </div>
           <aside className="side" aria-label="Painel de revisão" hidden={!reviewing} ref={reviewRegion} tabIndex={-1}>
             <ShiftReview mode="LIVE" vehicles={snapshot?.source === "rio_mobi_gtfs_rt" ? [] : vehicles}

@@ -73,14 +73,17 @@ test("live motion respects chronology, measured endpoints, and interval limits",
   expect(updateObservedMotion(second, { x: -100, z: -100, time: 8000 }, 60)).toBe(second);
   expect(sampleObservedMotion(second, 30 + second.duration / 2)).toEqual({ x: 10, z: 0, heading: Math.PI / 2 });
   expect(sampleObservedMotion(second, 30000)).toEqual({ x: 20, z: 0, heading: Math.PI / 2 });
-  const stationary = updateObservedMotion(second, { x: 20.4, z: 0, time: 31000 }, 2000)!;
+  const settled = second.startsAt + second.duration;
+  const stationary = updateObservedMotion(second, { x: 20.4, z: 0, time: 31000 }, settled)!;
   expect(stationary.duration).toBe(0);
   expect(stationary.to.heading).toBe(second.to.heading);
-  expect(updateObservedMotion(stationary, { x: 1000, z: 0, time: 32000 }, 3000)?.duration).toBe(0);
-  const mapped = updateObservedMotion(second, { x: 30, z: 10, time: 31000 }, 2000,
+  expect(updateObservedMotion(stationary, { x: 1000, z: 0, time: 32000 }, settled + 1000)?.duration).toBe(0);
+  const mapped = updateObservedMotion(second, { x: 30, z: 10, time: 31000 }, settled,
     (from, to) => [from, { x: 30, z: 0 }, to])!;
-  expect(sampleObservedMotion(mapped, 2000 + mapped.duration / 2)).toMatchObject({ x: 30, z: 0 });
-  expect(sampleObservedMotion(mapped, 2000 + mapped.duration)).toMatchObject({ x: 30, z: 10 });
+  const corner = sampleObservedMotion(mapped, settled + mapped.duration / 2);
+  expect(corner.x).toBeCloseTo(30);
+  expect(corner.z).toBeCloseTo(0);
+  expect(sampleObservedMotion(mapped, settled + mapped.duration)).toMatchObject({ x: 30, z: 10 });
 });
 
 test("Alvorada solar direction follows Rio local morning and afternoon", async () => {

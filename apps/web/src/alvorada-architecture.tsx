@@ -3,6 +3,7 @@ import {
   BufferGeometry, CanvasTexture, ExtrudeGeometry, Float32BufferAttribute,
   MeshStandardMaterial, Path, RepeatWrapping, Shape, SRGBColorSpace, Vector2,
 } from "three";
+import neighborhood from "./alvorada-neighborhood.json";
 import catalog from "./alvorada-architecture-data.json";
 import terminalRoofs from "./alvorada-architecture-roofs.json";
 import { localPoint, type Area } from "./observations";
@@ -11,12 +12,15 @@ import { Batch, part, seeded, type Part } from "./scenery-kit";
 type Point = [number, number];
 type Surface =
   | "concrete" | "stucco" | "commercial" | "institutional" | "roof"
-  | "metal" | "roofEdge" | "fold" | "skylight" | "glassRoof" | "civicRoof";
+  | "tile" | "tileLight" | "plaster" | "metal" | "roofEdge" | "fold" | "skylight" | "glassRoof" | "civicRoof";
 
 type Vertices = { position: number[]; uv: number[] };
 type Panel = { x: number; z: number; dx: number; dz: number; normalX: number; normalZ: number };
 
-const palette: Record<Surface, { color: string; map: "cement" | "roof" | "glass"; roughness: number }> = {
+const palette: Record<Surface, { color: string; map: "cement" | "roof" | "glass" | "tile"; roughness: number }> = {
+  tile: { color: "#ac6954", map: "tile", roughness: 0.84 },
+  tileLight: { color: "#b5a691", map: "tile", roughness: 0.86 },
+  plaster: { color: "#d2c7b0", map: "cement", roughness: 0.89 },
   concrete: { color: "#a7a79a", map: "cement", roughness: 0.85 },
   stucco: { color: "#e0d7c4", map: "cement", roughness: 0.91 },
   commercial: { color: "#c6c6bb", map: "cement", roughness: 0.88 },
@@ -30,7 +34,7 @@ const palette: Record<Surface, { color: string; map: "cement" | "roof" | "glass"
   civicRoof: { color: "#595d56", map: "roof", roughness: 0.84 },
 };
 
-function texture(style: "cement" | "roof" | "glass") {
+function texture(style: "cement" | "roof" | "glass" | "tile") {
   const random = seeded(385963);
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = 128;
@@ -42,7 +46,10 @@ function texture(style: "cement" | "roof" | "glass") {
       const index = (y * 128 + x) * 4;
       const seams = x % 16 < 2 ? 44 : x % 16 === 2 ? -8 : 0;
       const grid = x % 32 < 3 || y % 32 < 3 ? 56 : 0;
-      const shade = style === "roof"
+      const tile = x % 12;
+      const shade = style === "tile"
+        ? 194 + Math.sin(tile * Math.PI / 11) * 22 - (x % 12 < 2 ? 31 : 0) - (y % 28 < 2 ? 18 : 0) + random() * 19
+        : style === "roof"
         ? 223 - seams - (y < 2 ? 21 : 0) + random() * 13
         : style === "glass"
           ? 175 + 35 * Math.sin((x + y) * Math.PI / 64) - grid + random() * 10
@@ -93,7 +100,8 @@ function appendVolume(
         }
       }
       vertices.position.push(x, y, z);
-      vertices.uv.push(uv.getX(vertex) / (top === "skylight" ? 10 : 7), uv.getY(vertex) / 7);
+      const repeat = surface === "tile" || surface === "tileLight" ? 3 : surface === "skylight" ? 10 : 7;
+      vertices.uv.push(uv.getX(vertex) / repeat, uv.getY(vertex) / repeat);
     }
   }
   slab.dispose();
@@ -340,6 +348,30 @@ function architecture(origin: Area["origin"]) {
     facade(path, building, height, seeded(building.osm), solids, windows);
   });
 
+  for (const [id, height, coordinates] of neighborhood as [number, number, Point[]][]) {
+    const outline = coordinates.map((point) => localPoint(origin, point));
+    const longest = Math.max(...edges(outline).map(({ len }) => len));
+    const small = height < 15 && longest < 34;
+    const roof = small ? (id % 4 ? "tile" : "tileLight") : "roof";
+    appendVolume(buffers, outline, height, 0.03, roof, id % 4 ? "plaster" : "concrete");
+    if (longest < 70 && height < 32) {
+      const random = seeded(id);
+      for (const edge of edges(outline)) {
+        if (edge.len < 4) continue;
+        const levels = Math.max(1, Math.round(height / 3.4));
+        const bays = Math.min(6, Math.floor(edge.len / 3));
+        for (let level = 0; level < levels; level++) {
+          for (let i = 0; i < bays; i++) {
+            if (random() < 0.24) continue;
+            windows.push(facadePart(edge, (i + 0.5) * edge.len / bays,
+              (level + 0.63) * height / levels, 1.22 + random() * 0.55, Math.min(1.44, height / levels * 0.45),
+              0.09, 0.045, id % 3 ? "#526969" : "#536a79"));
+          }
+        }
+      }
+    }
+  }
+
   const meshes = Array.from(buffers, ([surface, { position, uv }]) => {
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute(position, 3));
@@ -357,6 +389,7 @@ export function AlvoradaArchitecture({ area }: { area: Area }) {
     cement: texture("cement"),
     roof: texture("roof"),
     glass: texture("glass"),
+    tile: texture("tile"),
   }), []);
   const materials = useMemo(() => new Map(
     Object.entries(palette).map(([key, { color, map, roughness }]) => [key, new MeshStandardMaterial({
@@ -378,7 +411,7 @@ export function AlvoradaArchitecture({ area }: { area: Area }) {
         <mesh key={surface} geometry={geometry} material={materials.get(surface)} castShadow receiveShadow />
       ))}
       <Batch parts={model.solids} cast />
-      <Batch parts={model.windows} roughness={0.36} />
+      <Batch parts={model.windows} roughness={0.4} />
     </group>
   );
 }

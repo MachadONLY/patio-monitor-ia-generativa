@@ -49,3 +49,10 @@
 - Posicionamento ao vivo pelo feed público [SMTR / MOBI-Rio GTFS-RT](https://dados.mobilidade.rio/gtfs/realtime), CC BY 4.0. A ficha mostra a coordenada original. A cena interpola visualmente entre leituras consecutivas e usa o eixo da via quando ambas as amostras estão próximas do mesmo trecho. A orientação é derivada do deslocamento. As alturas da pista e o tipo exato do veículo não são fornecidos. O modelo genérico mede aproximadamente 12 m.
 - A direção da luz diurna usa uma aproximação solar pela data, hora UTC e coordenadas do Alvorada, com iluminação mínima mantida para legibilidade.
 - Entradas e saídas se referem à travessia inferida do [perímetro do terminal no OSM](https://www.openstreetmap.org/relation/4571813), cujo contorno externo é a via 940033143. O horário é um intervalo entre observações e o registro requer confirmação por GPS em ambos os lados. Sensores físicos de portão e a ferramenta de reconciliação de portaria são fontes distintas.
+
+
+### Ambientação animada do Alvorada
+
+- As cenas de tráfego leve usam trechos direcionais mapeados pelo OSM nas avenidas das Américas e Ayrton Senna. Pedestres estilizados percorrem plataformas e caminhos selecionados na Cidade das Artes. Pessoas e automóveis são ambientação ilustrativa. Somente os ônibus do feed aparecem na frota observada ou alimentam o histórico e os registros do perímetro.
+- A onda é um efeito visual sobre os polígonos de água do mapa, com duas camadas de textura e brilho especular. Iluminação e sombra do terminal usam a posição solar aproximada. As animações contínuas respeitam a preferência do navegador por movimento reduzido.
+- Foram acrescentadas 273 projeções com alturas do cadastro IPP de 2013 no entorno imediato, sem sobrepor a implantação principal. Fachadas e acabamentos são interpretados. A ortofoto continua como camada geográfica do solo e contexto nos locais sem volumes disponíveis.
