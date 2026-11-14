@@ -1,0 +1,133 @@
+{
+  "integrantes": [
+    "Felipe Bressani · RM 97688",
+    "Gabriel Teixeira Machado · RM 551570",
+    "Camila do Prado Padalino · RM 98316"
+  ],
+  "resumo": "O Pátio Monitor é uma aplicação de visualização para acompanhar e revisar movimentos em pátios de ônibus. Uma gravação de câmera pode ajudar a localizar o momento de uma passagem quando o cadastro operacional não oferece evidência suficiente. Este trabalho desenvolveu um detector customizado da classe ônibus e um procedimento para extrair cruzamentos em vídeo usando uma linha virtual. O foco foi tornar cada resultado conferível pela equipe, com identificação da fonte, do quadro e do tempo relativo à gravação.\n\nA base utiliza vídeos públicos com licenças declaradas e anotações de caixas delimitadoras feitas para este experimento. A divisão por gravação separa imagens de treino, validação e teste, reduzindo o risco de avaliar imagens quase idênticas às usadas para treinar. Um detector treinado com esses recortes localiza candidatos e atribui um escore. Um rastreador associa as caixas ao longo da sequência e usa o deslocamento através da linha para atribuir o sentido de cada passagem.\n\nA avaliação compara as caixas previstas à anotação manual no teste e mantém os resultados numéricos junto aos arquivos de execução. Na interface web, o operador reproduz a gravação anotada e seleciona um cruzamento para buscar diretamente seu tempo. A evidência indica a direção dentro do enquadramento e a confiança da detecção.\n\nA amostra se limita a gravações públicas e a condições específicas de câmera. Seus resultados descrevem o experimento e orientam uma futura validação com câmeras fixas, iluminação variada e registros de portaria. Os cruzamentos compõem uma trilha visual independente da telemetria de veículos.",
+  "objetivo": "Treinar um detector para localizar ônibus em quadros de vídeos públicos, medir a qualidade das caixas previstas em gravação separada do treinamento e extrair o horário e o sentido de passagens por uma linha virtual. Integrar a gravação anotada e os eventos navegáveis à interface do Pátio Monitor para inspeção.",
+  "introducao": "Uma posição GPS indica onde um ônibus foi observado e quando o provedor registrou a leitura. A câmera acrescenta outra pergunta verificável: em que instante um ônibus cruzou um ponto visível e em qual sentido? A proposta do Pátio Monitor integra o vídeo, a detecção da classe ônibus e os cruzamentos a uma interface de revisão. O vídeo usado é público e foi filmado fora da garagem ilustrativa exibida na maquete.",
+  "ferramentas": [
+    "Python, NumPy e OpenCV tratam os quadros. Uma rede YOLOX congelada, carregada em formato ONNX, gera propostas de regiões. Para cada região, o programa combina escores da rede, geometria e histograma de gradientes (HOG). A execução usou Python 3.12.14, NumPy 2.3.5, OpenCV 4.13.0 e scikit-learn 1.8.0.",
+    "O scikit-learn treina duas cabeças sobre essas características. Uma regressão logística classifica a região como ônibus. Uma regressão Ridge corrige suas quatro coordenadas. A inferência remove caixas muito sobrepostas antes de associá-las entre quadros. FastAPI serve o relatório e a mídia, que a interface React coloca na mesma linha do tempo do vídeo."
+  ],
+  "metodologia": [
+    "Selecionar vídeos públicos e registrar autor, licença, link original e hash SHA-256 no manifesto. Associar cada gravação a um único conjunto.",
+    "Anotar manualmente as caixas de ônibus nos quadros amostrados e marcar quadros sem anotação da classe. Separar gravações de treino, validação e teste.",
+    "Espelhar os quadros de treino e as caixas. Extrair propostas da YOLOX e treinar as duas cabeças com os dados específicos. Propostas com IoU a partir de 0,55 são positivas e propostas com IoU até 0,30 são negativas.",
+    "Escolher o limiar por F1 na validação. Fixar o mesmo limiar no teste e contar correspondências com IoU de pelo menos 0,50.",
+    "Inferir sobre o vídeo em amostras temporais. Associar caixas por sobreposição e registrar a troca de lado de uma linha vertical, com uma faixa de tolerância e confirmação em quadros sucessivos.",
+    "Exportar as detecções anotadas, os cruzamentos e os quadros para a API. No navegador, reproduzir a gravação, selecionar um cruzamento e conferir o instante buscado."
+  ],
+  "tabela_dados": [
+    [
+      "Conjunto",
+      "Gravações",
+      "Quadros",
+      "Com ônibus",
+      "Sem ônibus"
+    ],
+    [
+      "Treino",
+      "3",
+      "33",
+      "29",
+      "4"
+    ],
+    [
+      "Validação",
+      "1",
+      "10",
+      "6",
+      "4"
+    ],
+    [
+      "Teste",
+      "1",
+      "11",
+      "11",
+      "0"
+    ]
+  ],
+  "tabela_metricas": [
+    [
+      "Métrica",
+      "Validação · Londres",
+      "Teste · Praga"
+    ],
+    [
+      "Verdadeiros positivos",
+      "6",
+      "11"
+    ],
+    [
+      "Falsos positivos",
+      "5",
+      "0"
+    ],
+    [
+      "Falsos negativos",
+      "0",
+      "0"
+    ],
+    [
+      "Precisão",
+      "54,5%",
+      "100,0%"
+    ],
+    [
+      "Revocação",
+      "100,0%",
+      "100,0%"
+    ],
+    [
+      "F1",
+      "70,6%",
+      "100,0%"
+    ]
+  ],
+  "avaliacao": "Treino: 1.246 propostas, das quais 59 positivas. O limiar 0,98 foi escolhido na validação. Uma detecção conta como correta quando existe uma anotação correspondente e a interseção sobre união (IoU) é de pelo menos 0,50.",
+  "explicacao_metricas": "Na validação houve cinco caixas espúrias. O teste contém onze quadros anotados de uma única gravação e nenhum quadro negativo. Seu resultado descreve essa amostra. A precisão de cruzamentos não foi medida com uma amostra de eventos anotados.",
+  "exemplos": [
+    {
+      "arquivo": "exemplo-teste.jpg",
+      "legenda": "Teste, Praga, 00:04. Laranja: anotação manual. Verde: caixa prevista. IoU 0,858. Fonte: ŠJů, Wikimedia Commons, CC BY 4.0. Quadro recortado no tempo e anotado pela equipe."
+    },
+    {
+      "arquivo": "exemplo-validacao.jpg",
+      "legenda": "Validação, Londres, 00:06. A região destacada é uma previsão acima do limiar sem anotação da classe. Fonte: Christopher Parker, Wikimedia Commons, CC BY 3.0. Quadro recortado no tempo e anotado pela equipe."
+    }
+  ],
+  "conclusao": "O treino produziu duas cabeças para identificar ônibus e ajustar caixas. A interface permite reproduzir a gravação e conferir a detecção em seu instante. As cinco previsões espúrias na validação e o teste com uma única câmera delimitam a evidência. A próxima avaliação precisa de gravações de pátios locais, quadros negativos variados e passagens anotadas para medir o erro operacional.",
+  "fontes": [
+    {
+      "titulo": "Código e manifesto da base de dados",
+      "url": "https://github.com/MachadONLY/patio-monitor-computer-vision"
+    },
+    {
+      "titulo": "YOLOX ONNX, OpenCV Zoo",
+      "url": "https://github.com/opencv/opencv_zoo/tree/main/models/object_detection_yolox"
+    },
+    {
+      "titulo": "Gravação de teste de ŠJů, Wikimedia Commons",
+      "url": "https://commons.wikimedia.org/wiki/File:Leti%C5%A1t%C4%9B_Ruzyn%C4%9B%2C_autobus_linky_119_u_v%C3%BDjezdov%C3%A9_z%C3%A1vory.webm"
+    },
+    {
+      "titulo": "Gravação de validação de Christopher Parker, Wikimedia Commons",
+      "url": "https://commons.wikimedia.org/wiki/File:London_Bus_pulls_in.webm"
+    }
+  ],
+  "tabela_eventos": [
+    [
+      "Tempo no vídeo",
+      "Sentido no enquadramento",
+      "Escore do detector"
+    ],
+    [
+      "7,44 s (q. 186)",
+      "Esquerda → direita",
+      "0,9871"
+    ]
+  ],
+  "explicacao_eventos": "A gravação dura 10,92 s e mede 768 × 432 pixels. A linha fica em x = 468 px, com tolerância de ±18 px. O rastreador gera identificadores temporários por vídeo. Em CPU AMD EPYC 9V74 com duas threads OpenCV, foram decodificados 273 quadros e realizadas 91 inferências. A taxa medida foi de 4,28 quadros de vídeo processados/s e 1,48 inferências/s. A reprodução no navegador utiliza o vídeo já anotado."
+}

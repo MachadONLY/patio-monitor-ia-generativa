@@ -1,0 +1,408 @@
+{
+  "croydon": {
+    "title": "Arriva London LJ08CXR in Addiscombe Road, Croydon (February 2016)",
+    "author": "Jontsa73",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Arriva_London_LJ08CXR_in_Addiscombe_Road%2C_Croydon_%28February_2016%29.webm",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Arriva_London_LJ08CXR_in_Addiscombe_Road%2C_Croydon_%28February_2016%29.webm",
+    "sha256": "c9bd095772e1578275cc2023536f6307600a21f06ff8d6e8d68ad55101591cee",
+    "split": "train",
+    "frames": [
+      [
+        0,
+        184,
+        42,
+        216,
+        80
+      ],
+      [
+        1,
+        181,
+        39,
+        217,
+        87
+      ],
+      [
+        2,
+        179,
+        37,
+        219,
+        88
+      ],
+      [
+        3,
+        181,
+        33,
+        219,
+        90
+      ],
+      [
+        4,
+        174,
+        31,
+        218,
+        91
+      ],
+      [
+        5,
+        168,
+        31,
+        218,
+        92
+      ],
+      [
+        6,
+        170,
+        32,
+        216,
+        95
+      ],
+      [
+        7,
+        170,
+        31,
+        216,
+        93
+      ],
+      [
+        8,
+        168,
+        28,
+        214,
+        93
+      ],
+      [
+        9,
+        72,
+        14,
+        175,
+        111
+      ],
+      [
+        10,
+        6,
+        0,
+        172,
+        135
+      ],
+      [
+        11,
+        0,
+        0,
+        155,
+        135
+      ],
+      [
+        12,
+        0,
+        0,
+        109,
+        135
+      ],
+      [
+        13
+      ],
+      [
+        14
+      ],
+      [
+        15
+      ]
+    ]
+  },
+  "tottenham": {
+    "title": "Arriva ALX400 in High Rd, Tottenham",
+    "author": "Alan Stanton",
+    "license": "CC BY-SA 2.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Arriva_ALX400_in_High_Rd%2C_Tottenham.webm",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Arriva_ALX400_in_High_Rd%2C_Tottenham.webm",
+    "sha256": "e9a58010c09d8c0665a8945bd93f28578edef307e2dd1ad3aeeb0cb0fab51a15",
+    "split": "train",
+    "frames": [
+      [
+        0,
+        162,
+        0,
+        197,
+        33
+      ],
+      [
+        1,
+        150,
+        0,
+        200,
+        34
+      ],
+      [
+        2,
+        83,
+        0,
+        196,
+        61
+      ],
+      [
+        3,
+        0,
+        0,
+        139,
+        135
+      ],
+      [
+        4
+      ]
+    ]
+  },
+  "toulouse": {
+    "title": "Bus Tisséo nov14 unedited",
+    "author": "Gyrostat",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Bus_Tiss%C3%A9o_nov14_unedited.webm",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Bus_Tiss%C3%A9o_nov14_unedited.webm",
+    "sha256": "c9f2e3cd7301a3e42d5628b8702999f2bfe1aeacc49c4a1446815a760ebd7a93",
+    "split": "train",
+    "frames": [
+      [
+        0,
+        68,
+        42,
+        117,
+        86
+      ],
+      [
+        1,
+        62,
+        42,
+        117,
+        89
+      ],
+      [
+        2,
+        51,
+        39,
+        119,
+        93
+      ],
+      [
+        3,
+        32,
+        31,
+        132,
+        104
+      ],
+      [
+        4,
+        0,
+        6,
+        169,
+        126
+      ],
+      [
+        5,
+        0,
+        0,
+        229,
+        135
+      ],
+      [
+        6,
+        0,
+        0,
+        240,
+        135
+      ],
+      [
+        7,
+        0,
+        0,
+        203,
+        135
+      ],
+      [
+        8,
+        0,
+        0,
+        196,
+        135
+      ],
+      [
+        9,
+        46,
+        8,
+        210,
+        110
+      ],
+      [
+        10,
+        118,
+        29,
+        211,
+        95
+      ],
+      [
+        11,
+        154,
+        42,
+        220,
+        95
+      ]
+    ]
+  },
+  "london": {
+    "title": "London Bus pulls in",
+    "author": "Christopher Parker",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "source_url": "https://commons.wikimedia.org/wiki/File:London_Bus_pulls_in.webm",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/1/17/London_Bus_pulls_in.webm",
+    "sha256": "e2230fbd421a04a0f831f48fe6360220c5098a095e7b86ba3f398510ae408a09",
+    "split": "validation",
+    "frames": [
+      [
+        0
+      ],
+      [
+        2
+      ],
+      [
+        4
+      ],
+      [
+        6
+      ],
+      [
+        10,
+        149,
+        55,
+        177,
+        83
+      ],
+      [
+        11,
+        144,
+        53,
+        174,
+        86
+      ],
+      [
+        12,
+        126,
+        54,
+        174,
+        96
+      ],
+      [
+        13,
+        115,
+        45,
+        178,
+        110
+      ],
+      [
+        14,
+        76,
+        35,
+        171,
+        122
+      ],
+      [
+        15,
+        7,
+        8,
+        189,
+        135
+      ]
+    ]
+  },
+  "prague": {
+    "title": "Letiště Ruzyně, autobus linky 119 u výjezdové závory",
+    "author": "ŠJů",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Leti%C5%A1t%C4%9B_Ruzyn%C4%9B%2C_autobus_linky_119_u_v%C3%BDjezdov%C3%A9_z%C3%A1vory.webm",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/1/12/Leti%C5%A1t%C4%9B_Ruzyn%C4%9B%2C_autobus_linky_119_u_v%C3%BDjezdov%C3%A9_z%C3%A1vory.webm",
+    "sha256": "0d6e9b4e301800e0b427fd13d328a59d347de4901304952e0c08a60db0394125",
+    "split": "test",
+    "frames": [
+      [
+        0,
+        72,
+        32,
+        155,
+        108
+      ],
+      [
+        1,
+        71,
+        36,
+        150,
+        112
+      ],
+      [
+        2,
+        69,
+        36,
+        150,
+        114
+      ],
+      [
+        3,
+        69,
+        31,
+        153,
+        111
+      ],
+      [
+        4,
+        65,
+        28,
+        157,
+        108
+      ],
+      [
+        5,
+        69,
+        28,
+        156,
+        112
+      ],
+      [
+        6,
+        72,
+        20,
+        177,
+        122
+      ],
+      [
+        7,
+        72,
+        0,
+        240,
+        135
+      ],
+      [
+        8,
+        62,
+        0,
+        240,
+        135
+      ],
+      [
+        9,
+        74,
+        0,
+        240,
+        135
+      ],
+      [
+        10,
+        130,
+        0,
+        240,
+        135
+      ]
+    ]
+  }
+}

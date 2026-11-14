@@ -1,0 +1,14 @@
+[
+  {"question":"GPS cancela a escala sem um registro de saída OUT?","expected_sources":["p01"]},
+  {"question":"Como reconhecer troca de veículo pelo mesmo ID?","expected_sources":["p02"]},
+  {"question":"A janela é de 15 minutos antes e 60 depois sem ID?","expected_sources":["p03"]},
+  {"question":"Quem é o prefeito?","expected_sources":[]},
+  {"question":"Qual é o preço da passagem amanhã?","expected_sources":[]},
+  {"question":"Qual é a idade do motorista na garagem?","expected_sources":[]},
+  {"question":"Qual o nome do terminal que possui o veículo 5877?","expected_sources":[]},
+  {"question":"Qual é a previsão de chuva?","expected_sources":[]},
+  {"question":"Qual o procedimento para validação do arquivo CSV com fuso local?","expected_sources":["p06"]},
+  {"question":"O que diferencia observedAt e receivedAt?","expected_sources":["p08"]},
+  {"question":"Como autenticar a sessão no Olho Vivo, com qual endpoint?","expected_sources":["s02"]},
+  {"question":"O que px e py significam?","expected_sources":["s01"]}
+]

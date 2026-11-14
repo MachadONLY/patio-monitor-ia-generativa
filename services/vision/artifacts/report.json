@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "data_origin": "PUBLIC_VIDEO",
+  "source": {
+    "title": "Letiště Ruzyně, autobus linky 119 u výjezdové závory",
+    "author": "ŠJů",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Leti%C5%A1t%C4%9B_Ruzyn%C4%9B%2C_autobus_linky_119_u_v%C3%BDjezdov%C3%A9_z%C3%A1vory.webm",
+    "sha256": "0d6e9b4e301800e0b427fd13d328a59d347de4901304952e0c08a60db0394125"
+  },
+  "model": {
+    "family": "YOLOX + cabeças para ônibus",
+    "sha256": "5fee2b0d06e0efd958c08ae3217afedf997f0f013a433c1db8987db9711cdb05",
+    "backbone_sha256": "c5c2d13e59ae883e6af3b45daea64af4833a4951c92d116ec270d9ddbe998063"
+  },
+  "video": {
+    "url": "/api/gs/vision/media/annotated.mp4",
+    "duration_seconds": 10.92,
+    "width": 768,
+    "height": 432,
+    "sha256": "f39e6c5e5a053fa0bb883099ddbf11bcff68c2cacb1b90985de98159140e8169"
+  },
+  "line": {
+    "x": 468,
+    "deadband_px": 18,
+    "unit": "video_px"
+  },
+  "events": [
+    {
+      "id": "crossing-01",
+      "frame": 186,
+      "timestamp_seconds": 7.44,
+      "direction": "LEFT_TO_RIGHT",
+      "confidence": 0.9871,
+      "bbox": [
+        208,
+        0,
+        768,
+        432
+      ],
+      "track_id": 1,
+      "evidence_url": "/api/gs/vision/media/crossing-01.jpg"
+    }
+  ],
+  "metrics": {
+    "training_frames": 33,
+    "training_videos": 3,
+    "training_proposals": 1246,
+    "positive_proposals": 59,
+    "threshold": 0.98,
+    "validation": {
+      "frames": 10,
+      "iou_threshold": 0.5,
+      "true_positives": 6,
+      "false_positives": 5,
+      "false_negatives": 0,
+      "precision": 0.5454545454545454,
+      "recall": 1.0,
+      "f1": 0.7058823529411764
+    },
+    "test": {
+      "frames": 11,
+      "iou_threshold": 0.5,
+      "true_positives": 11,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "checkpoint_sha256": "5fee2b0d06e0efd958c08ae3217afedf997f0f013a433c1db8987db9711cdb05",
+    "backbone_sha256": "c5c2d13e59ae883e6af3b45daea64af4833a4951c92d116ec270d9ddbe998063"
+  },
+  "processing": {
+    "decoded_frames": 273,
+    "source_fps": 25.0,
+    "detector_calls": 91,
+    "sampled_fps": 8.333,
+    "measured_decoder_encoder_fps": 4.276,
+    "measured_detector_fps": 1.476
+  }
+}
