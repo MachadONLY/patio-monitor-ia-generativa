@@ -8,6 +8,7 @@ import hmac
 import logging
 from pathlib import Path
 import os
+import sqlite3
 from typing import Literal
 from urllib.parse import urlsplit
 
@@ -16,6 +17,7 @@ from fastapi import FastAPI, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
 from pydantic import AwareDatetime, BaseModel, Field, ValidationError, model_validator
 
+from .archive import ObservationArchive
 from .assistant import router as assistant_router
 from .rio import RIO_SOURCE, RioBrt
 from .sptrans import Observation, OlhoVivo
@@ -99,6 +101,8 @@ class Ingestion:
     records: list[Observation] = field(default_factory=list)
     state: str = "not_configured"
     replay: Replay | None = None
+    archive: ObservationArchive | None = None
+    archive_error: bool = False
     revision: int = 0
     changed: asyncio.Event = field(default_factory=asyncio.Event)
     live_clients: int = 0
@@ -119,6 +123,13 @@ async def poll(ingestion: Ingestion, provider: OlhoVivo | RioBrt, area: Area, co
             if not fresh:
                 raise ValueError("no_valid_observations")
             ingestion.records = [record for record in fresh if area.contains(record.longitude, record.latitude)]
+            if ingestion.archive:
+                try:
+                    await asyncio.to_thread(ingestion.archive.save, ingestion.records, datetime.now(timezone.utc))
+                    ingestion.archive_error = False
+                except sqlite3.Error:
+                    logger.error("Falha ao persistir observações GPS")
+                    ingestion.archive_error = True
             ingestion.state = "connected"
             delay = 15
             ingestion.publish()
@@ -207,6 +218,12 @@ async def lifespan(app: FastAPI):
         if company is not None and company < 0:
             raise ValueError("SPTRANS_COMPANY_ID inválido")
         provider = OlhoVivo(token)
+    archive_path = os.getenv("PATIO_ARCHIVE_FILE", "").strip()
+    if ingestion.area and archive_path:
+        company_id = str(company) if company is not None else ""
+        scope = hashlib.sha256(f"{ingestion.source}|{company_id}|{ingestion.area.model_dump_json()}".encode()).hexdigest()
+        ingestion.archive = ObservationArchive(Path(archive_path), scope)
+        await asyncio.to_thread(ingestion.archive.initialize)
     if provider and ingestion.area:
         ingestion.state = "connecting"
         task = asyncio.create_task(poll(ingestion, provider, ingestion.area, company))
@@ -245,6 +262,13 @@ def snapshot(ingestion: Ingestion, mode: Literal["LIVE", "REPLAY"], at: datetime
     now = datetime.now(timezone.utc)
     if mode == "REPLAY":
         replay = ingestion.replay
+        if not (replay and replay.observations) and ingestion.archive and ingestion.area:
+            bounds = ingestion.archive.bounds()
+            if bounds:
+                cursor = at if at and at.tzinfo else bounds[-1]
+                return {"version": 1, "mode": mode, "state": "recorded",
+                        "source": ingestion.source, "area": ingestion.area.model_dump(),
+                        "range": bounds, "at": cursor, "vehicles": ingestion.archive.snapshot(cursor)}
         if not replay or not replay.observations:
             return {"version": 1, "mode": mode, "state": "no_records", "vehicles": []}
         stamps = sorted({obs.observedAt for obs in replay.observations})
@@ -258,7 +282,10 @@ def snapshot(ingestion: Ingestion, mode: Literal["LIVE", "REPLAY"], at: datetime
     if ingestion.state != "connected" and not ingestion.records:
         unavailable = {"version": 1, "mode": mode, "state": ingestion.state, "vehicles": []}
         if ingestion.area:
-            unavailable.update(source=ingestion.source, area=ingestion.area.model_dump())
+            unavailable.update(
+                source=ingestion.source, area=ingestion.area.model_dump(),
+                operatorCamera=os.getenv("PATIO_OPERATOR_CAMERA") == "1" and ingestion.public_origin is None,
+            )
         return unavailable
     state = ingestion.state
     if ingestion.records and all((now-obs.observedAt).total_seconds() > 90 for obs in ingestion.records):
@@ -267,20 +294,25 @@ def snapshot(ingestion: Ingestion, mode: Literal["LIVE", "REPLAY"], at: datetime
         state = "no_observations"
     return {"version": 1, "mode": mode, "state": state, "source": ingestion.source,
             "area": ingestion.area.model_dump() if ingestion.area else None,
-            "vehicles": ingestion.records, "serverTime": now}
+            "vehicles": ingestion.records, "serverTime": now,
+            "archiveState": ("unavailable" if ingestion.archive_error else "recording") if ingestion.archive else "disabled",
+            "operatorCamera": os.getenv("PATIO_OPERATOR_CAMERA") == "1" and ingestion.public_origin is None}
 
 
 @app.get("/api/vehicles/snapshot")
-async def get_snapshot(mode: Literal["LIVE", "REPLAY"] = Query(),
+def get_snapshot(mode: Literal["LIVE", "REPLAY"] = Query(),
                  at: datetime | None = None):
     return snapshot(app.state.ingestion, mode, at)
 
 
 @app.get("/api/vehicles/{vehicle_id}/history")
-async def get_recorded_history(
-    vehicle_id: str, at: AwareDatetime,
+def get_recorded_history(
+    vehicle_id: str, at: AwareDatetime, mode: Literal["LIVE", "REPLAY"] = "REPLAY",
 ):
-    replay = app.state.ingestion.replay
+    ingestion = app.state.ingestion
+    replay = ingestion.replay if mode == "REPLAY" else None
+    if ingestion.archive and (not replay or not replay.observations):
+        return {"source": ingestion.source, "observations": ingestion.archive.history(vehicle_id, at)}
     rows: dict[datetime, Observation] = {}
     if replay:
         for obs in replay.observations:

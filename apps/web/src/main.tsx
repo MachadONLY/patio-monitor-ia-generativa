@@ -32,7 +32,7 @@ import { readingTime, SiteMap, VehicleInspector } from "./vehicle-inspector";
 import { observedVehicles, observationSources, useObservations, type Mode } from "./observations";
 
 function App() {
-  const [mode, setMode] = useState<Mode>("DEMO");
+  const [mode, setMode] = useState<Mode>(() => new URLSearchParams(window.location.search).get("mode") === "LIVE" ? "LIVE" : "DEMO");
   const [selected, setSelected] = useState<string | null>("8 2361");
   const [action, setAction] = useState<CameraAction>({ type: "home" });
   const [zoom, setZoom] = useState<CameraZoom>();
@@ -50,6 +50,7 @@ function App() {
   const snapshot = result?.data;
   const area = snapshot?.area;
   const demo = mode === "DEMO";
+  const showCamera = demo || (mode === "LIVE" && snapshot?.operatorCamera);
   const provider = observationSources[snapshot?.source ?? "sptrans_olhovivo"];
   const location = demo ? observationSources.sptrans_olhovivo : provider;
   const vehicles = demo ? fleet : observedVehicles(snapshot);
@@ -151,7 +152,7 @@ function App() {
           <CircleHelp size={20} />
         </button>
       </header>
-      {cameraOpen && demo && <GateCamera onClose={() => setCameraOpen(false)} />}
+      {cameraOpen && showCamera && <GateCamera onClose={() => setCameraOpen(false)} />}
       <main className="layout">
         <nav className="rail" aria-label="Área de trabalho">
           <button
@@ -186,7 +187,7 @@ function App() {
           >
             <ClipboardCheck size={20} />
           </button>
-          {demo && (
+          {showCamera && (
             <button
               type="button"
               className="icon"
@@ -253,7 +254,7 @@ function App() {
                     ? snapshot?.state === "no_observations"
                       ? "Nenhuma leitura dentro do perímetro."
                       : "A conexão com " + provider.title + " está indisponível."
-                    : "Nenhum histórico verificado foi carregado."}
+                    : "O histórico aparece após a coleta de posições reais ou a importação de uma captura assinada."}
                 </span>
                 <button onClick={() => chooseMode("DEMO")}>
                   Abrir demonstração <ChevronRight size={15} />
@@ -501,10 +502,12 @@ function App() {
                   ? "LIVE · GPS observado"
                   : "LIVE · Sem observações"
               : snapshot?.range
-                ? "REPLAY · Histórico verificado"
+                ? "REPLAY · Histórico GPS"
                 : "REPLAY · Sem registros"}
         </span>
-        <span>Visualização de mobilidade · {location.region}</span>
+        <span>{mode === "LIVE" && snapshot?.archiveState === "unavailable"
+          ? "Histórico: gravação indisponível"
+          : `Visualização de mobilidade · ${location.region}`}</span>
       </footer>
       {help && (
         <dialog open aria-labelledby="help-title" className="help-dialog">
@@ -519,7 +522,7 @@ function App() {
           <p>
             <strong>DEMO</strong> simula manobras e passagens na portaria.{" "}
             <strong>LIVE</strong> exibe observações GPS da fonte identificada na tela.{" "}
-            <strong>REPLAY</strong> exige histórico registrado e verificado.
+            <strong>REPLAY</strong> consulta posições GPS armazenadas ou uma captura assinada.
           </p>
           <p>
             Use os botões da câmera, arraste o pátio ou escolha um veículo na

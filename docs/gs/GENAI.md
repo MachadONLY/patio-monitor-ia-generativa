@@ -50,23 +50,26 @@ A recuperação obteve **Recall@1 100%** e **Recall@3 100%** sobre as 11 pergunt
 
 | Configuração | Acertos | Respondíveis | Recusas corretas | Corretas com fonte pertinente | JSON da LLM | Mediana CPU |
 |---|---:|---:|---:|---:|---:|---:|
-| LLM sem contexto | 4/17 | 0/11 | 4/6 | 0/11 | 17/17 | 1.807 s |
-| RAG | 8/17 | 2/11 | 6/6 | 2/11 | 17/17 | 6.076 s |
-| RAG com agente | 10/17 | 5/11 | 5/6 | 5/11 | 13/13 | 4.794 s |
+| LLM sem contexto | 4/17 | 0/11 | 4/6 | 0/11 | 17/17 | 1.605 s |
+| RAG | 8/17 | 2/11 | 6/6 | 2/11 | 17/17 | 4.868 s |
+| RAG com agente | 11/17 | 5/11 | 6/6 | 5/11 | 12/12 | 4.007 s |
 
-Todas as configurações devolveram 17 objetos JSON válidos. A métrica de JSON da LLM conta só as chamadas efetivas. O agente recusou quatro consultas antes de gerar. A latência foi observada neste ambiente e pode variar com hardware e carga. O agente teve dois acertos totais a mais que o RAG simples. Nos seis casos sem fonte, o modelo sem contexto respondeu indevidamente a dois, o RAG simples a nenhum e o agente a um. Nas onze perguntas com fonte, as três configurações emitiram, respectivamente, quatro, cinco e seis respostas incorretas pelo critério lexical. Esses números distinguem respostas indevidas sem fonte de erros em perguntas respondíveis. A cobertura alta do recuperador deslocou o principal gargalo para a escolha de conteúdo e para a separação de assuntos aproximados.
+Todas as configurações devolveram 17 objetos JSON válidos. A métrica de JSON da LLM conta só as chamadas efetivas. O agente recusou cinco consultas antes de gerar. A latência foi observada neste ambiente e pode variar com hardware e carga. O agente teve três acertos totais a mais que o RAG simples. Nos seis casos sem fonte, o modelo sem contexto respondeu indevidamente a dois, o RAG simples e o agente recusaram todos. Nas onze perguntas com fonte, as três configurações emitiram, respectivamente, quatro, cinco e seis respostas incorretas pelo critério lexical. Esses números distinguem respostas indevidas sem fonte de erros em perguntas respondíveis. A cobertura alta do recuperador deslocou o principal gargalo para a escolha de conteúdo e para a separação de assuntos aproximados.
 
 Na ocorrência tipada g17, a LLM selecionou o procedimento de portaria `p01` e informou que o operador deve conferir registro OUT, veículo e horário. Essa chamada é reproduzível com os mesmos arquivos e os pesos registrados.
 
 ## Erros observados
+
+A tabela registra cinco erros observados na execução atual e uma regressão corrigida nesta versão.
 
 | Caso real do gabarito | Resposta observada | Falha e próximo ajuste |
 |---|---|---|
 | g01 · GPS sozinho comprova passagem? | O agente explicou a ausência de vínculo na portaria | A frase escolhida omitiu a limitação do GPS. A próxima revisão pode exigir que o trecho contenha a entidade central da pergunta. |
 | g04 · A partir de qual atraso? | O agente devolveu a regra de cinco minutos de antecedência | A recuperação achou a regra correta no mesmo trecho, mas a geração confundiu a direção temporal. Separar antecedência de atraso em trechos com títulos próprios. |
 | g05 · Qual modo é sintético e qual exige leitura real? | O agente respondeu apenas que DEMO usa cenário sintético | A segunda parte ficou sem resposta. Dividir pergunta composta em subconsultas e exigir evidência para cada parte. |
+| g08 · Quando a posição é considerada desatualizada? | O agente citou a origem dos horários de observação e recepção. | A frase não informou o limite de 90 segundos. Separar a definição de frescor da semântica dos dois campos de data. |
 | g09 · O que representam py e px? | O agente escolheu a frase sobre as limitações de passagem e vaga | O trecho correto continha assuntos diferentes. Separar a tabela de campos da API das limitações. |
-| g12 · Senha do motorista | O agente respondeu com o endpoint de autenticação do Olho Vivo | O alias `senha → token` aproximou credenciais distintas. Remover a equivalência e acrescentar testes fora de escopo para credenciais e dados de terceiros. |
+| g12 · Senha do motorista | Na execução anterior, o agente respondeu com o endpoint de autenticação do Olho Vivo | Na execução anterior, o alias `senha → token` aproximava credenciais distintas. A remoção da equivalência, coberta por teste, fez o agente recusar esse caso antes de chamar o modelo. |
 
 O limite de citação valida que o ID pertence ao conjunto recuperado. Uma citação válida por si só ainda pode sustentar uma resposta insuficiente. O conjunto de avaliação e os cinco erros dão os pontos para a próxima iteração.
 

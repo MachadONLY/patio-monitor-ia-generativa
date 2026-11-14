@@ -1,6 +1,6 @@
 # Demonstração integrada
 
-É possível executar o Pátio Monitor sem chave de API ou infraestrutura paga. A demonstração inclui o cenário 3D, a revisão de turno, o vídeo anotado, o Qwen em CPU e o GPS do feed público do BRT do Rio. O modo REPLAY exige uma captura assinada. A fonte SPTrans exige sua própria credencial e área.
+É possível executar o Pátio Monitor sem chave de API ou infraestrutura paga. A demonstração inclui o cenário 3D, a revisão de turno, o vídeo anotado, o Qwen em CPU e o GPS do feed público do BRT do Rio. O modo REPLAY consulta as posições coletadas e guardadas no SQLite local do servidor. Também aceita uma captura SPTrans assinada. A fonte SPTrans exige sua própria credencial e área.
 
 ## Executar localmente
 
@@ -18,10 +18,11 @@ python gs/genai/download_model.py runtime-data/qwen.gguf
 export PATIO_WEB_DIST="$PWD/apps/web/dist"
 export PATIO_LLM_MODEL_PATH="$PWD/runtime-data/qwen.gguf"
 export PATIO_LIVE_PROVIDER=rio_brt
+export PATIO_ARCHIVE_FILE="$PWD/runtime-data/observations.sqlite3"
 python -m uvicorn app.hosted:app --app-dir services/api --host 127.0.0.1 --port 8000 --ws-max-size 4096 --ws-max-queue 8
 ```
 
-Abra http://127.0.0.1:8000.
+Abra [Pátio Monitor em LIVE](http://127.0.0.1:8000/?mode=LIVE). O histórico começa com as coletas desta execução e permanece disponível após reiniciar o processo.
 
 ### PowerShell
 
@@ -36,6 +37,7 @@ py -3.12 -m venv .venv
 $env:PATIO_WEB_DIST = (Resolve-Path "apps/web/dist").Path
 $env:PATIO_LLM_MODEL_PATH = (Resolve-Path "runtime-data/qwen.gguf").Path
 $env:PATIO_LIVE_PROVIDER = "rio_brt"
+$env:PATIO_ARCHIVE_FILE = Join-Path $PWD "runtime-data/observations.sqlite3"
 .\.venv\Scripts\python.exe -m uvicorn app.hosted:app --app-dir services/api --host 127.0.0.1 --port 8000 --ws-max-size 4096 --ws-max-queue 8
 ```
 
@@ -53,3 +55,4 @@ Para uma janela de correção de vários dias, mantenha a máquina e o túnel at
 1. Em **DEMO**, selecione um ônibus e abra **Câmera do portão**. O cruzamento direciona o vídeo para 7,44 s.
 2. Em **Fechamento de turno**, abra uma ocorrência de troca e clique em **Explicar ocorrência**. Confira a resposta e a fonte.
 3. Em **LIVE**, confira a atribuição ao BRT do Rio e a idade de uma posição. As posições dependem da disponibilidade do provedor.
+4. Depois de receber posições em LIVE, selecione **REPLAY** e consulte o horário e o histórico do veículo.

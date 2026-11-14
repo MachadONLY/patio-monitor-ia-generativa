@@ -13,7 +13,7 @@ type Crossing = {
 
 type VisionReport = {
   schema_version: 1;
-  data_origin: "PUBLIC_VIDEO" | "DEMO";
+  data_origin: "PUBLIC_VIDEO" | "OPERATOR_VIDEO" | "DEMO";
   source: { title: string; author: string; license: string; license_url?: string; source_url?: string };
   model: { family: string };
   video: { url: string; duration_seconds: number };
@@ -64,7 +64,7 @@ const confidence = new Intl.NumberFormat("pt-BR", { style: "percent", maximumFra
 
 function validateReport(result: VisionReport) {
   return result?.schema_version === 1
-    && (result.data_origin === "PUBLIC_VIDEO" || result.data_origin === "DEMO")
+    && (["PUBLIC_VIDEO", "OPERATOR_VIDEO", "DEMO"].includes(result.data_origin))
     && isText(result.source?.title)
     && isText(result.source?.author)
     && isText(result.source?.license)
@@ -158,7 +158,7 @@ export function GateCamera({ onClose }: { onClose: () => void }) {
         <>
           <div className="gs-camera-content">
             <section className="gs-camera-media" aria-label="Gravação anotada">
-              <span className="gs-source">{report.data_origin === "PUBLIC_VIDEO" ? "VÍDEO PÚBLICO • GRAVAÇÃO" : "DEMO • GRAVAÇÃO SINTÉTICA"}</span>
+              <span className="gs-source">{report.data_origin === "PUBLIC_VIDEO" ? "VÍDEO PÚBLICO • GRAVAÇÃO" : report.data_origin === "OPERATOR_VIDEO" ? "VÍDEO DO OPERADOR • GRAVAÇÃO" : "DEMO • GRAVAÇÃO SINTÉTICA"}</span>
               <video ref={player} src={mediaUrl(report.video.url)} controls playsInline preload="metadata" aria-label="Vídeo com as detecções na área do portão" onLoadedMetadata={() => setVideoReady(true)} onError={() => setVideoFailed(true)} />
               {videoFailed && <p className="gs-video-error" role="status">O navegador não conseguiu reproduzir esta gravação.</p>}
               <div className="gs-camera-caption">

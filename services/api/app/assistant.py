@@ -48,7 +48,7 @@ CASE_QUESTION = {
 ALIASES = {
     "lat": "latitude", "lon": "longitude", "carro": "veiculo", "onibus": "veiculo",
     "cancelada": "cancela", "atrasado": "atrasada", "historico": "replay",
-    "chave": "token", "senha": "token", "identificador": "id",
+    "chave": "token", "identificador": "id",
 }
 
 

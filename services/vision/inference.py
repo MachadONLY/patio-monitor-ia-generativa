@@ -97,7 +97,7 @@ class Tracker:
         return crossings
 
 
-def annotate(frame, tracker, frame_id, video_fps, events):
+def annotate(frame, tracker, frame_id, video_fps, events, label):
     height, width = frame.shape[:2]
     color = (115, 230, 84)
     cv2.line(
@@ -136,7 +136,7 @@ def annotate(frame, tracker, frame_id, video_fps, events):
     cv2.rectangle(frame, (0, 0), (width, 27), (20, 34, 23), -1)
     cv2.putText(
         frame,
-        f"GRAVACAO PUBLICA / CAMERA FIXA  {frame_id / video_fps:05.2f}s",
+        f"{label} / CAMERA FIXA  {frame_id / video_fps:05.2f}s",
         (12, 18),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.46,
@@ -164,23 +164,35 @@ def annotate(frame, tracker, frame_id, video_fps, events):
     return frame
 
 
-def infer(directory: Path, output: Path):
+def infer(directory: Path, output: Path, source: Path | None = None,
+          source_label: str | None = None, line_fraction: float = 0.61):
     cv2.setNumThreads(2)
-    entry = prepare(directory)["prague"]
-    source = directory / "prague.webm"
+    public = source is None
+    if public:
+        entry = prepare(directory)["prague"]
+        source = directory / "prague.webm"
+        provenance = {key: entry[key] for key in ("title", "author", "license", "license_url", "source_url", "sha256")}
+    else:
+        provenance = {
+            "title": source_label, "author": "Operador", "license": "Gravação fornecida pelo operador",
+            "sha256": sha256(source),
+        }
+    output.mkdir(parents=True, exist_ok=True)
     backbone = prepare_backbone(directory)
-    checkpoint = output / "bus-heads.npz"
-    metrics = json.loads((output / "metrics.json").read_text())
+    trained = output if (output / "bus-heads.npz").is_file() else Path(__file__).parent / "artifacts"
+    checkpoint = trained / "bus-heads.npz"
+    metrics = json.loads((trained / "metrics.json").read_text())
     if sha256(checkpoint) != metrics["checkpoint_sha256"]:
         raise ValueError("Pesos do detector não correspondem às métricas")
     detector = BusDetector(checkpoint, backbone)
     cap = cv2.VideoCapture(str(source))
     fps = cap.get(cv2.CAP_PROP_FPS)
     if fps <= 0:
+        cap.release()
         raise ValueError("Vídeo não foi decodificado")
     width, height = 768, 432
     detection_period = max(1, round(fps / 8))
-    tracker = Tracker(round(width * 0.61), round(width * 0.023), round(fps * 0.65))
+    tracker = Tracker(round(width * line_fraction), round(width * 0.023), round(fps * 0.65))
     video = output / "annotated.mp4"
     temporary = output / "annotated.part.mp4"
     encoder = subprocess.Popen(
@@ -212,7 +224,8 @@ def infer(directory: Path, output: Path):
             "-movflags",
             "+faststart",
             "-metadata",
-            "comment=Adaptacao: anotacoes CV. Video original: ŠJů / Wikimedia Commons / CC BY 4.0.",
+            ("comment=Adaptacao: anotacoes CV. Video original: ŠJů / Wikimedia Commons / CC BY 4.0."
+             if public else "comment=Gravacao local com anotacoes de visao computacional."),
             str(temporary),
         ],
         stdin=subprocess.PIPE,
@@ -253,7 +266,7 @@ def infer(directory: Path, output: Path):
                     }
                     events.append(current_event)
                     new_events.append(current_event)
-            annotated = annotate(frame, tracker, frame_id, fps, events)
+            annotated = annotate(frame, tracker, frame_id, fps, events, "GRAVACAO PUBLICA" if public else "GRAVACAO LOCAL")
             for crossing in new_events:
                 image = output / f"{crossing['id']}.jpg"
                 if not cv2.imwrite(str(image), annotated):
@@ -274,18 +287,8 @@ def infer(directory: Path, output: Path):
     wall_seconds = perf_counter() - started
     report = {
         "schema_version": 1,
-        "data_origin": "PUBLIC_VIDEO",
-        "source": {
-            key: entry[key]
-            for key in (
-                "title",
-                "author",
-                "license",
-                "license_url",
-                "source_url",
-                "sha256",
-            )
-        },
+        "data_origin": "PUBLIC_VIDEO" if public else "OPERATOR_VIDEO",
+        "source": provenance,
         "model": {
             "family": "YOLOX + cabeças para ônibus",
             "sha256": sha256(checkpoint),

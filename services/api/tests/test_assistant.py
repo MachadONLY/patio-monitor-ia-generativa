@@ -25,6 +25,14 @@ def test_out_of_scope_does_not_call_model():
     assert trace["guard"] == "below_threshold"
 
 
+def test_driver_password_is_not_equated_with_provider_authentication():
+    model = ScriptedModel({})
+    result, trace = assistant.run_query(model, "Qual é a senha do motorista?", "rag_agent")
+    assert result.refused
+    assert trace["guard"] == "below_threshold"
+    assert model.calls == 0
+
+
 def test_agent_rejects_unknown_citation_and_unsupported_numbers():
     question = "Quais campos py e px registram no Olho Vivo?"
     model = ScriptedModel({"answer": "py é latitude", "citation_ids": ["xyz"], "refused": False})

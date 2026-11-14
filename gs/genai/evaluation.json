@@ -385,132 +385,132 @@
       {
         "threshold": 0.1,
         "answerable_pass": 11,
-        "unknown_blocked": 0
+        "unknown_blocked": 1
       },
       {
         "threshold": 0.12,
         "answerable_pass": 11,
-        "unknown_blocked": 0
+        "unknown_blocked": 1
       },
       {
         "threshold": 0.14,
         "answerable_pass": 11,
-        "unknown_blocked": 0
+        "unknown_blocked": 1
       },
       {
         "threshold": 0.16,
         "answerable_pass": 11,
-        "unknown_blocked": 0
+        "unknown_blocked": 1
       },
       {
         "threshold": 0.18,
         "answerable_pass": 11,
-        "unknown_blocked": 0
+        "unknown_blocked": 1
       },
       {
         "threshold": 0.2,
         "answerable_pass": 11,
-        "unknown_blocked": 0
+        "unknown_blocked": 1
       },
       {
         "threshold": 0.22,
         "answerable_pass": 11,
-        "unknown_blocked": 0
+        "unknown_blocked": 1
       },
       {
         "threshold": 0.24,
         "answerable_pass": 11,
-        "unknown_blocked": 0
+        "unknown_blocked": 1
       },
       {
         "threshold": 0.26,
         "answerable_pass": 11,
-        "unknown_blocked": 0
+        "unknown_blocked": 1
       },
       {
         "threshold": 0.28,
         "answerable_pass": 11,
-        "unknown_blocked": 1
+        "unknown_blocked": 2
       },
       {
         "threshold": 0.3,
         "answerable_pass": 11,
-        "unknown_blocked": 1
+        "unknown_blocked": 2
       },
       {
         "threshold": 0.32,
         "answerable_pass": 11,
-        "unknown_blocked": 1
+        "unknown_blocked": 2
       },
       {
         "threshold": 0.34,
         "answerable_pass": 11,
-        "unknown_blocked": 1
+        "unknown_blocked": 2
       },
       {
         "threshold": 0.36,
         "answerable_pass": 11,
-        "unknown_blocked": 2
+        "unknown_blocked": 3
       },
       {
         "threshold": 0.38,
         "answerable_pass": 11,
-        "unknown_blocked": 3
+        "unknown_blocked": 4
       },
       {
         "threshold": 0.4,
         "answerable_pass": 11,
-        "unknown_blocked": 3
+        "unknown_blocked": 4
       },
       {
         "threshold": 0.42,
         "answerable_pass": 11,
-        "unknown_blocked": 4
+        "unknown_blocked": 5
       },
       {
         "threshold": 0.44,
         "answerable_pass": 11,
-        "unknown_blocked": 4
+        "unknown_blocked": 5
       },
       {
         "threshold": 0.46,
         "answerable_pass": 11,
-        "unknown_blocked": 4
+        "unknown_blocked": 5
       },
       {
         "threshold": 0.48,
         "answerable_pass": 11,
-        "unknown_blocked": 4
+        "unknown_blocked": 5
       },
       {
         "threshold": 0.5,
         "answerable_pass": 11,
-        "unknown_blocked": 4
+        "unknown_blocked": 5
       },
       {
         "threshold": 0.52,
         "answerable_pass": 10,
-        "unknown_blocked": 5
+        "unknown_blocked": 6
       },
       {
         "threshold": 0.54,
         "answerable_pass": 10,
-        "unknown_blocked": 5
+        "unknown_blocked": 6
       },
       {
         "threshold": 0.56,
         "answerable_pass": 10,
-        "unknown_blocked": 5
+        "unknown_blocked": 6
       },
       {
         "threshold": 0.58,
         "answerable_pass": 10,
-        "unknown_blocked": 5
+        "unknown_blocked": 6
       },
       {
         "threshold": 0.6,
         "answerable_pass": 10,
-        "unknown_blocked": 5
+        "unknown_blocked": 6
       }
     ],
     "ranked": [
@@ -737,15 +737,15 @@
         "expected_sources": [],
         "scores": [
           [
-            "s02",
-            0.7301
-          ],
-          [
             "p01",
             0.0
           ],
           [
             "p02",
+            0.0
+          ],
+          [
+            "p03",
             0.0
           ]
         ]
@@ -853,7 +853,7 @@
       "raw_model_json_valid": 17,
       "raw_model_calls": 17,
       "api_json_valid": 17,
-      "median_seconds": 1.807
+      "median_seconds": 1.605
     },
     "rag": {
       "correct_total": 8,
@@ -863,17 +863,17 @@
       "raw_model_json_valid": 17,
       "raw_model_calls": 17,
       "api_json_valid": 17,
-      "median_seconds": 6.076
+      "median_seconds": 4.868
     },
     "rag_agent": {
-      "correct_total": 10,
+      "correct_total": 11,
       "correct_answerable": 5,
-      "correct_refusals": 5,
+      "correct_refusals": 6,
       "correct_with_relevant_citation": 5,
-      "raw_model_json_valid": 13,
-      "raw_model_calls": 13,
+      "raw_model_json_valid": 12,
+      "raw_model_calls": 12,
       "api_json_valid": 17,
-      "median_seconds": 4.794
+      "median_seconds": 4.007
     }
   },
   "results": [
@@ -897,7 +897,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 2.734,
+      "seconds": 2.493,
       "retrieved": [],
       "raw": "{ \"answer\": \"refused\", \"citation_ids\": [], \"refused\": true }",
       "completion_tokens": 20,
@@ -923,7 +923,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 1.815,
+      "seconds": 1.772,
       "retrieved": [],
       "raw": "{ \"answer\": \"refused\", \"citation_ids\": [ ] , \"refused\": true }",
       "completion_tokens": 21,
@@ -949,7 +949,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 1.7,
+      "seconds": 1.865,
       "retrieved": [],
       "raw": "{ \"answer\": \"Sem ID da saída\", \"citation_ids\": [], \"refused\": true }",
       "completion_tokens": 23,
@@ -975,7 +975,7 @@
       "correct": false,
       "citation_relevant": false,
       "raw_model_json_valid": true,
-      "seconds": 1.83,
+      "seconds": 1.743,
       "retrieved": [],
       "raw": "{ \"answer\": \"30 minutos\", \"citation_ids\": [ ] , \"refused\": false }",
       "completion_tokens": 22,
@@ -1001,7 +1001,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 1.807,
+      "seconds": 1.421,
       "retrieved": [],
       "raw": "{ \"answer\": \"modo sintético\", \"citation_ids\": [], \"refused\": true }",
       "completion_tokens": 20,
@@ -1027,7 +1027,7 @@
       "correct": false,
       "citation_relevant": false,
       "raw_model_json_valid": true,
-      "seconds": 1.551,
+      "seconds": 1.448,
       "retrieved": [],
       "raw": "{ \"answer\": \"3\", \"citation_ids\": [], \"refused\": false }",
       "completion_tokens": 18,
@@ -1053,7 +1053,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 1.448,
+      "seconds": 1.536,
       "retrieved": [],
       "raw": "{ \"answer\": \"refused\", \"citation_ids\": [], \"refused\": true }",
       "completion_tokens": 20,
@@ -1079,7 +1079,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 1.634,
+      "seconds": 1.604,
       "retrieved": [],
       "raw": "{ \"answer\": \"sem resposta\", \"citation_ids\": [], \"refused\": true }",
       "completion_tokens": 20,
@@ -1105,7 +1105,7 @@
       "correct": false,
       "citation_relevant": false,
       "raw_model_json_valid": true,
-      "seconds": 2.699,
+      "seconds": 2.191,
       "retrieved": [],
       "raw": "{ \"answer\": \"py é o valor de um campo e px é o valor de outro\", \"citation_ids\": [], \"refused\": false }",
       "completion_tokens": 31,
@@ -1131,7 +1131,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 1.664,
+      "seconds": 1.522,
       "retrieved": [],
       "raw": "{ \"answer\": \"Não souber\", \"citation_ids\": [], \"refused\": true }",
       "completion_tokens": 21,
@@ -1155,7 +1155,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 1.819,
+      "seconds": 1.605,
       "retrieved": [],
       "raw": "{\"answer\": \"50730\", \"citation_ids\": [], \"refused\": false}",
       "completion_tokens": 21,
@@ -1179,7 +1179,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 1.449,
+      "seconds": 1.456,
       "retrieved": [],
       "raw": "{ \"answer\": \"Não souber\", \"citation_ids\": [], \"refused\": true }",
       "completion_tokens": 21,
@@ -1203,7 +1203,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 1.718,
+      "seconds": 1.697,
       "retrieved": [],
       "raw": "{ \"answer\": \"Não souber\", \"citation_ids\": [], \"refused\": true }",
       "completion_tokens": 22,
@@ -1227,7 +1227,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 1.828,
+      "seconds": 1.567,
       "retrieved": [],
       "raw": "{ \"answer\": \"Não souber\", \"citation_ids\": [], \"refused\": true }",
       "completion_tokens": 22,
@@ -1251,7 +1251,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 1.525,
+      "seconds": 1.48,
       "retrieved": [],
       "raw": "{ \"answer\": \"Não sei\", \"citation_ids\": [], \"refused\": true }",
       "completion_tokens": 20,
@@ -1275,7 +1275,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 2.484,
+      "seconds": 1.757,
       "retrieved": [],
       "raw": "{\"answer\": \"00123\", \"citation_ids\": [], \"refused\": false}",
       "completion_tokens": 21,
@@ -1301,7 +1301,7 @@
       "correct": false,
       "citation_relevant": false,
       "raw_model_json_valid": true,
-      "seconds": 2.408,
+      "seconds": 1.939,
       "retrieved": [],
       "raw": "{ \"answer\": \"Verifique as fontes e o texto completo\", \"citation_ids\": [], \"refused\": false }",
       "completion_tokens": 26,
@@ -1328,7 +1328,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 8.684,
+      "seconds": 5.795,
       "retrieved": [
         [
           "p01",
@@ -1368,7 +1368,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 6.706,
+      "seconds": 5.163,
       "retrieved": [
         [
           "p02",
@@ -1408,7 +1408,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 6.425,
+      "seconds": 5.153,
       "retrieved": [
         [
           "p03",
@@ -1441,7 +1441,7 @@
           {
             "id": "p04",
             "title": "Pátio Monitor · Tolerância e divergência de horário",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#fechamento-de-turno"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
           }
         ],
         "refused": false,
@@ -1455,7 +1455,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 7.808,
+      "seconds": 4.868,
       "retrieved": [
         [
           "p04",
@@ -1488,7 +1488,7 @@
           {
             "id": "p05",
             "title": "Pátio Monitor · Modos e privacidade",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#modos-de-dados"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#modos-de-dados"
           }
         ],
         "refused": false,
@@ -1502,7 +1502,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 8.241,
+      "seconds": 4.827,
       "retrieved": [
         [
           "p05",
@@ -1535,7 +1535,7 @@
           {
             "id": "p06",
             "title": "Pátio Monitor · Importação e retenção",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#fechamento-de-turno"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
           }
         ],
         "refused": false,
@@ -1549,7 +1549,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 7.541,
+      "seconds": 5.479,
       "retrieved": [
         [
           "p06",
@@ -1589,7 +1589,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 6.05,
+      "seconds": 4.7,
       "retrieved": [
         [
           "p07",
@@ -1622,7 +1622,7 @@
           {
             "id": "p08",
             "title": "Pátio Monitor · Idade da posição",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#modos-de-dados"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#modos-de-dados"
           }
         ],
         "refused": false,
@@ -1636,7 +1636,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 5.392,
+      "seconds": 4.683,
       "retrieved": [
         [
           "p08",
@@ -1674,7 +1674,7 @@
           {
             "id": "p05",
             "title": "Pátio Monitor · Modos e privacidade",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#modos-de-dados"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#modos-de-dados"
           },
           {
             "id": "s02",
@@ -1693,7 +1693,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 8.492,
+      "seconds": 5.246,
       "retrieved": [
         [
           "s01",
@@ -1740,7 +1740,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 7.682,
+      "seconds": 5.796,
       "retrieved": [
         [
           "s02",
@@ -1778,7 +1778,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 6.076,
+      "seconds": 5.009,
       "retrieved": [
         [
           "p01",
@@ -1816,12 +1816,8 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 2.735,
+      "seconds": 1.368,
       "retrieved": [
-        [
-          "s02",
-          0.7300761144610521
-        ],
         [
           "p01",
           0.0
@@ -1829,10 +1825,14 @@
         [
           "p02",
           0.0
+        ],
+        [
+          "p03",
+          0.0
         ]
       ],
-      "raw": "{\"answer\": \"Não consta\", \"citation_ids\": [\"s02\"], \"refused\": true}",
-      "completion_tokens": 23,
+      "raw": "{\"answer\": \"Não consta\", \"citation_ids\": [], \"refused\": true}",
+      "completion_tokens": 19,
       "guard": null
     },
     {
@@ -1854,7 +1854,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 3.985,
+      "seconds": 3.809,
       "retrieved": [
         [
           "p07",
@@ -1892,7 +1892,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 1.886,
+      "seconds": 1.753,
       "retrieved": [
         [
           "p07",
@@ -1930,7 +1930,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 2.945,
+      "seconds": 2.907,
       "retrieved": [
         [
           "p05",
@@ -1968,7 +1968,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 5.636,
+      "seconds": 5.123,
       "retrieved": [
         [
           "s01",
@@ -2001,7 +2001,7 @@
           {
             "id": "p01",
             "title": "Pátio Monitor · Evidência de passagem",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#fechamento-de-turno"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
           }
         ],
         "refused": false,
@@ -2015,7 +2015,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 4.318,
+      "seconds": 3.93,
       "retrieved": [
         [
           "p01",
@@ -2048,7 +2048,7 @@
           {
             "id": "p01",
             "title": "Pátio Monitor · Evidência de passagem",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#fechamento-de-turno"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
           }
         ],
         "refused": false,
@@ -2065,7 +2065,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 6.844,
+      "seconds": 4.602,
       "retrieved": [
         [
           "p01",
@@ -2098,7 +2098,7 @@
           {
             "id": "p02",
             "title": "Pátio Monitor · Troca de veículo",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#fechamento-de-turno"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
           }
         ],
         "refused": false,
@@ -2115,7 +2115,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 4.955,
+      "seconds": 4.007,
       "retrieved": [
         [
           "p02",
@@ -2148,7 +2148,7 @@
           {
             "id": "p03",
             "title": "Pátio Monitor · Vínculo sem identificador",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#fechamento-de-turno"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
           }
         ],
         "refused": false,
@@ -2165,7 +2165,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 6.042,
+      "seconds": 5.913,
       "retrieved": [
         [
           "p03",
@@ -2198,7 +2198,7 @@
           {
             "id": "p04",
             "title": "Pátio Monitor · Tolerância e divergência de horário",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#fechamento-de-turno"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
           }
         ],
         "refused": false,
@@ -2215,7 +2215,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 3.53,
+      "seconds": 3.413,
       "retrieved": [
         [
           "p04",
@@ -2248,7 +2248,7 @@
           {
             "id": "p05",
             "title": "Pátio Monitor · Modos e privacidade",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#modos-de-dados"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#modos-de-dados"
           }
         ],
         "refused": false,
@@ -2265,7 +2265,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 3.29,
+      "seconds": 3.448,
       "retrieved": [
         [
           "p05",
@@ -2298,7 +2298,7 @@
           {
             "id": "p06",
             "title": "Pátio Monitor · Importação e retenção",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#fechamento-de-turno"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
           }
         ],
         "refused": false,
@@ -2314,7 +2314,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 7.843,
+      "seconds": 7.221,
       "retrieved": [
         [
           "p06",
@@ -2347,7 +2347,7 @@
           {
             "id": "p07",
             "title": "Pátio Monitor · Governança de conclusão",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#fechamento-de-turno"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
           }
         ],
         "refused": false,
@@ -2364,7 +2364,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 5.429,
+      "seconds": 4.981,
       "retrieved": [
         [
           "p07",
@@ -2397,7 +2397,7 @@
           {
             "id": "p08",
             "title": "Pátio Monitor · Idade da posição",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#modos-de-dados"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#modos-de-dados"
           }
         ],
         "refused": false,
@@ -2414,7 +2414,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 4.56,
+      "seconds": 4.158,
       "retrieved": [
         [
           "p08",
@@ -2464,7 +2464,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 4.886,
+      "seconds": 3.729,
       "retrieved": [
         [
           "s01",
@@ -2514,7 +2514,7 @@
       "correct": false,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 4.819,
+      "seconds": 4.606,
       "retrieved": [
         [
           "s02",
@@ -2553,7 +2553,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 7.029,
+      "seconds": 5.877,
       "retrieved": [
         [
           "p01",
@@ -2579,34 +2579,21 @@
       "expected": "Não consta.",
       "expected_sources": [],
       "answer": {
-        "answer": "A sessão Olho Vivo começa com POST /Login/Autenticar usando uma chave obtida no portal da SPTrans.",
-        "citations": [
-          {
-            "id": "s02",
-            "title": "SPTrans · Autenticação do Olho Vivo",
-            "url": "https://www.sptrans.com.br/desenvolvedores/api-do-olho-vivo-guia-de-referencia/documentacao-api/"
-          }
-        ],
-        "refused": false,
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
         "actions": [
           "selecionar_busca",
           "recuperar_trechos",
-          "restringir_à_fonte_recuperada",
-          "gerar_com_llm_local",
-          "verificar_citações",
-          "validar_dados_numéricos"
+          "recusar_sem_evidência"
         ],
         "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
       },
-      "correct": false,
-      "citation_relevant": false,
-      "raw_model_json_valid": true,
-      "seconds": 4.156,
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": null,
+      "seconds": 0.0,
       "retrieved": [
-        [
-          "s02",
-          0.7300761144610521
-        ],
         [
           "p01",
           0.0
@@ -2614,11 +2601,15 @@
         [
           "p02",
           0.0
+        ],
+        [
+          "p03",
+          0.0
         ]
       ],
-      "raw": "{\"answer\": \"A sessão Olho Vivo começa com POST /Login/Autenticar usando uma chave obtida no portal da SPTrans.\", \"citation_ids\": [\"s02\"], \"refused\": false}",
-      "completion_tokens": 45,
-      "guard": null
+      "raw": null,
+      "completion_tokens": 0,
+      "guard": "below_threshold"
     },
     {
       "mode": "rag_agent",
@@ -2790,7 +2781,7 @@
           {
             "id": "p01",
             "title": "Pátio Monitor · Evidência de passagem",
-            "url": "https://github.com/paidophiloo/monitoronibus/blob/main/README.md#fechamento-de-turno"
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
           }
         ],
         "refused": false,
@@ -2807,7 +2798,7 @@
       "correct": true,
       "citation_relevant": true,
       "raw_model_json_valid": true,
-      "seconds": 4.794,
+      "seconds": 4.53,
       "retrieved": [
         [
           "p01",

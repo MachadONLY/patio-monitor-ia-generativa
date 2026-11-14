@@ -101,7 +101,9 @@ export function VehicleInspector({
   const demo = mode === "DEMO" ? simulationVehicleDetails(vehicle, elapsed) : undefined;
   const obs = vehicle.observation;
   const recorded = useRecordedVehicleHistory(
-    mode === "REPLAY" && tab === "history" ? vehicle.id : undefined, replayAt,
+    mode !== "DEMO" && tab === "history" ? vehicle.id : undefined,
+    mode === "LIVE" ? obs?.observedAt : replayAt,
+    mode === "LIVE" ? "LIVE" : "REPLAY",
   );
   const samples = recorded?.length ? recorded : obs ? [obs] : [];
   const returning = demo?.pose.phase === "arriving";
@@ -242,7 +244,7 @@ export function VehicleInspector({
                 <strong>{row.latitude.toFixed(6)}, {row.longitude.toFixed(6)}</strong>
               </li>)}
             </ol>
-            <p className="inspector-note">{mode === "LIVE" ? "Última leitura recebida do Olho Vivo." : "Registros verificados até o horário selecionado."}</p>
+            <p className="inspector-note">{mode === "LIVE" ? "Leituras do provedor até o horário da posição selecionada." : "Leituras armazenadas até o horário selecionado."}</p>
           </>}
         </>}
       </div>

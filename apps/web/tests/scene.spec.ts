@@ -248,7 +248,7 @@ test("observed and recorded envelopes reach the correct views (synthetic test fi
   await expect(
     page.getByRole("slider", { name: "Horário do replay" }),
   ).toBeVisible();
-  await expect(page.getByText("REPLAY · Histórico verificado")).toBeVisible();
+  await expect(page.getByText("REPLAY · Histórico GPS")).toBeVisible();
   await expect(page.getByText("Leitura desatualizada")).toHaveCount(0);
   await page.getByRole("button", { name: /50103/ }).click();
   await inspector.getByRole("tab", { name: "Histórico" }).click();

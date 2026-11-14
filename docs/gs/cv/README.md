@@ -21,6 +21,8 @@ Código completo em [MachadONLY/patio-monitor-computer-vision](https://github.co
 - [Implementação, dados anotados e reprodução](../../../services/vision/)
 - [Métricas da avaliação](../../../services/vision/artifacts/metrics.json) e [relatório de cruzamentos](../../../services/vision/artifacts/report.json)
 
+Para analisar uma gravação própria, use o [fluxo de inferência operacional](../../../services/vision/README.md#processar-uma-gravação-operacional).
+
 ## Roteiro de demonstração
 
 1. Abra a área de câmera no Pátio Monitor e mostre a origem da gravação e o modelo treinado.

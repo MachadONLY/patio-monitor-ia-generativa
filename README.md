@@ -60,7 +60,7 @@ O terminal de passageiros do cenário DEMO tem saguão envidraçado, bilheteria,
 
 ## Ficha do ônibus
 
-Clique no ônibus no mapa 3D, no diário ou na lista para abrir a ficha na coluna direita. O topo da ficha mostra um retrato renderizado do mesmo modelo 3D e da cor usada no mapa. Em LIVE e REPLAY, a imagem vem identificada como modelo ilustrativo. **Visão geral** mostra prefixo, linha, localização e minimapa. No DEMO, a linha do tempo da visão geral separa os registros da próxima saída prevista pelo cenário. **Trajeto** mostra origem e destino e, no DEMO, os caminhos de saída e retorno do cenário. **Histórico** mostra eventos simulados no DEMO, a última leitura no LIVE ou as leituras do arquivo assinado até o cursor do REPLAY. Em telas estreitas a ficha fica abaixo da cena.
+Clique no ônibus no mapa 3D, no diário ou na lista para abrir a ficha na coluna direita. O topo da ficha mostra um retrato renderizado do mesmo modelo 3D e da cor usada no mapa. Em LIVE e REPLAY, a imagem vem identificada como modelo ilustrativo. **Visão geral** mostra prefixo, linha, localização e minimapa. No DEMO, a linha do tempo da visão geral separa os registros da próxima saída prevista pelo cenário. **Trajeto** mostra origem e destino e, no DEMO, os caminhos de saída e retorno do cenário. **Histórico** mostra eventos simulados no DEMO, as leituras coletadas no LIVE ou as leituras armazenadas até o cursor do REPLAY. Em telas estreitas a ficha fica abaixo da cena.
 
 Para observações do Olho Vivo, as coordenadas são as leituras recebidas e os letreiros só aparecem quando fornecidos. O minimapa usa o perímetro configurado. A fonte de posições não fornece o traçado das linhas.
 
@@ -93,11 +93,13 @@ Os arquivos de entrada são processados no navegador. As conclusões são locais
 |---|---|---|
 | DEMO | Cenário e frota sintéticos, identificados na tela | Disponível sem credenciais e sem rede externa |
 | LIVE | Feed público do BRT do Rio no entorno do Terminal Alvorada, ou SPTrans Olho Vivo com configuração própria | Rio verificado com observações GPS reais. SPTrans depende de credencial e recorte verificado |
-| REPLAY | Captura histórica validada e assinada pelo operador | Leitura e busca temporal implementadas. Sem captura histórica fornecida |
+| REPLAY | Arquivo SQLite das observações do provedor ou captura SPTrans assinada | Registros disponíveis desde o início da coleta ou após importar uma captura |
 
 Para usar **SPTrans Olho Vivo** no LIVE, configure **somente no processo FastAPI** a credencial via `SPTRANS_TOKEN` ou `SPTRANS_TOKEN_FILE` e defina `PATIO_AREA_FILE`. A variável opcional `SPTRANS_COMPANY_ID` escolhe a consulta de garagem por empresa. A credencial é emitida no [DevPlace da SPTrans](https://www.sptrans.com.br/desenvolvedores/api-do-olho-vivo-guia-de-referencia/). O arquivo de área é JSON com `name`, `source`, `origin` e `ring`. Use pares `[longitude, latitude]` em WGS84 e feche o anel repetindo o primeiro ponto. Registre fonte e licença do perímetro. GPS e perímetro usam a mesma projeção UTM 23S, em metros.
 
-Para REPLAY, configure `PATIO_REPLAY_FILE` e `PATIO_REPLAY_KEY` no servidor. O JSON contém `version: 1`, `source: "sptrans_olhovivo"`, `area` e `observations`, com os campos descritos em [contrato](packages/contracts/README.md). Um arquivo companheiro com sufixo `.json.sig` contém o HMAC-SHA256 hexadecimal dos bytes originais do JSON. Use uma chave privada de pelo menos 32 bytes e assine apenas dados com procedência já verificada. A timeline usa as leituras registradas e mantém seus horários originais.
+Para gravar observações para o REPLAY, defina `PATIO_ARCHIVE_FILE` com um caminho SQLite gravável pelo servidor. O coletor guarda posições recentes e originais dentro do recorte, separa fonte, perímetro e filtro por empresa, e descarta duplicatas por veículo e instante. A retenção é limitada a 14 dias e um milhão de linhas por arquivo. A timeline mostra posições observadas dentro dos 90 segundos anteriores ao cursor. A janela de observação GPS é distinta de evidência física de entrada ou saída pela portaria.
+
+Para usar uma captura histórica assinada no REPLAY, configure `PATIO_REPLAY_FILE` e `PATIO_REPLAY_KEY` no servidor. O JSON contém `version: 1`, `source: "sptrans_olhovivo"`, `area` e `observations`, com os campos descritos em [contrato](packages/contracts/README.md). Um arquivo companheiro com sufixo `.json.sig` contém o HMAC-SHA256 hexadecimal dos bytes originais do JSON. Use uma chave privada de pelo menos 32 bytes e assine apenas dados com procedência já verificada. A timeline usa as leituras registradas e mantém seus horários originais.
 
 Os modos de GPS mostram somente a área configurada e posições observadas. O pátio cenográfico é exclusivo do DEMO. O aplicativo não atribui a observações GPS uma baia, direção, telemetria de manutenção ou autorização de saída.
 

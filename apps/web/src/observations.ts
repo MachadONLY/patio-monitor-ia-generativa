@@ -31,6 +31,8 @@ export type Snapshot = {
   state: string;
   source?: ObservationSource;
   area?: Area;
+  operatorCamera?: boolean;
+  archiveState?: "disabled" | "recording" | "unavailable";
   range?: [string, string];
   at?: string;
   vehicles: Observation[];
@@ -77,7 +79,7 @@ function validateSnapshot(value: unknown, mode: Mode): value is Snapshot {
   return snapshot.version === 1 && snapshot.mode === mode &&
     typeof snapshot.state === "string" && Array.isArray(snapshot.vehicles) &&
     (snapshot.vehicles.length === 0 || snapshot.source === "sptrans_olhovivo" ||
-      (mode === "LIVE" && snapshot.source === "rio_mobi_gtfs_rt"));
+      snapshot.source === "rio_mobi_gtfs_rt");
 }
 
 export function useObservations(mode: Mode, at: string) {
@@ -175,22 +177,22 @@ export function useObservations(mode: Mode, at: string) {
   return result?.mode === mode ? result : undefined;
 }
 
-export function useRecordedVehicleHistory(vehicleId?: string, at?: string) {
-  const [result, setResult] = useState<{ id: string; at: string; rows: Observation[] }>();
+export function useRecordedVehicleHistory(vehicleId?: string, at?: string, mode: "LIVE" | "REPLAY" = "REPLAY") {
+  const [result, setResult] = useState<{ id: string; at: string; mode: "LIVE" | "REPLAY"; rows: Observation[] }>();
   useEffect(() => {
     if (!vehicleId || !at) return;
     const request = new AbortController();
-    const url = `/api/vehicles/${encodeURIComponent(vehicleId)}/history?${new URLSearchParams({ at })}`;
+    const url = `/api/vehicles/${encodeURIComponent(vehicleId)}/history?${new URLSearchParams({ at, mode })}`;
     void fetch(url, { signal: request.signal, cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) return;
         const data = await response.json();
-        if (!request.signal.aborted && data.source === "sptrans_olhovivo" && Array.isArray(data.observations)) {
-          setResult({ id: vehicleId, at, rows: data.observations });
+        if (!request.signal.aborted && (data.source === "sptrans_olhovivo" || data.source === "rio_mobi_gtfs_rt") && Array.isArray(data.observations)) {
+          setResult({ id: vehicleId, at, mode, rows: data.observations });
         }
       })
       .catch(() => { /* The inspector can still show the selected observation. */ });
     return () => request.abort();
-  }, [vehicleId, at]);
-  return result && result.id === vehicleId && result.at === at ? result.rows : undefined;
+  }, [vehicleId, at, mode]);
+  return result && result.id === vehicleId && result.at === at && result.mode === mode ? result.rows : undefined;
 }

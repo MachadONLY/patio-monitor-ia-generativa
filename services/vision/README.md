@@ -27,3 +27,13 @@ python -m pytest -q services/vision/test_tracking.py
 ```
 
 [Vídeo anotado](artifacts/annotated.mp4) · [Quadro da passagem](artifacts/crossing-01.jpg) · [Relatório](artifacts/report.json) · [Métricas](artifacts/metrics.json) · [Cabeças treinadas](artifacts/bus-heads.npz)
+
+## Processar uma gravação operacional
+
+A partir da raiz, informe o vídeo de câmera fixa, o identificador da gravação e a posição da linha como fração da largura. Escolha um diretório novo por gravação. O comando usa as cabeças treinadas versionadas se o diretório de saída ainda não tem seus próprios pesos.
+
+```bash
+python -m services.vision infer --data .cache/patio-vision --output runtime-data/portaria-01 --video /caminho/gravacao.mp4 --source-label "Portaria 01" --line 0.61
+```
+
+Inicie o servidor local em `127.0.0.1` com `PATIO_VISION_DIR=runtime-data/portaria-01` e `PATIO_OPERATOR_CAMERA=1`. Abra **Câmera do portão** no painel. A API bloqueia esse material quando há uma origem pública configurada. Use somente em rede local controlada, com gravações cujo uso foi autorizado. O resultado traz instante relativo ao vídeo e sentido no enquadramento. A câmera requer calibração no local, e uma passagem visual deve ser conciliada com a portaria antes de associar o veículo a uma saída.
