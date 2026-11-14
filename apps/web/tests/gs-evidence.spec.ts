@@ -48,8 +48,7 @@ test("recorded vision evidence keeps its source and seeks to a crossing", async 
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
   await expect(trigger).toBeFocused();
-  await page.getByRole("button", { name: "LIVE", exact: true }).click();
-  await expect(trigger).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^(DEMO|LIVE|REPLAY)$/ })).toHaveCount(0);
 });
 
 test("unavailable vision supports retry without inventing a recording", async ({ page }) => {
@@ -68,7 +67,7 @@ test("unavailable vision supports retry without inventing a recording", async ({
   await expect(dialog.getByText("O vídeo e os cruzamentos estão indisponíveis.")).toBeVisible();
 });
 
-test("explanation displays a cited answer or a clear refusal and shares no imported identifiers", async ({ page }) => {
+test("explanation displays a cited answer and shares no imported identifiers", async ({ page }) => {
   const requests: { question: string; context: Record<string, string> }[] = [];
   await page.route("**/api/gs/explain", async (route) => {
     requests.push(route.request().postDataJSON());
@@ -85,13 +84,7 @@ test("explanation displays a cited answer or a clear refusal and shares no impor
   });
 
   await page.goto("/");
-  await page.getByRole("button", { name: "Fechamento de turno", exact: true }).click();
-  await page.getByRole("button", { name: "Explicar ocorrência" }).click();
-  await expect(page.getByText("Orientação gerada pelo assistente")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Regra documentada" })).toHaveAttribute("href", "https://example.test/regra");
-  expect(requests[0].context.evidenceMode).toBe("DEMO");
-
-  await page.getByText("Importar arquivos CSV", { exact: true }).click();
+  await page.getByRole("button", { name: /Revisar turno/ }).click();
   await page.getByLabel("Arquivo de escala").setInputFiles({
     name: "escala.csv",
     mimeType: "text/csv",
@@ -105,9 +98,10 @@ test("explanation displays a cited answer or a clear refusal and shares no impor
   await page.getByRole("button", { name: "Revisar arquivos" }).click();
   await page.getByRole("textbox", { name: "Conclusão da ocorrência" }).fill("NOTA PRIVADA");
   await page.getByRole("button", { name: "Explicar ocorrência" }).click();
-  await expect(page.getByText("Explicação sem suporte nas fontes")).toBeVisible();
-  expect(requests[1].context).toEqual({
+  await expect(page.getByText("Orientação gerada pelo assistente")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Regra documentada" })).toHaveAttribute("href", "https://example.test/regra");
+  expect(requests[0].context).toEqual({
     tripId: "ocorrencia-local", status: "unconfirmed", reason: "missing_gate", evidenceMode: "CSV_LOCAL",
   });
-  expect(JSON.stringify(requests[1])).not.toMatch(/PRIVAD[OA]/);
+  expect(JSON.stringify(requests[0])).not.toMatch(/PRIVAD[OA]/);
 });

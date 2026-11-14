@@ -6,7 +6,7 @@ Assistente local para explicar divergências entre escala e portaria, com citaç
 
 [Relatório técnico](docs/gs/GENAI.md) · [Notebook executado](gs/genai/avaliacao.ipynb) · [Resultados brutos](gs/genai/evaluation.json) · [Vídeo](docs/gs/genai/demonstracao.mp4)
 
-Visualização 3D de operações de ônibus para equipes de mobilidade urbana. O primeiro recorte mostra um pátio paulistano ilustrativo com oito ônibus autorais. Arraste para orbitar, arraste com o botão direito para deslocar e use a roda ou os controles para aproximar. Clique em um ônibus ou abra a lista para selecioná-lo. O painel oferece foco, vista de perfil e vista superior. Em DEMO, **Seguir ônibus** trava o centro da câmera no veículo selecionado durante a operação. **Vista do bairro** abre o enquadramento e **Restaurar vista geral** retorna ao pátio.
+O Pátio Monitor acompanha ônibus pelo GPS e ajuda a revisar divergências entre escala e portaria. A tela abre no Terminal Alvorada, com a implantação em 3D, posições do BRT do Rio e acesso direto à gravação analisada e à revisão de turno.
 
 ## Ficha técnica
 
@@ -24,51 +24,20 @@ Visualização 3D de operações de ônibus para equipes de mobilidade urbana. O
 
 ## Executar
 
-O [guia da demonstração integrada](deploy/README.md) inicia a interface, a câmera e o assistente no mesmo endereço e descreve como compartilhar a aplicação sem contratar hospedagem.
+Siga o [guia para Windows e Linux](deploy/README.md). Ele inicia o frontend, o FastAPI e o Qwen local em um único endereço. Com `PATIO_LIVE_PROVIDER=rio_brt`, a plataforma recebe o feed público do BRT do Rio sem chave de API.
 
-Para usar o DEMO e a revisão de turno, execute na pasta que contém o `package.json`. Use Node 24, pnpm 11.25.0 e um navegador com WebGL 2.
+## Operação
 
-```sh
-pnpm install --frozen-lockfile
-pnpm dev
-```
+- **Terminal** aproxima a câmera das pistas e coberturas do Alvorada. **Entorno** amplia o enquadramento. As duas ações mudam apenas a câmera.
+- Selecione um ônibus no mapa ou na lista para abrir a ficha com prefixo, linha, coordenadas e horário da leitura. **Histórico** consulta posições coletadas pelo servidor quando a persistência está configurada.
+- **Câmera do portão** dá acesso à gravação processada e aos cruzamentos identificados. Confira a procedência exibida no player.
+- **Revisar turno** compara os CSVs de escala e portaria da operação e permite consultar uma explicação com fonte.
 
-No PowerShell, use `pnpm.cmd` se a execução de scripts estiver bloqueada. Abra o endereço da linha `Local` impresso pelo Vite.
-
-Para ativar os modos de GPS LIVE e REPLAY, inicie também o backend em outro terminal com Python 3.12.
-
-```sh
-python -m pip install -r services/api/requirements-dev.txt
-python -m uvicorn app.main:app --app-dir services/api --host 127.0.0.1 --port 8000
-```
-
-Para o build, execute `pnpm build`. O Vite encaminha REST, WebSocket e health check ao FastAPI na mesma origem. O FastAPI desta entrega usa **um processo** para manter uma sessão e um coletor upstream.
-
-## Operação contínua
-
-O modo **DEMO** abre com o terminal em funcionamento. Os oito ônibus percorrem a via urbana, usam portarias de entrada e saída separadas e alternam entre dez baias de passagem. A circulação interna usa corredores de sentido único, curvas de raio de 9 m e baias de 15 m. Depois de sair do trecho modelado, cada veículo fica identificado como **Em rota** até aparecer de novo. O diário conta as passagens na portaria e exibe os três registros mais recentes. Selecione um registro para acompanhar o ônibus.
-
-O relógio usa o tempo transcorrido desde a abertura da página. A operação segue após o primeiro ciclo e retoma no instante corrente após voltar de outra aba. A preferência de movimento reduzido atualiza as posições em passos de um segundo. Recarregar a página inicia uma nova sessão DEMO. Não há coleta nem controle operacional nesse modo.
-
-### Referência urbana
-
-**Terminal Pátio Leste** é um cenário autoral em escala métrica, inspirado pelo [memorial do Terminal Pirituba](https://unamunizviegas.com.br/projeto/terminal-pirituba-2002/) e pela [ficha oficial da SPTrans](https://www.sptrans.com.br/terminais/pirituba/). A composição adapta a relação entre a avenida e a ferrovia, as ilhas com coberturas metálicas independentes e o acesso separado para passageiros. O perímetro, as ruas, as baias e os horários são esquemáticos. O cenário não tem o georreferenciamento de Pirituba.
-
-**LIVE** segue posições geográficas recebidas e **REPLAY** usa a captura assinada. Cada modo conserva suas fontes e horários e é independente da operação DEMO.
-
-O terminal de passageiros do cenário DEMO tem saguão envidraçado, bilheteria, bancos de espera e duas baias cobertas de serviço. A travessia de passageiros liga a rua ao saguão. A garagem tem entrada própria pelo lado sul.
-
-## Ficha do ônibus
-
-Clique no ônibus no mapa 3D, no diário ou na lista para abrir a ficha na coluna direita. O topo da ficha mostra um retrato renderizado do mesmo modelo 3D e da cor usada no mapa. Em LIVE e REPLAY, a imagem vem identificada como modelo ilustrativo. **Visão geral** mostra prefixo, linha, localização e minimapa. No DEMO, a linha do tempo da visão geral separa os registros da próxima saída prevista pelo cenário. **Trajeto** mostra origem e destino e, no DEMO, os caminhos de saída e retorno do cenário. **Histórico** mostra eventos simulados no DEMO, as leituras coletadas no LIVE ou as leituras armazenadas até o cursor do REPLAY. Em telas estreitas a ficha fica abaixo da cena.
-
-Para observações do Olho Vivo, as coordenadas são as leituras recebidas e os letreiros só aparecem quando fornecidos. O minimapa usa o perímetro configurado. A fonte de posições não fornece o traçado das linhas.
+Os contornos de vias e edificações vêm do OpenStreetMap. Alturas, larguras estilizadas das vias e a representação dos ônibus servem à visualização. A posição do ônibus segue a observação GPS. O [registro das fontes](docs/SOURCES.md) identifica o recorte e as atribuições.
 
 ## Fechamento de turno
 
-Abra **Fechamento de turno** no painel lateral para experimentar a fila com dados sintéticos identificados. Selecione uma saída para consultar escala, portaria e posição disponível na cena. Registre uma conclusão e exporte a revisão. O CSV de exportação registra a leitura de portaria e a decisão humana em campos separados.
-
-O conjunto de demonstração da revisão é um caso de conciliação próprio, separado do diário gerado pela simulação 3D.
+Abra **Revisar turno** no painel lateral e importe os CSVs da operação. Selecione uma saída para consultar escala, portaria e posição disponível na cena. Registre uma conclusão e exporte a revisão. O CSV de exportação registra a leitura de portaria e a decisão humana em campos separados.
 
 Para revisar seus dados, carregue um par de CSVs UTF-8 com vírgula ou ponto e vírgula. O painel oferece modelos de ambos.
 
@@ -87,27 +56,21 @@ Se os CSVs tiverem cabeçalhos próprios, a revisão abre o mapeamento de coluna
 
 Os arquivos de entrada são processados no navegador. As conclusões são locais ao perfil do navegador e ao conjunto de dados. Para reabrir sem reimportar, use **Guardar turno neste navegador**. O histórico guarda apenas os campos necessários à revisão. **Excluir turno** remove os registros guardados e as conclusões correspondentes após confirmação. A opção de reimportar os mesmos arquivos, com o mesmo mapeamento quando houver, também recupera as conclusões. Exporte a revisão para guardá-la fora do navegador.
 
-## Modos de dados
+<a id="modos-de-dados"></a>
 
-| Modo | Origem | Estado desta entrega |
-|---|---|---|
-| DEMO | Cenário e frota sintéticos, identificados na tela | Disponível sem credenciais e sem rede externa |
-| LIVE | Feed público do BRT do Rio no entorno do Terminal Alvorada, ou SPTrans Olho Vivo com configuração própria | Rio verificado com observações GPS reais. SPTrans depende de credencial e recorte verificado |
-| REPLAY | Arquivo SQLite das observações do provedor ou captura SPTrans assinada | Registros disponíveis desde o início da coleta ou após importar uma captura |
+## Origem das posições e histórico
 
-Para usar **SPTrans Olho Vivo** no LIVE, configure **somente no processo FastAPI** a credencial via `SPTRANS_TOKEN` ou `SPTRANS_TOKEN_FILE` e defina `PATIO_AREA_FILE`. A variável opcional `SPTRANS_COMPANY_ID` escolhe a consulta de garagem por empresa. A credencial é emitida no [DevPlace da SPTrans](https://www.sptrans.com.br/desenvolvedores/api-do-olho-vivo-guia-de-referencia/). O arquivo de área é JSON com `name`, `source`, `origin` e `ring`. Use pares `[longitude, latitude]` em WGS84 e feche o anel repetindo o primeiro ponto. Registre fonte e licença do perímetro. GPS e perímetro usam a mesma projeção UTM 23S, em metros.
+O feed público da SMTR / MOBI-Rio fornece posições para o entorno do Alvorada. Para usar a SPTrans, configure no servidor `PATIO_LIVE_PROVIDER=sptrans`, `SPTRANS_TOKEN` ou `SPTRANS_TOKEN_FILE` e `PATIO_AREA_FILE`. A forma do perímetro e os campos das posições estão no [contrato da API](packages/contracts/README.md).
 
-Para gravar observações para o REPLAY, defina `PATIO_ARCHIVE_FILE` com um caminho SQLite gravável pelo servidor. O coletor guarda posições recentes e originais dentro do recorte, separa fonte, perímetro e filtro por empresa, e descarta duplicatas por veículo e instante. A retenção é limitada a 14 dias e um milhão de linhas por arquivo. A timeline mostra posições observadas dentro dos 90 segundos anteriores ao cursor. A janela de observação GPS é distinta de evidência física de entrada ou saída pela portaria.
+Com `PATIO_ARCHIVE_FILE` apontando para um SQLite gravável, o servidor arquiva as observações originais dentro do recorte. A persistência separa fonte, perímetro e filtro por empresa, deduplica por veículo e instante e limita a retenção a 14 dias ou um milhão de linhas. O histórico por ônibus está na ficha, junto da observação mais recente.
 
-Para usar uma captura histórica assinada no REPLAY, configure `PATIO_REPLAY_FILE` e `PATIO_REPLAY_KEY` no servidor. O JSON contém `version: 1`, `source: "sptrans_olhovivo"`, `area` e `observations`, com os campos descritos em [contrato](packages/contracts/README.md). Um arquivo companheiro com sufixo `.json.sig` contém o HMAC-SHA256 hexadecimal dos bytes originais do JSON. Use uma chave privada de pelo menos 32 bytes e assine apenas dados com procedência já verificada. A timeline usa as leituras registradas e mantém seus horários originais.
-
-Os modos de GPS mostram somente a área configurada e posições observadas. O pátio cenográfico é exclusivo do DEMO. O aplicativo não atribui a observações GPS uma baia, direção, telemetria de manutenção ou autorização de saída.
+A posição recebida expressa uma leitura GPS. Para confirmar saída ou entrada física, use registros de portaria. A gravação pública fornecida na entrega é de Praga e tem procedência própria.
 
 ## Execução em contêiner local
 
 Com Docker Compose, crie `runtime-data` na raiz e execute `docker compose up --build`. Abra `http://127.0.0.1:8080`. O Caddy publica a interface apenas no loopback, encaminha a API e faz a atualização WebSocket na mesma origem. Os processos usam UID 10001, sistema de arquivos de contêiner somente leitura e nenhuma capability adicional.
 
-Para ativar LIVE nessa configuração, coloque o token e o perímetro em `runtime-data`, com permissões de leitura para o UID 10001. Copie `.env.example` para `.env` e defina `SPTRANS_TOKEN_FILE=/run/patio/sptrans-token.txt` e `PATIO_AREA_FILE=/run/patio/area.json`. O diretório é montado somente para leitura na API. A interface recebe apenas as observações normalizadas.
+Para ativar a SPTrans nessa configuração, coloque o token e o perímetro em `runtime-data`, com permissões de leitura para o UID 10001. Copie `.env.example` para `.env` e defina `SPTRANS_TOKEN_FILE=/run/patio/sptrans-token.txt` e `PATIO_AREA_FILE=/run/patio/area.json`. O diretório é montado somente para leitura na API. A interface recebe apenas as observações normalizadas.
 
 O perfil Compose é local. Uma implantação remota exige TLS, autenticação de acesso à aplicação e configuração de `PATIO_PUBLIC_ORIGIN` conforme a origem HTTPS real.
 
@@ -129,6 +92,7 @@ Os testes de navegador iniciam a API offline em 8000 e o frontend de produção 
 O build contém câmera, inspeção de malha, sessão SPTrans server-side, polling compartilhado, deduplicação por prefixo, projeção métrica e replay assinado. A sessão usa HTTPS, timeout, renovação após 401/403 e espera crescente em falhas. O canal `/api/vehicles/live` transmite os snapshots aos navegadores conectados e limita a origem e o número de conexões. A interface recupera dados por HTTP enquanto tenta restabelecer o canal. Observações antigas mantêm o horário original e aparecem sinalizadas.
 
 Permanecem pendentes para operação institucional a validação de um pátio real e da cobertura GPS, modelo georreferenciado, persistência PostgreSQL/PostGIS, retenção, autenticação da plataforma, observabilidade e testes em dispositivos de operadores. O blueprint original registra os marcos de implementação e as integrações restantes. Para a referência visual, use `references/00-APPROVED-visual-target.png` do handoff v3.
+
 ## Componentes da Global Solution
 
 Instale as dependências da API e o runtime de IA e baixe o modelo na raiz do repositório.
@@ -149,4 +113,4 @@ python -m uvicorn app.main:app --app-dir services/api --host 127.0.0.1 --port 80
 
 - **Visão computacional.** Abra **Câmera do portão** para assistir à gravação anotada e ir diretamente aos instantes de cruzamento. A direção é relativa à imagem e a evidência visual mantém o vínculo com a gravação original. Consulte o [relatório e o roteiro de visão](docs/gs/cv/README.md).
 - **IA generativa.** Em **Fechamento de turno**, abra uma ocorrência e clique em **Explicar ocorrência** para consultar as fontes com a LLM local. O servidor recebe o tipo da ocorrência e sua origem. Os registros de CSV importados e as conclusões da equipe ficam no navegador. Consulte a [avaliação e a execução da LLM](gs/genai/README.md).
-- **GPS real.** O servidor usa o Olho Vivo com a configuração da SPTrans. Para executar com o feed público do BRT do Rio, defina `PATIO_LIVE_PROVIDER=rio_brt` no servidor e escolha **LIVE** na interface. O recorte padrão fica no entorno do Terminal Alvorada e mostra posições observadas com horário de cada veículo. O recorte é geográfico e os dados têm atribuição à SMTR / MOBI-Rio sob CC BY 4.0. [Dados GTFS Realtime](https://dados.mobilidade.rio/gtfs/realtime) · [catálogo e licença](https://www.transit.land/data/feeds/f-75cj-mobi~rio~rt).
+- **GPS real.** O servidor usa o Olho Vivo com a configuração da SPTrans. Para executar com o feed público do BRT do Rio, defina `PATIO_LIVE_PROVIDER=rio_brt` no servidor e abra a interface. O recorte padrão fica no entorno do Terminal Alvorada e mostra posições observadas com horário de cada veículo. O recorte é geográfico e os dados têm atribuição à SMTR / MOBI-Rio sob CC BY 4.0. [Dados GTFS Realtime](https://dados.mobilidade.rio/gtfs/realtime) · [catálogo e licença](https://www.transit.land/data/feeds/f-75cj-mobi~rio~rt).

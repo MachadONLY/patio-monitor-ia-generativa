@@ -177,12 +177,14 @@ function Bus({
   selected,
   onSelect,
   showTag,
+  scale = 1,
   elapsed,
 }: {
   vehicle: Vehicle;
   selected: boolean;
   onSelect: (id: string) => void;
   showTag: boolean;
+  scale?: number;
   elapsed?: SceneSimulation["elapsed"];
 }) {
   const { scene } = useGLTF(MODEL);
@@ -255,6 +257,7 @@ function Bus({
   return (
     <group ref={group} position={[vehicle.x, 0.018, vehicle.z]}>
       <primitive
+        scale={scale}
         object={object}
         onClick={(event: { stopPropagation: () => void }) => {
           if (group.current?.visible === false) return;
@@ -348,25 +351,34 @@ class SceneError extends Component<
 function AlvoradaBasemap({ area }: { area: Area }) {
   const streets = useMemo(() => {
     const vertices: number[][] = [[], [], []];
+    const halfWidths = [3.5, 8, 4.6];
     for (const [kind, coordinates] of alvorada as [number, [number, number][]][]) {
       const points = coordinates.map((point) => localPoint(area.origin, point));
       for (let i = 1; i < points.length; i++) {
         const [x1, z1] = points[i - 1];
         const [x2, z2] = points[i];
-        vertices[kind].push(x1, 0.2 + kind * 0.05, z1, x2, 0.2 + kind * 0.05, z2);
+        const length = Math.hypot(x2 - x1, z2 - z1);
+        if (!length) continue;
+        const dx = (z2 - z1) / length * halfWidths[kind];
+        const dz = (x1 - x2) / length * halfWidths[kind];
+        const y = 0.2 + kind * 0.06;
+        vertices[kind].push(
+          x1 + dx, y, z1 + dz, x1 - dx, y, z1 - dz, x2 + dx, y, z2 + dz,
+          x2 + dx, y, z2 + dz, x1 - dx, y, z1 - dz, x2 - dx, y, z2 - dz,
+        );
       }
     }
     return vertices.map((points) =>
       new BufferGeometry().setAttribute("position", new Float32BufferAttribute(points, 3)),
     );
-  }, [area]);
+  }, [area.origin[0], area.origin[1]]);
   useEffect(() => () => streets.forEach((street) => street.dispose()), [streets]);
-  const structures = useMemo(() => buildings.map(({ points, roof }) => ({
+  const structures = useMemo(() => buildings.map(({ points, roof, height }) => ({
     footprint: new Shape(points.map((point) => {
       const [x, z] = localPoint(area.origin, point as [number, number]);
       return new Vector2(x, -z);
     })),
-    height: roof ? 4 : 7,
+    height,
     roof,
   })), [area.origin[0], area.origin[1]]);
   const [x, z] = localPoint(area.origin, ALVORADA_TERMINAL);
@@ -374,14 +386,14 @@ function AlvoradaBasemap({ area }: { area: Area }) {
   return (
     <>
       {streets.map((geometry, index) => (
-        <lineSegments key={index} geometry={geometry}>
-          <lineBasicMaterial color={["#95a69f", "#f9f7ed", "#398674"][index]} />
-        </lineSegments>
+        <mesh key={index} geometry={geometry}>
+          <meshBasicMaterial side={2} color={["#c5c9be", "#a6afa9", "#657e73"][index]} />
+        </mesh>
       ))}
       {structures.map(({ footprint, height, roof }, index) => (
-        <mesh key={index} position={[0, roof ? 1.7 : 0.3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh key={index} position={[0, roof ? 1.7 : 0.3, 0]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow>
           <extrudeGeometry args={[footprint, { depth: height, bevelEnabled: false }]} />
-          <meshStandardMaterial color={roof ? "#f0efe5" : "#768e85"} roughness={0.86} />
+          <meshStandardMaterial color={roof ? "#f2f0e7" : ["#a2aca1", "#c5c8ba", "#9eafa9"][index % 3]} roughness={0.86} />
         </mesh>
       ))}
       <Html position={[x, 12, z]} center zIndexRange={[3, 1]} style={{ pointerEvents: "none" }}>
@@ -526,7 +538,7 @@ export function Scene({
           <SimulationClock simulation={demoSimulation} />
           {demo ? <Scenery /> : <ObservedTerrain ring={ring} extent={extent} area={area} />}
           {demoSimulation && <Pedestrians elapsed={demoSimulation.elapsed} />}
-          {!demo && (action.type === "home" || action.type === "terminal") && vehicles.map((vehicle) => (
+          {!demo && action.type === "home" && vehicles.map((vehicle) => (
             <Html key={`position:${vehicle.id}`} position={[vehicle.x, 8, vehicle.z]} center zIndexRange={[10, 4]}>
               <button type="button" className="live-bus-pin" aria-label={`Localizar ônibus ${vehicle.id}`}
                 aria-pressed={selected === vehicle.id} onClick={() => onSelect(vehicle.id)}>
@@ -540,6 +552,7 @@ export function Scene({
               vehicle={vehicle}
               selected={selected === vehicle.id}
               onSelect={onSelect}
+              scale={!demo && action.type === "terminal" ? 2.5 : 1}
               showTag={action.type !== "top" && action.type !== "profile"}
               elapsed={demoSimulation?.elapsed}
             />

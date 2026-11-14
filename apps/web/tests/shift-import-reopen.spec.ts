@@ -15,7 +15,6 @@ async function submitFiles(
   schedule: ReturnType<typeof csv>,
   gate: ReturnType<typeof csv>,
 ) {
-  await page.getByText("Importar arquivos CSV", { exact: true }).click();
   await page.getByLabel("Arquivo de escala").setInputFiles(schedule);
   await page.getByLabel("Arquivo de portaria").setInputFiles(gate);
   await page.getByRole("button", { name: "Revisar arquivos" }).click();
@@ -58,7 +57,7 @@ test("custom Portuguese CSV mapping validates a local time zone and matches the 
   const submit = page.getByRole("button", { name: "Revisar com mapeamento" });
   await submit.click();
   await expect(page.getByRole("alert")).toContainText(/fuso|offset/i);
-  await expect(page.getByText("Escala, portaria e GPS simulados.")).toBeVisible();
+  await expect(page.getByText("Carregue a escala e a portaria da mesma garagem e turno.")).toBeVisible();
 
   await schedule.getByLabel("Fuso dos horários sem offset").selectOption("-03:00");
   await gate.getByLabel("Fuso dos horários sem offset").selectOption("-03:00");

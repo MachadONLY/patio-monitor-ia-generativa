@@ -785,3 +785,36 @@ button:disabled {
 .live-bus-pin:hover {
   background: #217e6c;
 }
+
+.connection-state {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  padding: 7px 11px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--paper);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.connection-state i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #bd7c34;
+}
+
+.connection-state[data-connected="true"] i { background: #1b8a63; }
+.operating-layout { display: block; }
+.operating-source { color: var(--muted); font-size: 11px; padding-inline: 5px; }
+.operating-camera .labelled-camera { width: auto; padding-inline: 8px; gap: 5px; font-size: 11px; }
+.operating-camera button[aria-pressed="true"] { background: #e0efe7; }
+
+@media (max-width: 600px) {
+  .operating-app .topbar { gap: 7px; }
+  .operating-app .location { display: none; }
+  .operating-app .viewport-footer > span:last-child { display: none; }
+}

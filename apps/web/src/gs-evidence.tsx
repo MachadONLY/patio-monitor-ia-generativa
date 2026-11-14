@@ -193,7 +193,7 @@ export function GateCamera({ onClose }: { onClose: () => void }) {
             </section>
           </div>
           <footer className="gs-camera-footer">
-            <p>O vídeo não está ligado à garagem do DEMO. Os cruzamentos não identificam veículos nem comprovam entrada ou saída operacional.</p>
+            <p>{report.data_origin === "PUBLIC_VIDEO" ? "Gravação de referência externa. " : ""}O cruzamento é uma observação visual. Para confirmar o veículo e a saída, compare com o registro de portaria.</p>
             {safeSource(report.source.source_url) && (
               <a href={safeSource(report.source.source_url)} target="_blank" rel="noreferrer">Gravação original <ExternalLink size={13} /></a>
             )}

@@ -1,6 +1,6 @@
 # Demonstração integrada
 
-É possível executar o Pátio Monitor sem chave de API ou infraestrutura paga. A demonstração inclui o cenário 3D, a revisão de turno, o vídeo anotado, o Qwen em CPU e o GPS do feed público do BRT do Rio. O modo REPLAY consulta as posições coletadas e guardadas no SQLite local do servidor. Também aceita uma captura SPTrans assinada. A fonte SPTrans exige sua própria credencial e área.
+O Pátio Monitor abre direto na visão operacional. A tela reúne posições reais do BRT do Rio, o histórico por ônibus, a revisão de turno, a gravação processada e o assistente local.
 
 ## Executar localmente
 
@@ -22,7 +22,7 @@ export PATIO_ARCHIVE_FILE="$PWD/runtime-data/observations.sqlite3"
 python -m uvicorn app.hosted:app --app-dir services/api --host 127.0.0.1 --port 8000 --ws-max-size 4096 --ws-max-queue 8
 ```
 
-Abra [Pátio Monitor em LIVE](http://127.0.0.1:8000/?mode=LIVE). O histórico começa com as coletas desta execução e permanece disponível após reiniciar o processo.
+Abra [Pátio Monitor](http://127.0.0.1:8000/). O histórico começa com as coletas desta execução e permanece disponível após reiniciar o processo.
 
 ### PowerShell
 
@@ -50,9 +50,9 @@ Com o túnel ativo, defina `$env:PATIO_PUBLIC_ORIGIN = "https://HOST.trycloudfla
 
 Para uma janela de correção de vários dias, mantenha a máquina e o túnel ativos e confira periodicamente a URL publicada. Use apenas os dados demonstrativos e o feed público nessa instância.
 
-## Conferir a demonstração
+## Conferir a aplicação
 
-1. Em **DEMO**, selecione um ônibus e abra **Câmera do portão**. O cruzamento direciona o vídeo para 7,44 s.
-2. Em **Fechamento de turno**, abra uma ocorrência de troca e clique em **Explicar ocorrência**. Confira a resposta e a fonte.
-3. Em **LIVE**, confira a atribuição ao BRT do Rio e a idade de uma posição. As posições dependem da disponibilidade do provedor.
-4. Depois de receber posições em LIVE, selecione **REPLAY** e consulte o horário e o histórico do veículo.
+1. Abra a página e confira o mapa 3D do Alvorada e o indicador de conexão GPS. Use **Entorno** para ampliar o campo de visão.
+2. Selecione um ônibus e abra **Histórico**. As leituras armazenadas aparecem na ficha.
+3. Abra **Câmera do portão**. A gravação pública de Praga inclui um cruzamento selecionável em 7,44 s.
+4. Em **Revisar turno**, importe a escala e a portaria do mesmo turno e abra **Explicar ocorrência**. A orientação deve incluir a referência utilizada.

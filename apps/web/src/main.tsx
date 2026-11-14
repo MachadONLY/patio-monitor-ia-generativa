@@ -4,549 +4,141 @@ import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./style.css";
 import { createRoot } from "react-dom/client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Building2,
-  BusFront,
-  Camera,
-  ChevronRight,
-  CircleHelp,
-  ClipboardCheck,
-  Clock3,
-  Crosshair,
-  History,
-  Layers3,
-  List,
-  MapPin,
-  Minus,
-  Plus,
-  Radio,
-  X,
-} from "lucide-react";
-import { fleet, type Vehicle } from "./fleet";
+import { Building2, BusFront, Camera, ChevronRight, ClipboardCheck, Crosshair, MapPin, Minus, Plus, Radio } from "lucide-react";
+import type { Vehicle } from "./fleet";
 import { GateCamera } from "./gs-evidence";
 import { Scene, hasAlvoradaMap, type CameraAction, type CameraZoom } from "./scene";
 import { ShiftReview } from "./shift-review";
-import { OperationFeed, useDemoOperation } from "./operation-demo";
-import { sampleSimulation } from "./simulation";
-import { readingTime, SiteMap, VehicleInspector } from "./vehicle-inspector";
-import { observedVehicles, observationSources, useObservations, type Mode } from "./observations";
+import { readingTime, VehicleInspector } from "./vehicle-inspector";
+import { observedVehicles, observationSources, useObservations } from "./observations";
 
 function App() {
-  const [mode, setMode] = useState<Mode>(() => new URLSearchParams(window.location.search).get("mode") === "LIVE" ? "LIVE" : "DEMO");
-  const [selected, setSelected] = useState<string | null>("8 2361");
-  const [action, setAction] = useState<CameraAction>({ type: "home" });
+  const [selected, setSelected] = useState<string | null>(null);
+  const [view, setView] = useState<CameraAction>({ type: "terminal" });
   const [zoom, setZoom] = useState<CameraZoom>();
-  const [panel, setPanel] = useState<"overview" | "fleet" | "shift">(
-    "overview",
-  );
-  const [help, setHelp] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [ready, setReady] = useState(false);
-  const onReady = useCallback(() => setReady(true), []);
   const [failed3d, setFailed3d] = useState(false);
-  const [at, setAt] = useState("");
+  const onReady = useCallback(() => setReady(true), []);
   const onFailure = useCallback(() => setFailed3d(true), []);
-  const result = useObservations(mode, at);
-  const snapshot = result?.data;
-  const area = snapshot?.area;
-  const demo = mode === "DEMO";
-  const showCamera = demo || (mode === "LIVE" && snapshot?.operatorCamera);
-  const provider = observationSources[snapshot?.source ?? "sptrans_olhovivo"];
-  const location = demo ? observationSources.sptrans_olhovivo : provider;
-  const vehicles = demo ? fleet : observedVehicles(snapshot);
-  const site = demo ? "Terminal Pátio Leste" : (area?.name ?? "Área operacional");
-  const noData = !demo && !vehicles.length;
-  const vehicle = vehicles.find((item) => item.id === selected);
-  const reviewing = panel === "shift";
-  const operation = useDemoOperation(demo);
-  const demoPose = demo && vehicle ? sampleSimulation(vehicle, operation.elapsed) : undefined;
   const reviewEntry = useRef<HTMLButtonElement>(null);
   const reviewRegion = useRef<HTMLElement>(null);
   const contextRegion = useRef<HTMLElement>(null);
-  const fleetRegion = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (selected && !reviewing) contextRegion.current?.scrollTo({ top: 0 });
-  }, [selected, reviewing]);
+
+  const result = useObservations("LIVE", "");
+  const snapshot = result?.data;
+  const area = snapshot?.area;
+  const hasTerminal = hasAlvoradaMap(area);
+  const provider = snapshot?.source ? observationSources[snapshot.source] : undefined;
+  const vehicles = observedVehicles(snapshot);
+  const vehicle = vehicles.find((item) => item.id === selected);
+  const site = area?.name ?? "Operação de ônibus";
+  const current = snapshot?.state === "connected" && !result?.failed;
+  const connection = current ? "GPS ao vivo"
+    : snapshot?.state === "no_observations" && !result?.failed ? "Sem veículos no recorte"
+    : !result?.failed && (!snapshot || snapshot.state === "connecting") ? "Conectando ao GPS"
+    : "GPS indisponível";
+  const defaultView = hasTerminal ? "terminal" : "home";
+  const action = view.type === "terminal" && !hasTerminal ? { type: "home" } as const : view;
+
   useEffect(() => {
     if (reviewing) reviewRegion.current?.focus();
   }, [reviewing]);
 
-  useEffect(() => {
-    if (panel === "fleet") fleetRegion.current?.scrollIntoView({ block: "nearest" });
-  }, [panel]);
-
-  function closeReview() {
-    setPanel("overview");
-    reviewEntry.current?.focus();
+  function selectVehicle(id: string) {
+    const target = vehicles.find((item) => item.id === id);
+    if (!target) return;
+    setSelected(id);
+    setView({ type: "focus", vehicle: target });
+    setReviewing(false);
+    contextRegion.current?.scrollTo({ top: 0 });
   }
 
-  function selectVehicle(vehicleId: string) {
-    setSelected(vehicleId);
-    if (!reviewing) contextRegion.current?.scrollTo({ top: 0 });
-    if (mode !== "DEMO") {
-      const target = vehicles.find((item) => item.id === vehicleId);
-      if (target) setAction({ type: "focus", vehicle: target });
-      return;
-    }
-    if (action.type !== "follow" || action.vehicle?.id === vehicleId) return;
-    const target = vehicles.find((item) => item.id === vehicleId);
-    if (target) setAction({ type: "follow", vehicle: target });
+  function resetView() {
+    setSelected(null);
+    setView({ type: defaultView });
   }
 
-  function followVehicle(target: Vehicle) {
-    setSelected(target.id);
-    setAction({ type: "follow", vehicle: target });
-  }
-
-  function focusReviewVehicle(vehicleId: string) {
-    const target = vehicles.find((item) => item.id === vehicleId);
-    if (target) {
-      setSelected(target.id);
-      setAction({ type: "focus", vehicle: target });
-    }
-  }
-
-  function chooseMode(next: Mode) {
-    setCameraOpen(false);
-    setMode(next);
-    setAt("");
-    setSelected(next === "DEMO" ? "8 2361" : null);
-    setAction({ type: "home" });
-  }
   return (
-    <div className="app">
+    <div className="app operating-app">
       <header className="topbar">
         <div className="identity">
-          <div className="logo">
-            <BusFront size={23} strokeWidth={2.2} />
-          </div>
-          <div>
-            <div className="brand">Pátio Monitor</div>
-            <div className="brand-caption">MOBILIDADE URBANA</div>
-          </div>
+          <div className="logo"><BusFront size={23} strokeWidth={2.2} /></div>
+          <div className="brand">Pátio Monitor</div>
         </div>
         <div className="location">
           <MapPin size={16} />
-          <div>
-            <strong>{site}</strong>
-            <small>
-              {demo
-                ? "São Paulo · cenário ilustrativo"
-                : location.location + " · observações GPS"}
-            </small>
-          </div>
+          <div><strong>{site}</strong><small>{provider?.location ?? "Mobilidade urbana"}</small></div>
         </div>
-        <div className="modes" aria-label="Modo de dados">
-          {(["DEMO", "LIVE", "REPLAY"] as const).map((name) => (
-            <button
-              key={name}
-              aria-pressed={mode === name}
-              onClick={() => chooseMode(name)}
-            >
-              {mode === name && <i />}
-              {name}
-            </button>
-          ))}
-        </div>
-        <button
-          className="icon help"
-          type="button"
-          aria-label="Ajuda e origem dos dados"
-          onClick={() => setHelp(true)}
-        >
-          <CircleHelp size={20} />
-        </button>
+        <div className="connection-state" data-connected={current} role="status"><i />{connection}</div>
       </header>
-      {cameraOpen && showCamera && <GateCamera onClose={() => setCameraOpen(false)} />}
-      <main className="layout">
-        <nav className="rail" aria-label="Área de trabalho">
-          <button
-            className="icon"
-            aria-label="Visão geral"
-            aria-pressed={panel === "overview"}
-            onClick={() => {
-              setPanel("overview");
-              setSelected(null);
-              if (action.type === "follow") setAction({ type: "home" });
-            }}
-          >
-            <Layers3 size={20} />
-          </button>
-          <button
-            className="icon"
-            aria-label={
-              demo ? "Frota de demonstração" : "Observações de veículos"
-            }
-            aria-pressed={panel === "fleet"}
-            onClick={() => setPanel("fleet")}
-          >
-            <List size={20} />
-          </button>
-          <button
-            className="icon"
-            ref={reviewEntry}
-            aria-label="Fechamento de turno"
-            title="Fechamento de turno"
-            aria-pressed={reviewing}
-            onClick={() => setPanel("shift")}
-          >
-            <ClipboardCheck size={20} />
-          </button>
-          {showCamera && (
-            <button
-              type="button"
-              className="icon"
-              aria-label="Câmera do portão"
-              aria-haspopup="dialog"
-              title="Câmera do portão"
-              onClick={() => setCameraOpen(true)}
-            >
-              <Camera size={20} />
-            </button>
-          )}
-        </nav>
-        <section
-          className={reviewing ? "workspace workspace-review" : "workspace workspace-inspector"}
-          aria-label="Visão do pátio"
-        >
+      {cameraOpen && <GateCamera onClose={() => setCameraOpen(false)} />}
+      <main className="layout operating-layout">
+        <section className={reviewing ? "workspace workspace-review" : "workspace workspace-inspector"} aria-label="Operação do pátio">
           <div className="viewport" data-ready={ready} data-camera-mode={action.type}>
-            <Scene
-              vehicles={vehicles}
-              selected={selected}
-              onSelect={selectVehicle}
-              action={action}
-              zoom={zoom}
-              onReady={onReady}
-              onFailure={onFailure}
-              demo={demo}
-              area={area}
-              simulation={demo ? operation.scene : undefined}
-            />
-            {!ready && !failed3d && (
-              <div className="load-label" role="status">
-                Iniciando cena WebGL…
-              </div>
-            )}
+            <Scene vehicles={vehicles} selected={selected} onSelect={selectVehicle}
+              action={action} zoom={zoom} onReady={onReady} onFailure={onFailure}
+              demo={false} area={area} />
+            {!ready && !failed3d && <div className="load-label" role="status">Carregando mapa 3D…</div>}
             <div className="scene-caption">
-              <span className="eyebrow">
-                <Layers3 size={13} /> {action.type === "district"
-                  ? "VISTA DO BAIRRO"
-                  : action.type === "follow"
-                    ? `SEGUINDO ÔNIBUS ${action.vehicle?.id}`
-                    : "VISÃO ESPACIAL"}
-              </span>
-              <h1>{site}</h1>
-              <span>
-                {demo
-                  ? demoPose?.phase === "away" && action.type === "follow"
-                    ? "Em rota fora da área 3D · aguardando retorno"
-                    : "Cenário inspirado no Terminal Pirituba"
-                  : (action.type === "terminal" ? "Implantação do terminal · alturas ilustrativas" : area?.source ?? "Perímetro verificado indisponível")}
-              </span>
+              <span className="eyebrow"><Radio size={13} /> MONITORAMENTO GPS</span>
+              <h1>{hasTerminal ? "Terminal Alvorada" : site}</h1>
+              <span>{hasTerminal ? "Implantação cartográfica · volumes ilustrativos" : area?.source}</span>
             </div>
-            {noData && (
-              <div className="mode-notice" role="status">
-                {mode === "LIVE" ? <Radio size={22} /> : <History size={22} />}
-                <strong>
-                  {mode === "LIVE"
-                    ? snapshot?.state === "no_observations"
-                      ? "Sem ônibus observados na área"
-                      : "LIVE indisponível"
-                    : "REPLAY sem registros"}
-                </strong>
-                <span>
-                  {mode === "LIVE"
-                    ? snapshot?.state === "no_observations"
-                      ? "Nenhuma leitura dentro do perímetro."
-                      : "A conexão com " + provider.title + " está indisponível."
-                    : "O histórico aparece após a coleta de posições reais ou a importação de uma captura assinada."}
-                </span>
-                <button onClick={() => chooseMode("DEMO")}>
-                  Abrir demonstração <ChevronRight size={15} />
-                </button>
-              </div>
-            )}
             {!failed3d && (
-              <div className="camera" aria-label="Controles da câmera">
-                <button
-                  className="icon"
-                  aria-label="Restaurar vista geral"
-                  onClick={() => setAction({ type: "home" })}
-                >
-                  <Crosshair size={19} />
-                </button>
-                {!demo && hasAlvoradaMap(area) && (
-                  <button className="icon" aria-label="Ver Terminal Alvorada" title="Ver Terminal Alvorada"
-                    aria-pressed={action.type === "terminal"} onClick={() => setAction({ type: "terminal" })}>
-                    <Building2 size={19} />
-                  </button>
-                )}
-                {demo && (
-                  <button
-                    className="icon"
-                    aria-label="Vista do bairro"
-                    aria-pressed={action.type === "district"}
-                    title="Vista do bairro"
-                    onClick={() => setAction({ type: "district" })}
-                  >
-                    <Building2 size={19} />
-                  </button>
-                )}
-                <button
-                  className="icon"
-                  aria-label="Aproximar câmera"
-                  onClick={() => setZoom({ factor: 1.22 })}
-                >
-                  <Plus size={19} />
-                </button>
-                <button
-                  className="icon"
-                  aria-label="Afastar câmera"
-                  onClick={() => setZoom({ factor: 1 / 1.22 })}
-                >
-                  <Minus size={19} />
-                </button>
+              <div className="camera operating-camera" aria-label="Controles da câmera">
+                {hasTerminal && <button className="icon labelled-camera" aria-label="Ver Terminal Alvorada"
+                  aria-pressed={action.type === "terminal"} onClick={resetView}><Building2 size={17} /> Terminal</button>}
+                <button className="icon labelled-camera" aria-label="Restaurar vista geral" onClick={() => {
+                  setSelected(null); setView({ type: "home" });
+                }}><Crosshair size={17} /> Entorno</button>
+                <button className="icon" aria-label="Aproximar câmera" onClick={() => setZoom({ factor: 1.22 })}><Plus size={18} /></button>
+                <button className="icon" aria-label="Afastar câmera" onClick={() => setZoom({ factor: 1 / 1.22 })}><Minus size={18} /></button>
               </div>
             )}
-            {!demo && hasAlvoradaMap(area) && (
-              <a className="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-                © OpenStreetMap
-              </a>
-            )}
-            <div className="viewport-footer">
-              <span className="view-mode">3D</span>
-              <span>
-                {action.type === "follow"
-                  ? "Arraste para girar · câmera vinculada ao ônibus"
-                  : "Arraste para girar · botão direito para deslocar"}
-              </span>
-            </div>
+            {hasTerminal && <a className="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a>}
+            <div className="viewport-footer"><span className="view-mode">3D</span><span>Selecione um ônibus para abrir sua ficha</span></div>
           </div>
-          <aside
-            className="side"
-            aria-label="Painel de revisão"
-            hidden={!reviewing}
-            ref={reviewRegion}
-            tabIndex={-1}
-          >
-            <ShiftReview
-              key={mode}
-              mode={mode}
-              vehicles={snapshot?.source === "rio_mobi_gtfs_rt" ? [] : vehicles}
-              canFocusVehicle={ready && !failed3d}
-              referenceAt={mode === "REPLAY" ? snapshot?.at : undefined}
-              onFocusVehicle={focusReviewVehicle}
-              onClose={closeReview}
-            />
+          <aside className="side" aria-label="Painel de revisão" hidden={!reviewing} ref={reviewRegion} tabIndex={-1}>
+            <ShiftReview mode="LIVE" vehicles={snapshot?.source === "rio_mobi_gtfs_rt" ? [] : vehicles}
+              canFocusVehicle={ready && !failed3d} onFocusVehicle={selectVehicle}
+              onClose={() => { setReviewing(false); reviewEntry.current?.focus(); }} />
           </aside>
-          <aside
-            className="side"
-            aria-label="Contexto do pátio"
-            ref={contextRegion}
-            hidden={reviewing}
-          >
-            {vehicle && (
-              <VehicleInspector
-                key={mode}
-                vehicle={vehicle}
-                mode={mode}
-                site={site}
-                area={area}
-                replayAt={snapshot?.at}
-                elapsed={operation.elapsed}
-                stale={Boolean(mode === "LIVE" && vehicle.observation &&
-                  (result?.failed || Date.now() - Date.parse(vehicle.observation.observedAt) > 90000))}
-                following={action.type === "follow"}
-                cameraDisabled={failed3d}
-                onClose={() => {
-                  setSelected(null);
-                  if (action.type === "follow") setAction({ type: "home" });
-                }}
-                onCamera={(type) => {
-                  if (type === "follow" && action.type === "follow") setAction({ type: "home" });
-                  else setAction({ type, vehicle });
-                }}
-              />
+          <aside className="side" aria-label="Contexto do pátio" hidden={reviewing} ref={contextRegion}>
+            {vehicle ? (
+              <VehicleInspector vehicle={vehicle} mode="LIVE" site={site} area={area} elapsed={0}
+                stale={!current || Date.now() - Date.parse(vehicle.observation?.observedAt ?? "") > 90000}
+                following={false} cameraDisabled={failed3d} onClose={resetView}
+                onCamera={(type) => setView({ type, vehicle })} />
+            ) : (
+              <section className="info operating-fleet">
+                <span className="eyebrow">FROTA OBSERVADA</span>
+                <h2>{vehicles.length} {vehicles.length === 1 ? "veículo" : "veículos"} no entorno</h2>
+                {vehicles.length > 0 ? <div className="vehicle-list">
+                  {vehicles.map((item) => (
+                    <button key={item.id} aria-label={`Inspecionar ônibus ${item.id}`} onClick={() => selectVehicle(item.id)}>
+                      <BusFront size={16} />
+                      <strong>{item.id}</strong>
+                      {item.observation && <small>{readingTime.format(new Date(item.observation.observedAt))}</small>}
+                      <ChevronRight size={14} />
+                    </button>
+                  ))}
+                </div> : <p className="quiet">{connection}</p>}
+              </section>
             )}
-            {demo && !vehicle && (
-              <div className="map-card">
-                <SiteMap />
-                <div>
-                  <MapPin size={15} />
-                  <span>Planta ilustrativa</span>
-                  <small>DEMO</small>
-                </div>
-              </div>
-            )}
-            {demo && (
-              <OperationFeed
-                elapsed={operation.elapsed}
-                onFollow={failed3d ? undefined : (id) => {
-                  const target = fleet.find((item) => item.id === id);
-                  if (target) followVehicle(target);
-                }}
-              />
-            )}
-            <section className="info">
-              <span className="eyebrow">
-                {panel === "fleet" ? "VEÍCULOS DA CENA" : "VISÃO DO PÁTIO"}
-              </span>
-              <h2>
-                {panel === "fleet"
-                  ? demo
-                    ? "Frota de demonstração"
-                    : "Observações GPS"
-                  : "Contexto operacional"}
-              </h2>
-              {demo || vehicles.length > 0 || snapshot?.range ? (
-                <>
-                  {panel === "overview" && (
-                    <div className="overview">
-                      <span className="soft-icon">
-                        <BusFront size={20} />
-                      </span>
-                      <div>
-                        <strong>{vehicles.length} veículos</strong>
-                        <small>
-                          {demo
-                            ? "Frota do cenário DEMO"
-                            : "Observações na área"}
-                        </small>
-                      </div>
-                    </div>
-                  )}
-                  {(panel === "fleet" || failed3d || !demo) && (
-                    <div className="vehicle-list" ref={fleetRegion}>
-                      {vehicles.map((item) => (
-                        <button
-                          key={item.id}
-                          aria-pressed={selected === item.id}
-                          onClick={() => selectVehicle(item.id)}
-                        >
-                          <BusFront size={16} />
-                          <strong>{item.id}</strong>
-                          <small>{item.line}</small>
-                          <ChevronRight size={14} />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {mode === "REPLAY" && snapshot?.range && (
-                    <label className="replay">
-                      <span>
-                        {snapshot.at
-                          ? readingTime.format(new Date(snapshot.at))
-                          : "Horário do registro"}
-                      </span>
-                      <input
-                        type="range"
-                        aria-label="Horário do replay"
-                        min={Date.parse(snapshot.range[0])}
-                        max={Date.parse(snapshot.range[1])}
-                        step={1000}
-                        value={
-                          at
-                            ? Date.parse(at)
-                            : Date.parse(snapshot.at ?? snapshot.range[1])
-                        }
-                        onChange={(event) =>
-                          setAt(
-                            new Date(
-                              Number(event.currentTarget.value),
-                            ).toISOString(),
-                          )
-                        }
-                      />
-                    </label>
-                  )}
-                </>
-              ) : (
-                <p className="quiet">
-                  Nenhuma observação disponível para este modo.
-                </p>
-              )}
-            </section>
-            <button
-              className="shift-entry"
-              aria-label="Revisar turno"
-              onClick={() => setPanel("shift")}
-            >
-              <ClipboardCheck size={19} />
-              <span>
-                <strong>Revisar turno</strong>
-                <small>Compare escala e registros de portaria</small>
-              </span>
-              <ChevronRight size={16} />
+            <button className="shift-entry" ref={reviewEntry} aria-label="Revisar turno" onClick={() => setReviewing(true)}>
+              <ClipboardCheck size={19} /><span><strong>Revisar turno</strong><small>Confira divergências entre escala e portaria</small></span><ChevronRight size={16} />
             </button>
-            <div className="provenance">
-              <Clock3 size={15} />
-              <div>
-                <strong>
-                  {mode === "DEMO"
-                    ? "Dados sintéticos"
-                    : result?.failed ||
-                        snapshot?.state === "stale" ||
-                        snapshot?.state === "unavailable"
-                      ? "Conexão indisponível ou leitura antiga"
-                      : vehicles.length
-                        ? provider.title
-                        : "Sem observações"}
-                </strong>
-                <small>
-                  {mode === "DEMO"
-                    ? "Sem horário de GPS real"
-                    : result?.transport === "websocket" && !result.failed
-                      ? provider.title + " · canal WebSocket"
-                      : provider.title + " · consulta HTTP"}
-                </small>
-              </div>
-            </div>
+            <button className="shift-entry" aria-label="Câmera do portão" onClick={() => setCameraOpen(true)}>
+              <Camera size={19} /><span><strong>Câmera do portão</strong><small>Consulte a gravação e seus cruzamentos</small></span><ChevronRight size={16} />
+            </button>
+            {provider && <p className="operating-source">{provider.title}{snapshot?.archiveState === "unavailable" && " · Histórico indisponível"}</p>}
           </aside>
         </section>
       </main>
-      <footer className="bottom">
-        <span>
-          <i />
-          {mode === "DEMO"
-            ? "DEMO · Dados simulados"
-            : mode === "LIVE"
-              ? result?.failed ||
-                snapshot?.state === "stale" ||
-                snapshot?.state === "unavailable"
-                ? "LIVE · Dados indisponíveis ou antigos"
-                : snapshot?.state === "connected"
-                  ? "LIVE · GPS observado"
-                  : "LIVE · Sem observações"
-              : snapshot?.range
-                ? "REPLAY · Histórico GPS"
-                : "REPLAY · Sem registros"}
-        </span>
-        <span>{mode === "LIVE" && snapshot?.archiveState === "unavailable"
-          ? "Histórico: gravação indisponível"
-          : `Visualização de mobilidade · ${location.region}`}</span>
-      </footer>
-      {help && (
-        <dialog open aria-labelledby="help-title" className="help-dialog">
-          <button
-            className="icon close"
-            aria-label="Fechar ajuda"
-            onClick={() => setHelp(false)}
-          >
-            <X size={20} />
-          </button>
-          <h2 id="help-title">Origem dos dados</h2>
-          <p>
-            <strong>DEMO</strong> simula manobras e passagens na portaria.{" "}
-            <strong>LIVE</strong> exibe observações GPS da fonte identificada na tela.{" "}
-            <strong>REPLAY</strong> consulta posições GPS armazenadas ou uma captura assinada.
-          </p>
-          <p>
-            Use os botões da câmera, arraste o pátio ou escolha um veículo na
-            lista.
-          </p>
-        </dialog>
-      )}
     </div>
   );
 }
+
 createRoot(document.getElementById("root")!).render(<App />);
