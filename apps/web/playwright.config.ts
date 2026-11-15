@@ -1,15 +1,18 @@
 import { defineConfig } from "@playwright/test";
 
 const animationTest = /the Alvorada scenery animates independently of GPS and respects reduced motion/;
+const crossingsTest = /operating view displays estimated terminal crossing intervals and evidence method/;
+const operatingRegression = "**/operating-regression.spec.ts";
 
 export default defineConfig({
   testDir: "./tests",
   timeout: 90_000,
   workers: 1,
-  // Run the WebGL timing assertions in a fresh browser worker.
+  // Give the screenshot-heavy WebGL tests their own browser processes.
   projects: [
-    { name: "animation", testMatch: "**/operating-regression.spec.ts", grep: animationTest },
-    { name: "application", grepInvert: animationTest },
+    { name: "animation", testMatch: operatingRegression, grep: animationTest },
+    { name: "terminal-crossings", testMatch: operatingRegression, grep: crossingsTest },
+    { name: "application", grepInvert: [animationTest, crossingsTest] },
   ],
   use: {
     baseURL: "http://127.0.0.1:4174",
