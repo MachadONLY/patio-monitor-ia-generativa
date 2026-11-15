@@ -5,7 +5,7 @@ FIAP · Global Solution 2026.2 · CitizenTech
 | Integrante | RM |
 |---|---|
 | Camila do Prado Padalino | 98316 |
-| Felipe Cavalcante Bressane | 97688 |
+| Felipe Bressani | 97688 |
 | Gabriel Teixeira Machado | 551570 |
 
 O Smart Bus Gate gera eventos de abertura, fechamento e possíveis ocorrências a partir dos sensores do protótipo. O n8n aplica as regras, registra a auditoria em Data Tables e devolve o histórico pela API de consulta. No Pátio Monitor, o operador consegue conferir quando a cancela registrou cada transição e revisar a ocorrência usando o horário, dispositivo, distância e movimento.
