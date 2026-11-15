@@ -1,0 +1,183 @@
+.gate-monitor.gs-camera {
+  --gate-open: #237454;
+  --gate-closed: #49688d;
+  --gate-alert: #a6571b;
+  --gate-other: #64736d;
+  width: min(1056px, calc(100% - 36px));
+  background: #f4f7f4;
+  color: var(--ink);
+  overscroll-behavior: contain;
+}
+
+.gate-monitor [data-kind="opened"] { --gate-color: var(--gate-open); --gate-tint: #e9f4ec; }
+.gate-monitor [data-kind="closed"] { --gate-color: var(--gate-closed); --gate-tint: #edf1f8; }
+.gate-monitor [data-kind="alert"] { --gate-color: var(--gate-alert); --gate-tint: #fbefe3; }
+.gate-monitor [data-kind="other"] { --gate-color: var(--gate-other); --gate-tint: #edf1ee; }
+
+.gate-monitor-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff;
+}
+
+.gate-monitor-body { display: grid; gap: 15px; padding: 18px 24px 24px; }
+.gate-monitor-toolbar, .gate-monitor-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+}
+.gate-monitor-toolbar strong { font-size: 14px; }
+.gate-monitor-toolbar p, .gate-monitor-note {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.gate-monitor .operation-secondary { min-height: 39px; }
+.gate-monitor .operation-secondary:disabled { opacity: .65; cursor: progress; }
+
+.gate-monitor-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+.gate-monitor-metrics > div, .gate-monitor-card {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 15px;
+}
+.gate-monitor-metrics dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 680;
+}
+.gate-monitor-metrics dt svg { flex-shrink: 0; color: var(--gate-color, var(--forest)); }
+.gate-monitor-metrics dd {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: clamp(24px, 4vw, 32px);
+  letter-spacing: -.05em;
+  font-weight: 790;
+  font-variant-numeric: tabular-nums;
+}
+
+.gate-monitor-state {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--gate-tint, #edf2ef);
+}
+.gate-monitor-state-icon {
+  display: grid;
+  place-items: center;
+  width: 41px;
+  height: 41px;
+  border-radius: 11px;
+  color: var(--gate-color, var(--forest));
+  background: #ffffffb8;
+}
+.gate-monitor h3 { margin: 0; font-size: 14px; line-height: 1.35; letter-spacing: -.016em; }
+.gate-monitor-state h3 { color: var(--muted); font-size: 11px; }
+.gate-monitor-state strong { display: block; margin: 2px 0; color: var(--ink); font-size: 15px; }
+.gate-monitor-state p, .gate-monitor-state > span:last-child {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.gate-monitor-charts { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 12px; }
+.gate-monitor-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 9px; }
+.gate-monitor-legend > span, .gate-monitor-distribution li > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.gate-monitor-legend > span::before, .gate-monitor-distribution li > span:first-child::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gate-color);
+}
+.gate-monitor-bars, .gate-monitor-distribution { display: grid; gap: 7px; margin: 10px 0 0; padding: 0; list-style: none; }
+.gate-monitor-bars li, .gate-monitor-distribution li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) minmax(22px, auto);
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.gate-monitor-distribution li { grid-template-columns: 86px minmax(0, 1fr) minmax(22px, auto); }
+.gate-monitor-bars strong, .gate-monitor-distribution strong { text-align: right; color: var(--ink); }
+.gate-monitor-bar { display: flex; height: 7px; overflow: hidden; border-radius: 8px; background: #edf1ee; }
+.gate-monitor-bar i { display: block; height: 100%; background: var(--gate-color); }
+
+.gate-monitor-filters { display: flex; align-items: end; flex-wrap: wrap; gap: 8px; }
+.gate-monitor-filters > div { display: grid; gap: 3px; }
+.gate-monitor-filters label { color: var(--muted); font-size: 11px; font-weight: 660; }
+.gate-monitor-filters input, .gate-monitor-filters select {
+  min-height: 39px;
+  max-width: 190px;
+  padding: 6px 8px;
+  border: 1px solid #d5dfd8;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+}
+.gate-monitor-table-wrap { margin-top: 10px; overflow-x: auto; }
+.gate-monitor-table-wrap:focus-visible, .gate-monitor-filters :is(input, select):focus-visible {
+  outline: 2px solid #216b53;
+  outline-offset: 2px;
+}
+.gate-monitor table { width: 100%; min-width: 620px; border-collapse: collapse; text-align: left; font-size: 12px; }
+.gate-monitor th { color: var(--muted); font-weight: 700; }
+.gate-monitor th, .gate-monitor td { padding: 9px 8px; border-bottom: 1px solid #e9eeea; }
+.gate-monitor tbody tr:last-child td { border-bottom: 0; }
+.gate-monitor td:first-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.gate-monitor-event-id { margin-left: 8px; color: var(--muted); font-size: 10px; }
+.gate-monitor-device { overflow-wrap: anywhere; font: 11px "IBM Plex Mono", monospace; }
+.gate-monitor-badge {
+  display: inline-block;
+  padding: 4px 7px;
+  border-radius: 7px;
+  background: var(--gate-tint);
+  color: var(--gate-color);
+  font-size: 11px;
+  font-weight: 720;
+  overflow-wrap: anywhere;
+}
+.gate-monitor-pages { display: flex; align-items: center; justify-content: end; gap: 8px; margin-top: 9px; color: var(--muted); font-size: 12px; }
+.gate-monitor-pages button:disabled { opacity: .45; cursor: default; }
+.gate-monitor-message { margin: 0; padding: 13px; border-radius: 11px; background: #edf2ef; color: #3f5248; font-size: 13px; line-height: 1.5; }
+.gate-monitor-history > .gate-monitor-message { margin-top: 12px; }
+
+@media (max-width: 630px) {
+  .gate-monitor.gs-camera { width: calc(100% - 20px); }
+  .gate-monitor-body { padding: 13px; gap: 11px; }
+  .gate-monitor-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gate-monitor-charts { grid-template-columns: minmax(0, 1fr); }
+  .gate-monitor-state { grid-template-columns: auto minmax(0, 1fr); }
+  .gate-monitor-state > span:last-child { display: none; }
+}
+
+.operating-app[data-tour-step] .operation-gate { display: none; }

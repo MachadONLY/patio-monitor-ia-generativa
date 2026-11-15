@@ -5,7 +5,7 @@ import "./style.css";
 import "./operation-design.css";
 import { createRoot } from "react-dom/client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Building2, BusFront, Camera, ChevronRight, ClipboardCheck, Crosshair, MapPin, Minus, Pause, Play, Plus, ListChecks } from "lucide-react";
+import { ArrowLeft, Building2, BusFront, Camera, ChevronRight, ClipboardCheck, Crosshair, Fingerprint, MapPin, Minus, Pause, Play, Plus, ListChecks } from "lucide-react";
 import type { Vehicle } from "./fleet";
 import { buildVehicleRoadNetwork, projectAlvoradaRoads } from "./alvorada-road-path";
 import { alvoradaRoadSurface } from "./alvorada-road-surface";
@@ -13,6 +13,7 @@ import { TerminalCrossings } from "./terminal-crossings";
 import { AssessmentExample } from "./assessment-example";
 import { AssessmentTour, assessmentSteps } from "./assessment-tour";
 import { GateCamera, GateEvidence } from "./gs-evidence";
+import { GateMonitor } from "./gate-monitor";
 import { Scene, hasAlvoradaMap, ALVORADA_TERMINAL, type CameraAction, type CameraZoom } from "./scene";
 import { ShiftReview } from "./shift-review";
 import { VehicleInspector } from "./vehicle-inspector";
@@ -28,6 +29,10 @@ function App() {
   const [zoom, setZoom] = useState<CameraZoom>();
   const [reviewing, setReviewing] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [gateOpen, setGateOpen] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("cancela") === "1" && params.get("tour") !== "1";
+  });
   const [fleetPage, setFleetPage] = useState(0);
   const [showCrossings, setShowCrossings] = useState(false);
   const [tourStep, setTourStep] = useState<number | null>(() => new URLSearchParams(window.location.search).get("tour") === "1" ? 0 : null);
@@ -37,6 +42,7 @@ function App() {
   const onReady = useCallback(() => setReady(true), []);
   const onFailure = useCallback(() => setFailed3d(true), []);
   const reviewEntry = useRef<HTMLButtonElement>(null);
+  const gateEntry = useRef<HTMLButtonElement>(null);
   const crossingsEntry = useRef<HTMLButtonElement>(null);
   const crossingsBack = useRef<HTMLButtonElement>(null);
   const tourEntry = useRef<HTMLButtonElement>(null);
@@ -122,6 +128,16 @@ function App() {
     setView({ type: defaultView });
   }
 
+  function closeGate() {
+    setGateOpen(false);
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("cancela") === "1") {
+      url.searchParams.delete("cancela");
+      window.history.replaceState(window.history.state, "", url);
+      requestAnimationFrame(() => gateEntry.current?.focus({ preventScroll: true }));
+    }
+  }
+
   return (
     <div className="app operating-app" data-tour-step={tourStep ?? undefined}>
       <header className="topbar" inert={tourStep !== null}>
@@ -144,6 +160,7 @@ function App() {
         </div>
       </header>
       {cameraOpen && <GateCamera onClose={() => setCameraOpen(false)} />}
+      {gateOpen && <GateMonitor onClose={closeGate} />}
       <main className="layout operating-layout">
         <section className={reviewing ? "workspace workspace-review" : "workspace workspace-inspector"} aria-label="Operação do pátio">
           <div className="viewport" inert={tourStep !== null} data-ready={ready} data-camera-mode={action.type}>
@@ -189,6 +206,10 @@ function App() {
               <button type="button" className="shift-entry operation-camera" aria-label="Câmera do portão" onClick={() => tourStep === 0 ? setTourStep(3) : setCameraOpen(true)}>
                 <span className="operation-camera-icon"><Camera size={18} aria-hidden="true" /></span>
                 <span><strong>Câmera do portão</strong><small>Confira passagens no vídeo</small></span><ChevronRight size={16} aria-hidden="true" />
+              </button>
+              <button type="button" className="shift-entry operation-camera operation-gate" ref={gateEntry} onClick={() => setGateOpen(true)}>
+                <span className="operation-camera-icon"><Fingerprint size={18} aria-hidden="true" /></span>
+                <span><strong>Monitoramento da Cancela</strong><small>Auditoria do Smart Bus Gate</small></span><ChevronRight size={16} aria-hidden="true" />
               </button>
             </div>
             <div className="operation-panel-content" inert={tourStep !== null}>

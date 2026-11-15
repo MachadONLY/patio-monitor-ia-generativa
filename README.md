@@ -31,6 +31,7 @@ Siga o [guia para Windows e Linux](deploy/README.md). Ele inicia o frontend, o F
 - **Terminal** aproxima a câmera das pistas e coberturas do Alvorada. **Entorno** amplia o enquadramento. As duas ações mudam apenas a câmera.
 - Selecione um ônibus no mapa ou na lista para abrir a ficha com prefixo, linha, coordenadas e horário da leitura. **Histórico** consulta posições coletadas pelo servidor quando a persistência está configurada.
 - **Câmera do portão** dá acesso à gravação processada e aos cruzamentos identificados. Confira a procedência exibida no player.
+- **Monitoramento da Cancela** consulta os eventos do protótipo Smart Bus Gate registrados pelo n8n. Veja a [integração de RPA](docs/gs/rpa/README.md).
 - **Entradas e saídas** lista as travessias estimadas pelo GPS, com horário e acesso à ficha dos veículos presentes no recorte.
 - **Revisar turno** compara os CSVs de escala e portaria da operação e permite consultar uma explicação com fonte.
 

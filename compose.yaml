@@ -14,6 +14,8 @@ services:
       PATIO_LIVE_PROVIDER: ${PATIO_LIVE_PROVIDER:-sptrans}
       PATIO_PUBLIC_ORIGIN: ${PATIO_PUBLIC_ORIGIN:-}
       PATIO_ARCHIVE_FILE: /app/observations/observations.sqlite3
+      RPA_API_URL: ${RPA_API_URL:-}
+      RPA_API_KEY: ${RPA_API_KEY:-}
     volumes:
       - ./runtime-data:/run/patio:ro
       - patio_observations:/app/observations

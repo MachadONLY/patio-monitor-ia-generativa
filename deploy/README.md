@@ -28,6 +28,14 @@ python -m uvicorn app.hosted:app --app-dir services/api --host 127.0.0.1 --port 
 
 Abra [Pátio Monitor](http://127.0.0.1:8000/). O histórico começa com as coletas desta execução e permanece disponível após reiniciar o processo.
 
+## Monitoramento da cancela
+
+Configure `RPA_API_URL` com o endereço HTTPS de produção do webhook GET do n8n e `RPA_API_KEY` com a credencial de consulta. Defina as duas variáveis no ambiente do FastAPI, antes de iniciá-lo. No Compose, use um `.env` local ignorado pelo Git ou variáveis injetadas no serviço `api`. Na hospedagem, use o gerenciador de segredos do serviço web.
+
+Abra **Monitoramento da Cancela** no painel principal ou acrescente `?cancela=1` à URL. A página consulta a API de mesma origem e oferece atualização manual. A atualização automática acontece a cada 30 segundos enquanto a página está visível. A tela indica quando o servidor ainda não foi configurado, a consulta está vazia ou os dados exibidos vieram da última consulta bem-sucedida.
+
+[Contrato, teste de aceitação e entrega de RPA](../docs/gs/rpa/README.md).
+
 ### PowerShell
 
 ```powershell

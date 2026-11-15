@@ -19,6 +19,7 @@ from pydantic import AwareDatetime, BaseModel, Field, ValidationError, model_val
 
 from .archive import ObservationArchive
 from .gate_events import BOUNDARY_BUFFER_METERS, PERIMETER, coverage_sample
+from .gate_monitor import GateMonitor, router as gate_monitor_router
 from .assistant import router as assistant_router
 from .rio import RIO_SOURCE, RioBrt
 from .sptrans import Observation, OlhoVivo
@@ -176,6 +177,7 @@ def provider_token_from_env() -> str:
 async def lifespan(app: FastAPI):
     ingestion = Ingestion(public_origin=public_origin_from_env())
     app.state.ingestion = ingestion
+    app.state.gate_monitor = GateMonitor.from_env()
     provider_name = os.getenv("PATIO_LIVE_PROVIDER", "sptrans").strip()
     if provider_name not in {"sptrans", "rio_brt"}:
         raise ValueError("PATIO_LIVE_PROVIDER inválido")
@@ -245,6 +247,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Pátio Monitor", version="0.2.0", lifespan=lifespan)
 app.include_router(vision_router)
 app.include_router(assistant_router)
+app.include_router(gate_monitor_router)
 
 
 @app.middleware("http")
