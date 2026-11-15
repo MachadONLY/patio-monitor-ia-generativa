@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 import hashlib
 import hmac
 import json
+from threading import Event
 
 from fastapi.testclient import TestClient
 import httpx
@@ -238,7 +239,15 @@ def test_live_socket_returns_only_authenticated_provider_evidence(monkeypatch, t
     monkeypatch.delenv("PATIO_REPLAY_FILE", raising=False)
     monkeypatch.setattr(api, "OlhoVivo", lambda value: OlhoVivo(value, httpx.MockTransport(upstream)))
 
-    with TestClient(app) as client:
+    disconnected = Event()
+
+    async def track_socket_exit(scope, receive, send):
+        await app(scope, receive, send)
+        if (scope["type"] == "websocket"
+                and dict(scope["headers"]).get(b"origin") == b"https://patio.example"):
+            disconnected.set()
+
+    with TestClient(track_socket_exit) as client:
         with pytest.raises(WebSocketDisconnect) as denied:
             with client.websocket_connect("/api/vehicles/live", headers={"Origin": "http://testserver"}):
                 pytest.fail("deployment origin override ignored")
@@ -264,6 +273,8 @@ def test_live_socket_returns_only_authenticated_provider_evidence(monkeypatch, t
             updated = socket.receive_json()
             assert updated["state"] == "unavailable"
             assert updated["vehicles"] == result["vehicles"]
+            socket.close()
+            assert disconnected.wait(timeout=2), "server did not finish closing the WebSocket"
     assert [request.url.path for request in requests] == ["/v2.1/Login/Autenticar", "/v2.1/Posicao/Garagem"]
     assert requests[1].url.params["codigoEmpresa"] == "7"
 
