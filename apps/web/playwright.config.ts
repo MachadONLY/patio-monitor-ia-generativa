@@ -1,8 +1,16 @@
 import { defineConfig } from "@playwright/test";
+
+const animationTest = /the Alvorada scenery animates independently of GPS and respects reduced motion/;
+
 export default defineConfig({
   testDir: "./tests",
   timeout: 90_000,
   workers: 1,
+  // Run the WebGL timing assertions in a fresh browser worker.
+  projects: [
+    { name: "animation", testMatch: "**/operating-regression.spec.ts", grep: animationTest },
+    { name: "application", grepInvert: animationTest },
+  ],
   use: {
     baseURL: "http://127.0.0.1:4174",
     viewport: { width: 1440, height: 900 },
