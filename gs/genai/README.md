@@ -18,7 +18,7 @@ $env:PATIO_LLM_MODEL_PATH = (Resolve-Path gs/genai/qwen.gguf).Path
 
 Em Linux, use `python3 -m venv .venv`, o executável `.venv/bin/python` e `export PATIO_LLM_MODEL_PATH="$(pwd)/gs/genai/qwen.gguf"`. A variável opcional `PATIO_LLM_THREADS` escolhe as threads de CPU. A disponibilidade de uma wheel pré-compilada depende da plataforma. Em sua ausência, consulte o runtime, que requer CMake e um compilador C/C++.
 
-Na interface, abra **Fechamento de turno**, selecione a ocorrência `PM-0615` do DEMO e use **Explicar ocorrência**. O endpoint `POST /api/gs/explain` recebe uma pergunta e um contexto estruturado opcional. A interface transmite um rótulo de ocorrência e o motivo, sem notas ou arquivos locais. Com o modelo ausente, o endpoint responde 503. A recusa fundamentada sai como JSON com `refused: true`. A inferência é serializada por processo e solicitações concorrentes recebem 429.
+Na interface atual, clique em **Iniciar teste guiado**, depois **Abrir caso de exemplo**, **Ir para a explicação** e **Explicar ocorrência**. O caso do guia é demonstrativo; as leituras GPS reais aparecem separadamente. O endpoint `POST /api/gs/explain` recebe uma pergunta e um contexto estruturado opcional. A interface transmite um rótulo de ocorrência e o motivo, sem notas ou arquivos locais. Com o modelo ausente, o endpoint responde 503. A recusa fundamentada sai como JSON com `refused: true`. A inferência é serializada por processo e solicitações concorrentes recebem 429.
 
 ## Arquivos
 
