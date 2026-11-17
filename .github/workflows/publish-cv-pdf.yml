@@ -1,0 +1,56 @@
+name: Publish CV PDF from matching inference measurements
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-cv-pdf.yml
+      - docs/gs/cv/montar_relatorio.py
+      - docs/gs/cv/relatorio-conteudo.json
+      - services/vision/artifacts/report.json
+permissions:
+  contents: write
+jobs:
+  pdf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PDF generation and independent reading
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-dejavu-core
+          python -m pip install reportlab==4.4.9 pypdf==5.9.0
+      - name: Build report from its source and the current evidence
+        run: |
+          python docs/gs/cv/montar_relatorio.py docs/gs/cv/relatorio-conteudo.json docs/gs/cv/Patio-Monitor-Applied-Computer-Vision.pdf
+      - name: Verify the submitted PDF matches the recorded run
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from pypdf import PdfReader
+          import json
+          report = json.loads(Path('services/vision/artifacts/report.json').read_text())
+          measured = report['processing']
+          doc = PdfReader('docs/gs/cv/Patio-Monitor-Applied-Computer-Vision.pdf')
+          assert len(doc.pages) == 4, len(doc.pages)
+          text = ' '.join(page.extract_text() or '' for page in doc.pages)
+          for value in (measured['measured_decoder_encoder_fps'], measured['measured_detector_fps']):
+              assert f'{value:.2f}'.replace('.', ',') in text, value
+          for required in ('Resumo','Objetivo','Metodologia','Conclusão','Passagens no vídeo'):
+              assert required in text, required
+          print('Verified scientific consistency between PDF and measured video inference.')
+          PY
+      - name: Commit the verified PDF
+        run: |
+          git config user.name "Gabriel Teixeira Machado"
+          git config user.email "rm551570@fiap.com.br"
+          git add docs/gs/cv/Patio-Monitor-Applied-Computer-Vision.pdf
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: publish scientifically consistent CV report"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
