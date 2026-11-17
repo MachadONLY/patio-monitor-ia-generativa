@@ -15,6 +15,13 @@ type Crossing = {
 type Result = {
   status: "loading" | "active" | "disabled" | "unavailable";
   events: Crossing[];
+  summary?: {
+    windowHours: number;
+    entries: number;
+    exits: number;
+    paired: number;
+    averageMinutes: number | null;
+  };
 };
 
 const time = new Intl.DateTimeFormat("pt-BR", {
@@ -87,13 +94,23 @@ export function TerminalCrossings({ enabled, onSelect, activeVehicleIds }: {
   onSelect: (id: string) => void;
   activeVehicleIds?: ReadonlySet<string>;
 }) {
-  const { status, events } = useCrossings(enabled);
+  const { status, events, summary } = useCrossings(enabled);
   if (!enabled) return null;
 
   return (
     <section className="terminal-crossings" aria-labelledby="terminal-crossings-title">
       <h2 id="terminal-crossings-title"><MapPin size={17} /> Entradas e saídas</h2>
-      <p>Horários estimados pelo GPS ao cruzar o perímetro do terminal.</p>
+      <p>Cruzamentos inferidos de posições GPS, não passagens confirmadas pela portaria.</p>
+      {summary && status === "active" && (
+        <dl className="crossing-overview" aria-label="Resumo GPS das últimas 24 horas">
+          <div><dt>Entradas</dt><dd>{summary.entries}</dd></div>
+          <div><dt>Saídas</dt><dd>{summary.exits}</dd></div>
+          <div><dt>Tempo entre registros</dt>
+            <dd>{summary.averageMinutes == null ? "—" : summary.averageMinutes.toLocaleString("pt-BR") + " min"}</dd>
+            <small>{summary.paired} pares GPS · 24h</small>
+          </div>
+        </dl>
+      )}
       {!events.length && <p className="crossing-message" role="status">{emptyMessage[status]}</p>}
       {events.length > 0 && (
         <>

@@ -61,6 +61,13 @@ def test_crossings_persist_and_api_preserves_intervals_after_reopen(tmp_path):
         assert data["status"] == "active"
         assert data["source"] == RIO_SOURCE
         assert data["boundaryBufferMeters"] == 15
+        assert data["summary"] == {
+            "windowHours": 24,
+            "entries": 1,
+            "exits": 1,
+            "paired": 1,
+            "averageMinutes": 0.3,
+        }
         exit_event, entry_event = data["events"]
         for event, kind, start_reading, first_reading, last_reading in [
             (entry_event, "entry", stable_out, entering, entered),

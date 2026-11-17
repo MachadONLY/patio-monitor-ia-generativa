@@ -319,13 +319,16 @@ def get_terminal_crossings():
     if not archive or not archive.terminal_events:
         return {"status": "disabled", "events": []}
     try:
-        events = archive.crossings(datetime.now(timezone.utc))
+        now = datetime.now(timezone.utc)
+        events = archive.crossings(now)
+        summary = archive.crossing_summary(now)
     except sqlite3.Error:
         return {"status": "unavailable", "events": []}
     active = snapshot(ingestion, "LIVE", None)["state"] in {"connected", "no_observations"} and not ingestion.archive_error
     return {
         "status": "active" if active else "unavailable",
         "events": events,
+        "summary": summary,
         "source": ingestion.source,
         "perimeter": PERIMETER["source"],
         "boundaryBufferMeters": BOUNDARY_BUFFER_METERS,
