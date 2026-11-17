@@ -20,6 +20,8 @@ jobs:
           python-version: '3.12'
       - name: Install vision dependencies
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
           python -m pip install -r services/vision/requirements.txt
           ffmpeg -hide_banner -encoders | grep libx264
       - name: Build recorded evidence from licensed source
