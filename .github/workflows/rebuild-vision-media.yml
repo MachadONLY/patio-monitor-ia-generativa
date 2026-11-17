@@ -26,7 +26,6 @@ jobs:
           ffmpeg -hide_banner -encoders | grep libx264
       - name: Build recorded evidence from licensed source
         run: |
-          python -m services.vision prepare --data .cache/patio-vision
           python -m services.vision infer --data .cache/patio-vision
       - name: Verify media and source hashes
         run: |
