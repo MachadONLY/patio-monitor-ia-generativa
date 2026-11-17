@@ -3,6 +3,8 @@
 import hashlib
 import json
 from pathlib import Path
+from time import sleep
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 import cv2
@@ -23,6 +25,25 @@ def sha256(path):
     return digest.hexdigest()
 
 
+
+def read_verified_source(request, limit: int):
+    """Retry transient source throttling without replacing or altering the original media."""
+    for attempt in range(4):
+        try:
+            with urlopen(request, timeout=60) as response:
+                return response.read(limit)
+        except HTTPError as error:
+            if error.code not in {429, 502, 503, 504} or attempt == 3:
+                raise
+            delay = error.headers.get("Retry-After") if error.headers else None
+            try:
+                wait = int(delay) if delay else 3 * (attempt + 1)
+            except (TypeError, ValueError):
+                wait = 3 * (attempt + 1)
+            sleep(max(1, min(wait, 15)))
+    raise RuntimeError("Não foi possível obter o arquivo de origem.")
+
+
 def prepare(directory, names=None):
     directory.mkdir(parents=True, exist_ok=True)
     dataset = json.loads(MANIFEST.read_text())
@@ -35,8 +56,7 @@ def prepare(directory, names=None):
                 entry["download_url"],
                 headers={"User-Agent": "PatioMonitorCV/1.0 reproducibility"},
             )
-            with urlopen(request, timeout=60) as response:
-                contents = response.read(30 * 1024 * 1024 + 1)
+            contents = read_verified_source(request, 30 * 1024 * 1024 + 1)
             if (
                 len(contents) > 30 * 1024 * 1024
                 or hashlib.sha256(contents).hexdigest() != entry["sha256"]
