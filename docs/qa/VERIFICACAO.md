@@ -1,3 +1,5 @@
+> **Registro histórico de QA.** Parte das capturas abaixo retrata versões anteriores do protótipo de São Paulo. A implementação atual utiliza o Terminal Alvorada e observações do BRT do Rio. Consulte [a verificação atual](../gs/VERIFICACAO.md) e o [README](../../README.md).
+
 # Evidência da primeira entrega
 
 - **Cena** em WebGL 2 com Three.js e React Three Fiber 9. O GLB foi exportado no Blender e o teste inspeciona as famílias de malha.
