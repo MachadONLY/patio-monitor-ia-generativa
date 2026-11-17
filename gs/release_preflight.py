@@ -34,6 +34,18 @@ def main():
            "annotated source video matches its report")
     verify(vision["data_origin"] == "PUBLIC_VIDEO" and bool(vision["events"]),
            "licensed source and actual crossings recorded")
+    from pypdf import PdfReader
+    document = PdfReader(ROOT / "docs/gs/cv/Patio-Monitor-Applied-Computer-Vision.pdf")
+    extracted = " ".join(page.extract_text() or "" for page in document.pages)
+    verify(len(document.pages) == 4, "CV report is a four-page PDF")
+    measures = vision["processing"]
+    for field in ("measured_decoder_encoder_fps", "measured_detector_fps"):
+        current = f"{measures[field]:.2f}".replace(".", ",")
+        verify(current in extracted,
+               "CV PDF reports the latest recorded measurement: " + field)
+    verify("4,28 quadros de vídeo processados" not in extracted,
+           "CV report no longer contains the superseded speed estimate")
+
     for crossing in vision["events"]:
         frame = raw("services/vision/artifacts/" + Path(crossing["evidence_url"]).name)
         verify(frame.startswith(b"\xff\xd8\xff"), "crossing evidence is a JPEG")
