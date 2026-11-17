@@ -8,6 +8,14 @@ Assistente local para explicar divergências entre escala e portaria, com citaç
 
 O Pátio Monitor acompanha ônibus pelo GPS e ajuda a revisar divergências entre escala e portaria. A tela abre no Terminal Alvorada, com a implantação em 3D, posições do BRT do Rio e acesso direto à gravação analisada e à revisão de turno.
 
+## Teste direto para o professor
+
+1. Abra o MVP pelo link público informado no Teams e clique em **Iniciar teste guiado**.
+2. Selecione **Abrir caso de exemplo → Ir para a explicação → Explicar ocorrência**. O app deve exibir o diagnóstico de dois prefixos diferentes (`8 2361` na escala, `7 8042` na portaria) e a resposta do **Qwen local**, com a fonte da regra consultada.
+3. Clique em **Ver gravação** para conferir a visão computacional integrada. Para testar arquivos próprios, abra **Revisar turno** e baixe os dois CSVs de exemplo preenchidos ou importe uma escala e uma portaria da operação.
+
+A regra calcula uma **divergência documental**; o aplicativo não confirma uma substituição física sem evidência. A resposta do modelo é orientação complementar, não autorização automática de saída. [Prova de teste com Qwen real](docs/gs/genai/prova-qwen-real.png) · [Resultados do experimento](gs/genai/evaluation.json).
+
 ## Ficha técnica
 
 | Campo | Pátio Monitor |
