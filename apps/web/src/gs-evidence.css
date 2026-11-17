@@ -124,7 +124,24 @@
 .gs-camera-footer a,
 .gs-explain a { display: inline-flex; gap: 4px; align-items: center; color: #225f46; text-underline-offset: 2px; }
 
-.gs-explain { display: grid; gap: 7px; min-width: 0; margin-top: 11px; }
+.gs-explain { display: grid; gap: 9px; min-width: 0; margin-top: 11px; }
+.gs-operational-diagnosis {
+  display: grid;
+  gap: 6px;
+  border: 1px solid #c9dbd0;
+  border-radius: 11px;
+  padding: 12px;
+  background: #f5f8f4;
+  color: #254236;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.gs-operational-diagnosis strong { font-size: 13px; }
+.gs-operational-diagnosis p { margin: 0; overflow-wrap: anywhere; }
+.gs-operational-diagnosis small { color: #547064; line-height: 1.45; }
+.gs-operational-head { display: grid; gap: 2px; }
+.gs-operational-head small { font-size: 10px; }
+.gs-rule-summary { margin: 0 0 3px; color: #2b4e3c; }
 .gs-explain > button { justify-self: start; }
 .gs-explain-failure { margin: 0; color: #785222; font-size: 12px; }
 .gs-explain-result {
