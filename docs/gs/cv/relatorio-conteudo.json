@@ -129,5 +129,5 @@
       "0,9871"
     ]
   ],
-  "explicacao_eventos": "A gravação dura 10,92 s e mede 768 × 432 pixels. A linha fica em x = 468 px, com tolerância de ±18 px. O rastreador gera identificadores temporários por vídeo. Em CPU AMD EPYC 9V74 com duas threads OpenCV, foram decodificados 273 quadros e realizadas 91 inferências. A taxa medida foi de 4,28 quadros de vídeo processados/s e 1,48 inferências/s. A reprodução no navegador utiliza o vídeo já anotado."
+  "explicacao_eventos": "A gravação dura 10,92 s e mede 768 × 432 pixels. A linha fica em x = 468 px, com tolerância de ±18 px. O rastreador gera identificadores temporários por vídeo. A taxa de processamento em CPU varia por ambiente; este PDF apresenta a medição da execução versionada no relatório JSON. A reprodução no navegador utiliza o vídeo já anotado."
 }
