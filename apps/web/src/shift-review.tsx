@@ -22,8 +22,8 @@ import type { Mode } from "./observations";
 import {
   DEMO_SHIFT_AT,
   DEMO_SHIFT_GPS,
-  GATE_TEMPLATE,
-  SCHEDULE_TEMPLATE,
+  GATE_EXAMPLE,
+  SCHEDULE_EXAMPLE,
   demoShift,
 } from "./shift-demo";
 import {
@@ -689,9 +689,10 @@ export function ShiftReview({
             {!draft && pendingFiles.schedule && pendingFiles.gate && (
               <button className="shift-button" type="button" disabled={busy} onClick={editMapping}>Mapear colunas e datas</button>
             )}
+            <p className="shift-import-note">Sem arquivos próprios? Baixe os dois exemplos preenchidos: 4 saídas previstas e 3 passagens de portaria, com situações para revisão.</p>
             <div className="shift-templates">
-              <button type="button" onClick={() => downloadCsv("modelo-escala.csv", SCHEDULE_TEMPLATE)}>Baixar exemplo de escala</button>
-              <button type="button" onClick={() => downloadCsv("modelo-portaria.csv", GATE_TEMPLATE)}>Baixar exemplo de portaria</button>
+              <button type="button" onClick={() => downloadCsv("exemplo-escala-preenchido.csv", SCHEDULE_EXAMPLE)}>Baixar escala preenchida (CSV)</button>
+              <button type="button" onClick={() => downloadCsv("exemplo-portaria-preenchido.csv", GATE_EXAMPLE)}>Baixar portaria preenchida (CSV)</button>
             </div>
             <p className="shift-import-note"><Clock3 size={13} /> Tolerância de {SHIFT_TOLERANCE_MINUTES} min. Os arquivos são processados neste navegador.</p>
           </form>
