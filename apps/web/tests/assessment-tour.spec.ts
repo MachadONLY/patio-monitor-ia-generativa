@@ -27,6 +27,12 @@ test("teacher can review the example, request a source and inspect a real video 
   await expect(evidence.getByText("7 8042", { exact: false })).toBeVisible();
   await expect(evidence.getByText("Dados divergentes", { exact: true })).toBeVisible();
   await tour.getByRole("button", { name: "Ir para a explicação" }).click();
+  const diagnosis = evidence.getByRole("region", { name: "Diagnóstico operacional" });
+  await expect(diagnosis).toContainText("Divergência de identificação comprovada nos registros");
+  await expect(diagnosis).toContainText("8 2361");
+  await expect(diagnosis).toContainText("7 8042");
+  await expect(diagnosis).toContainText("Conferir com o controle do terminal");
+  await expect(diagnosis).toContainText("dados fictícios");
   await evidence.getByRole("button", { name: "Explicar ocorrência" }).click();
   await expect(evidence.getByRole("link", { name: "Regra de troca de veículo" })).toBeVisible();
 
