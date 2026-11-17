@@ -30,10 +30,6 @@
 - ETRA Electra / EMT Madrid: https://www.grupoetra.com/emt-madrid/
 - Exemplo terminal 3D+MQTT HSL Helsinque: https://www.ifcvieweronline.eu/blog/bus-terminal-digital-twin-mqtt/
 
-## Codex
-- Codex CLI e `AGENTS.md`: https://learn.chatgpt.com/docs/codex/cli
-- Boas práticas de Codex: https://learn.chatgpt.com/docs/learn/best-practices
-
 ## Regras de utilização
 - O MIT do Mini Tokyo cobre seu **código**, não autoriza automaticamente redistribuir dados GTFS privados, imagens, logos e tiles de terceiros.
 - Screenshots em `references/` são do usuário e são referências para direção artística; **não são assets** para shipping.
