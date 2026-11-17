@@ -225,12 +225,85 @@ function isExplanation(result: Explanation) {
     && result.actions.every(isText);
 }
 
+const localTime = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit",
+});
+
+function operationalDiagnosis(item: ShiftCase) {
+  const trip = item.trip;
+  const gate = item.gate;
+  const planned = "Saída " + trip.tripId + ": escala do veículo " + trip.vehicleId
+    + " às " + localTime.format(new Date(trip.plannedAt)) + ".";
+  const observed = gate
+    ? " Portaria: veículo " + gate.vehicleId + " às "
+      + localTime.format(new Date(gate.observedAt)) + " (" + gate.eventId + ")."
+    : " Não há registro OUT vinculado de forma inequívoca na portaria.";
+
+  switch (item.reason) {
+    case "vehicle_swap":
+      return {
+        finding: "Divergência de identificação comprovada nos registros. " + planned + observed,
+        action: "Conferir com o controle do terminal se ocorreu substituição de " + trip.vehicleId
+          + " por " + gate?.vehicleId
+          + ". Se houve, atualizar a escala; se o registro estiver incorreto, corrigir a portaria."
+          + " Registrar a evidência e a decisão antes de encerrar a ocorrência.",
+      };
+    case "missing_gate":
+      return {
+        finding: "Saída sem confirmação de portaria. " + planned + observed,
+        action: "Localizar o registro OUT original da saída. Se ele não existir, manter a ocorrência"
+          + " sem confirmação e registrar a pendência; GPS sozinho não comprova a passagem.",
+      };
+    case "ambiguous":
+      return {
+        finding: "Há " + item.candidates.length + " registros candidatos, sem associação única. " + planned,
+        action: "Conferir os IDs, prefixos e horários das passagens candidatas. Não associar um"
+          + " registro arbitrariamente; manter a pendência até localizar a evidência correta.",
+      };
+    case "early_gate":
+      return {
+        finding: "Passagem registrada antes da tolerância de antecedência. " + planned + observed,
+        action: "Conferir os relógios e a escala da saída. Registrar se foi antecipação autorizada"
+          + " ou erro de registro antes de concluir.",
+      };
+    case "outside_window":
+      return {
+        finding: "A passagem vinculada ocorreu fora da janela aceita. " + planned + observed,
+        action: "Verificar o ID da saída e o horário da portaria, confrontar os documentos"
+          + " originais e manter a divergência até haver confirmação.",
+      };
+    case "confirmed":
+      return {
+        finding: item.status === "late"
+          ? "Saída vinculada com atraso acima de cinco minutos. " + planned + observed
+          : "Saída vinculada dentro da tolerância. " + planned + observed,
+        action: item.status === "late"
+          ? "Conferir a justificativa do atraso e registrar a ação tomada com o controle operacional."
+          : "Nenhuma ação corretiva exigida pelo horário; conservar a evidência registrada.",
+      };
+  }
+}
+
+const ruleSummaries: Record<string, string> = {
+  p01: "Sem passagem OUT vinculada, a saída permanece sem confirmação. Posição GPS não comprova a travessia física.",
+  p02: "Mesmo ID de saída com prefixos diferentes na escala e na portaria indica uma divergência documental. A substituição física precisa ser conferida.",
+  p03: "Sem ID de saída, a associação exige veículo correspondente, horário na janela e um candidato único.",
+  p04: "Atraso acima de cinco minutos é sinalizado. Antecedência excessiva ou registro fora da janela exigem revisão.",
+  p05: "Dados DEMO, GPS observado e arquivos locais são fontes distintas e não podem ser confundidas.",
+  p06: "Os CSVs de escala e portaria devem conter identificadores e horários com fuso explícito.",
+  p07: "A decisão humana e a evidência permanecem separadas; a plataforma não autoriza a saída de veículos.",
+  p08: "GPS desatualizado não comprova a posição atual do ônibus.",
+  s01: "A API de GPS informa observações de veículos, não confirma passagem em portões.",
+  s02: "A chave de acesso ao Olho Vivo deve permanecer no servidor.",
+};
+
 export function ExplainOccurrence({ item, demo, scrollIntoView = false }: { item: ShiftCase; demo: boolean; scrollIntoView?: boolean }) {
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<string>();
   const [result, setResult] = useState<Explanation>();
   const active = useRef<AbortController | null>(null);
   const feedback = useRef<HTMLDivElement>(null);
+  const diagnosis = operationalDiagnosis(item);
   useEffect(() => () => active.current?.abort(), []);
   useEffect(() => {
     if (scrollIntoView && (result || failure)) feedback.current?.scrollIntoView({ block: "nearest" });
@@ -276,6 +349,16 @@ export function ExplainOccurrence({ item, demo, scrollIntoView = false }: { item
 
   return (
     <div className="gs-explain">
+      <section className="gs-operational-diagnosis" aria-label="Diagnóstico operacional">
+        <div className="gs-operational-head">
+          <strong>Problema identificado</strong>
+          <small>{demo ? "Cenário de teste · dados fictícios" : "Conferência dos CSVs importados"}</small>
+        </div>
+        <p>{diagnosis.finding}</p>
+        <strong>Próxima ação</strong>
+        <p>{diagnosis.action}</p>
+        <small>O diagnóstico resulta da comparação de escala e portaria; não confirma, sozinho, um acontecimento físico.</small>
+      </section>
       <button type="button" className="shift-button shift-secondary" onClick={() => void explain()} disabled={pending}>
         <FileSearch size={15} /> {pending ? "Consultando fontes…" : result ? "Consultar novamente" : "Explicar ocorrência"}
       </button>
@@ -286,15 +369,19 @@ export function ExplainOccurrence({ item, demo, scrollIntoView = false }: { item
           <strong>{result.refused ? "Explicação sem suporte nas fontes" : "Orientação gerada pelo assistente"}</strong>
           <small>{demo ? "Caso de exemplo" : "Classificação de arquivos locais"} · {result.model}</small>
           <p>{result.answer}</p>
+          <small>A IA fornece orientação sobre a regra; o diagnóstico acima foi calculado dos registros.</small>
           {result.citations.length ? (
             <>
               <strong>Fontes consultadas</strong>
               <ul>{result.citations.map((source) => (
-                <li key={source.id}>{safeSource(source.url)
-                  ? <a href={safeSource(source.url)} target="_blank" rel="noreferrer">{source.title} <ExternalLink size={12} /></a>
-                  : source.title}
+                <li key={source.id}>
+                  {ruleSummaries[source.id] && <p className="gs-rule-summary">{ruleSummaries[source.id]}</p>}
+                  {safeSource(source.url)
+                    ? <a href={safeSource(source.url)} target="_blank" rel="noreferrer">{source.title} <ExternalLink size={12} /></a>
+                    : source.title}
                 </li>
               ))}</ul>
+              <small>Os links são referências técnicas para auditoria. A regra principal está resumida acima.</small>
             </>
           ) : <small>Nenhuma fonte citada.</small>}
         </div>
