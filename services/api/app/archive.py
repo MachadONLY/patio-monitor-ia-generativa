@@ -70,6 +70,9 @@ class ObservationArchive:
     def crossings(self, now: datetime):
         return gate_events.list_recent(self.path, self.scope, self.stamp(now - gate_events.EVENT_RETENTION))
 
+    def crossing_summary(self, now: datetime):
+        return gate_events.summary_recent(self.path, self.scope, self.stamp(now - timedelta(hours=24)))
+
     def bounds(self):
         cutoff = self.cutoff(datetime.now(timezone.utc))
         with closing(sqlite3.connect(self.path)) as db:

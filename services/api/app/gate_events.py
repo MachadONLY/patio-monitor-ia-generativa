@@ -183,3 +183,35 @@ def list_recent(path: Path, scope: str, cutoff: str) -> list[dict]:
              "betweenFrom": start, "betweenTo": end, "confirmedAt": confirmed_at}
             for vehicle, kind, start, end, confirmed_at, line in rows
         ]
+
+def summary_recent(path: Path, scope: str, cutoff: str) -> dict:
+    """Summarize confirmed GPS perimeter crossings, never physical gate transactions."""
+    with closing(sqlite3.connect(path)) as db:
+        rows = db.execute("""
+            SELECT vehicle, kind, confirmed_at FROM terminal_crossings
+            WHERE scope = ? AND confirmed_at >= ?
+            ORDER BY confirmed_at ASC, vehicle
+        """, (scope, cutoff)).fetchall()
+    entry_at: dict[str, datetime] = {}
+    durations_minutes: list[float] = []
+    entries = exits = 0
+    for vehicle, kind, when in rows:
+        at = datetime.fromisoformat(when)
+        if kind == "entry":
+            entries += 1
+            entry_at[vehicle] = at
+        elif kind == "exit":
+            exits += 1
+            prior = entry_at.pop(vehicle, None)
+            if prior is not None:
+                minutes = (at - prior).total_seconds() / 60
+                if 0 <= minutes <= 24 * 60:
+                    durations_minutes.append(minutes)
+    return {
+        "windowHours": 24,
+        "entries": entries,
+        "exits": exits,
+        "paired": len(durations_minutes),
+        "averageMinutes": round(sum(durations_minutes) / len(durations_minutes), 1)
+            if durations_minutes else None,
+    }

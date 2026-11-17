@@ -190,7 +190,7 @@ function App() {
               <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a>
               <a href="https://pgeo3.rio.rj.gov.br/arcgis/rest/services/Imagens/Mosaico_2019/ImageServer" target="_blank" rel="noreferrer">Ortofoto 2019 · IPP / PCRJ</a>
             </div>}
-            <div className="viewport-footer"><span className="view-mode">3D</span><span>Ônibus via GPS · carros e pessoas ilustrativos</span></div>
+            <div className="viewport-footer"><span className="view-mode">3D</span><span>Posições GPS observadas · cenário e pessoas ilustrativos</span></div>
           </div>
           <aside className="side review-panel" aria-label="Painel de revisão" hidden={!reviewing} inert={tourStep !== null} ref={reviewRegion} tabIndex={-1}>
             <ShiftReview mode="LIVE" vehicles={snapshot?.source === "rio_mobi_gtfs_rt" ? [] : vehicles}
@@ -201,15 +201,15 @@ function App() {
             <div className="operation-links" inert={tourStep !== null && tourStep > 0} ref={tourStep === 0 ? tourTarget : undefined}>
               <button type="button" className="shift-entry operation-camera" ref={reviewEntry} aria-label="Revisar turno" onClick={() => tourStep === 0 ? setTourStep(1) : setReviewing(true)}>
                 <span className="operation-camera-icon"><ClipboardCheck size={18} aria-hidden="true" /></span>
-                <span><strong>Revisar turno</strong><small>Compare escala e portaria</small></span><ChevronRight size={16} aria-hidden="true" />
+                <span><strong>Revisar turno</strong><small>Teste com exemplos ou importe CSVs</small></span><ChevronRight size={16} aria-hidden="true" />
               </button>
               <button type="button" className="shift-entry operation-camera" aria-label="Câmera do portão" onClick={() => tourStep === 0 ? setTourStep(3) : setCameraOpen(true)}>
                 <span className="operation-camera-icon"><Camera size={18} aria-hidden="true" /></span>
-                <span><strong>Câmera do portão</strong><small>Confira passagens no vídeo</small></span><ChevronRight size={16} aria-hidden="true" />
+                <span><strong>Câmera do portão</strong><small>Detecção em gravação real</small></span><ChevronRight size={16} aria-hidden="true" />
               </button>
               <button type="button" className="shift-entry operation-camera operation-gate" ref={gateEntry} onClick={() => setGateOpen(true)}>
                 <span className="operation-camera-icon"><Fingerprint size={18} aria-hidden="true" /></span>
-                <span><strong>Monitoramento da Cancela</strong><small>Auditoria do Smart Bus Gate</small></span><ChevronRight size={16} aria-hidden="true" />
+                <span><strong>Monitoramento da Cancela</strong><small>Eventos do protótipo Smart Bus Gate</small></span><ChevronRight size={16} aria-hidden="true" />
               </button>
             </div>
             <div className="operation-panel-content" inert={tourStep !== null}>
@@ -232,7 +232,7 @@ function App() {
               ) : (
                 <section className="info operating-fleet">
                   <div className="fleet-heading">
-                    <div><h2>Ônibus no entorno</h2><p>Últimas posições registradas</p></div>
+                    <div><h2>Ônibus no entorno</h2><p>Selecione um veículo para consultar a leitura GPS</p></div>
                     <strong className="fleet-total" aria-label={`${vehicles.length} veículos`}>{vehicles.length}</strong>
                   </div>
                   {terminalVehicles === 0 && vehicles.length > 0 && action.type === "terminal" && (

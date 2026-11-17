@@ -110,6 +110,8 @@ export function VehicleInspector({
   const id = useId();
   const demo = mode === "DEMO" ? simulationVehicleDetails(vehicle, elapsed) : undefined;
   const obs = vehicle.observation;
+  const visibleTabs = mode === "DEMO" || obs?.lineOrigin || obs?.lineDestination
+    ? tabs : tabs.filter((entry) => entry.id !== "route");
   const recorded = useRecordedVehicleHistory(
     mode !== "DEMO" && tab === "history" ? vehicle.id : undefined,
     mode === "LIVE" ? obs?.observedAt : replayAt,
@@ -128,7 +130,7 @@ export function VehicleInspector({
     const offset = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
     if (!offset) return;
     event.preventDefault();
-    const next = tabs[(index + offset + tabs.length) % tabs.length].id;
+    const next = visibleTabs[(index + offset + visibleTabs.length) % visibleTabs.length].id;
     setTab(next);
     document.getElementById(`${id}-${next}`)?.focus();
   }
@@ -148,19 +150,20 @@ export function VehicleInspector({
           <span className={`inspector-status${stale ? " is-stale" : ""}`}><i />{status}</span>
           <span className="inspector-mode">{mode}</span>
         </div>
-        <figure className="inspector-portrait">
-          <img
-            src={`/models/bus-portrait-${vehicle.paint.slice(1)}.webp`}
-            width={720}
-            height={360}
-            alt={demo ? `Retrato do ônibus ${vehicle.id}` : "Render ilustrativo do modelo de ônibus"}
-          />
-          {!demo && <figcaption>Modelo ilustrativo</figcaption>}
-        </figure>
+        {obs && (
+          <div className="inspector-quick-reading">
+            <Clock3 size={14} aria-hidden="true" />
+            <span>GPS observado em <strong>{readingTime.format(new Date(obs.observedAt))}</strong></span>
+          </div>
+        )}
+        {demo && <figure className="inspector-portrait">
+          <img src={`/models/bus-portrait-${vehicle.paint.slice(1)}.webp`}
+            width={720} height={360} alt={`Modelo 3D ilustrativo do ônibus ${vehicle.id}`} />
+        </figure>}
       </header>
 
       <div className="inspector-tabs" role="tablist" aria-label="Informações do veículo">
-        {tabs.map(({ id: value, label }, index) => (
+        {visibleTabs.map(({ id: value, label }, index) => (
           <button key={value} type="button" role="tab" id={`${id}-${value}`}
             aria-controls={`${id}-panel`} aria-selected={tab === value} tabIndex={tab === value ? 0 : -1}
             onClick={() => setTab(value)} onKeyDown={(event) => moveTab(event, index)}>
@@ -183,8 +186,7 @@ export function VehicleInspector({
             </dl>
           ) : obs && (
             <dl className="inspector-reading">
-              <div><dt>Horário do GPS</dt><dd>{readingTime.format(new Date(obs.observedAt))}</dd></div>
-              <div><dt>Recepção</dt><dd>{readingTime.format(new Date(obs.receivedAt))}</dd></div>
+              <div><dt>Recebido pelo servidor</dt><dd>{readingTime.format(new Date(obs.receivedAt))}</dd></div>
             </dl>
           )}
           {demo && (recentMovements.length > 0 || upcomingDeparture !== undefined) && (
@@ -211,7 +213,7 @@ export function VehicleInspector({
               </ol>
             </section>
           )}
-          <h3><MapPin size={16} /> Localização atual</h3>
+          <h3><MapPin size={16} /> {demo ? "Localização simulada" : "Localização registrada no GPS"}</h3>
           {roadNotice && <p className="inspector-note">{roadNotice}</p>}
           <div className="inspector-map">
             {demo ? <SiteMap pose={demo.pose} /> : area && obs ? <GpsMap area={area} vehicle={vehicle} /> : null}
