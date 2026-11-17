@@ -1,6 +1,8 @@
 # PÁTIO MONITOR — BLUEPRINT DE IMPLEMENTAÇÃO V2.0
 
-**Status:** especificação aprovada para início técnico, NÃO implementação concluída. **Data:** 6/11/2026. **Objetivo do sprint web:** 6–12/11. **GS completa:** 19/11, 23h55, horário de São Paulo. **Referências do usuário:** `references/01-game-bus-depot.png`, `02-isometric-logistics.png`, `03-etra-electra.png`.
+> **Histórico (06/11/2026).** Os checklists abaixo registram decisões iniciais, não o estado atual da entrega. Veja [README](../README.md) e [verificação final](gs/VERIFICACAO.md).
+
+**Status:** documento histórico de planejamento; a versão final está documentada no README e na verificação da GS. **Data:** 6/11/2026. **Objetivo do sprint web:** 6–12/11. **GS completa:** 19/11, 23h55, horário de São Paulo. **Referências do usuário:** `references/01-game-bus-depot.png`, `02-isometric-logistics.png`, `03-etra-electra.png`.
 
 ## 1. Definição de produto e hipótese
 
