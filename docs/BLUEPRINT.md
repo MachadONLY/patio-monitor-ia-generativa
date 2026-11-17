@@ -123,7 +123,6 @@ O frontend pode usar uma API proxy na mesma origem para evitar CORS. Para o MVP 
 
 ```text
 patio-monitor/
-  AGENTS.md
   apps/web/
     src/app/                 # rotas, providers, wire-up
     src/features/depot-3d/   # canvas, camera, scenery, bus GLB renderer
