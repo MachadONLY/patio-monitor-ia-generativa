@@ -71,7 +71,7 @@ test("custom Portuguese CSV mapping validates a local time zone and matches the 
   const evidence = page.getByRole("region", { name: "Evidências da saída selecionada" });
   await expect(evidence.getByText("Com atraso", { exact: true })).toBeVisible();
   await expect(evidence.getByText(/Passagem de 00127 · P-02/)).toBeVisible();
-  await expect(evidence.getByText(/06:08/)).toBeVisible();
+  await expect(evidence.locator('time[datetime="2026-11-06T06:08:00-03:00"]')).toBeVisible();
   await expect(evidence.getByText(/Terminal;Expresso/)).toBeVisible();
   await expect(evidence.getByText(/P-01/)).toHaveCount(0);
 });
