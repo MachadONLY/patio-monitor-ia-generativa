@@ -169,7 +169,7 @@ def infer(directory: Path, output: Path, source: Path | None = None,
     cv2.setNumThreads(2)
     public = source is None
     if public:
-        entry = prepare(directory)["prague"]
+        entry = prepare(directory, {"prague"})["prague"]
         source = directory / "prague.webm"
         provenance = {key: entry[key] for key in ("title", "author", "license", "license_url", "source_url", "sha256")}
     else:
