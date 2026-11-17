@@ -103,6 +103,22 @@ def render(content, output):
             f"tem {word_count(content['objetivo'])}. Use 250 e 50."
         )
 
+    # Every generated PDF uses the exact measurement stored beside the submitted video.
+    # CPU throughput varies between environments and must not be copied from an older run.
+    report_file = (HERE / "../../../services/vision/artifacts/report.json").resolve()
+    report = json.loads(report_file.read_text(encoding="utf-8"))
+    processing = report["processing"]
+    assert report["data_origin"] == "PUBLIC_VIDEO"
+    assert report["events"] and report["video"]["duration_seconds"] > 7.44
+    br = lambda value: f"{value:.2f}".replace(".", ",")
+    content = dict(content)
+    content["explicacao_eventos"] += (
+        f" Foram decodificados {processing['decoded_frames']} quadros e realizadas "
+        f"{processing['detector_calls']} inferências. Nesta execução, a taxa medida "
+        f"foi de {br(processing['measured_decoder_encoder_fps'])} quadros/s e "
+        f"{br(processing['measured_detector_fps'])} inferências/s."
+    )
+
     story = [
         p("RELATÓRIO TÉCNICO  /  DISCIPLINA 4 DE 7", "eyebrow"),
         p("Detecção de ônibus e cruzamentos por câmera", "title"),
