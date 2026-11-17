@@ -97,6 +97,9 @@ test("explanation displays a cited answer and shares no imported identifiers", a
   });
   await page.getByRole("button", { name: "Revisar arquivos" }).click();
   await page.getByRole("textbox", { name: "Conclusão da ocorrência" }).fill("NOTA PRIVADA");
+  const diagnosis = page.getByRole("region", { name: "Diagnóstico operacional" });
+  await expect(diagnosis).toContainText("Saída sem confirmação de portaria");
+  await expect(diagnosis).toContainText("IDENTIFICADOR-PRIVADO");
   await page.getByRole("button", { name: "Explicar ocorrência" }).click();
   await expect(page.getByText("Orientação gerada pelo assistente")).toBeVisible();
   await expect(page.getByRole("link", { name: "Regra documentada" })).toHaveAttribute("href", "https://example.test/regra");
