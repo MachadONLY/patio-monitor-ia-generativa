@@ -34,6 +34,15 @@ test("teacher can review the example, request a source and inspect a real video 
   await tour.getByRole("button", { name: "Ver gravação" }).click();
   await report;
   const videoEvidence = page.getByRole("region", { name: "Evidência em vídeo" });
+  const playable = videoEvidence.locator("video");
+  await expect.poll(
+    () => playable.evaluate((node) => {
+      const media = node as HTMLVideoElement;
+      return media.error === null && media.readyState >= media.HAVE_METADATA
+        && media.videoWidth > 0 && media.duration > 7.44;
+    }),
+    { timeout: 30_000 },
+  ).toBe(true);
   const crossing = videoEvidence.getByRole("button", { name: /Esquerda.*direita.*00:07,4/ });
   await crossing.click();
   await expect(crossing).toHaveAttribute("aria-pressed", "true");
