@@ -19,7 +19,7 @@
     "duration_seconds": 10.92,
     "width": 768,
     "height": 432,
-    "sha256": "f39e6c5e5a053fa0bb883099ddbf11bcff68c2cacb1b90985de98159140e8169"
+    "sha256": "b0ef9ece6b50d80dafa2e481f15b41121eae04913da64cdc1832e956662cbdde"
   },
   "line": {
     "x": 468,
@@ -77,7 +77,7 @@
     "source_fps": 25.0,
     "detector_calls": 91,
     "sampled_fps": 8.333,
-    "measured_decoder_encoder_fps": 4.276,
-    "measured_detector_fps": 1.476
+    "measured_decoder_encoder_fps": 11.795,
+    "measured_detector_fps": 4.172
   }
 }
