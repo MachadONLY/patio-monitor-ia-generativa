@@ -1,0 +1,51 @@
+name: Publish tested Generative AI demonstration
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-genai-demo.yml
+      - docs/gs/genai/gerar_demonstracao.py
+permissions:
+  contents: write
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install video tooling
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install pillow==12.0.0
+      - name: Build truthful GenAI video from the real browser QA capture
+        run: python docs/gs/genai/gerar_demonstracao.py
+      - name: Verify actual MP4 and timeline
+        run: |
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          p=Path('docs/gs/genai/demonstracao.mp4')
+          assert p.is_file() and p.stat().st_size > 800_000
+          data=json.loads(subprocess.check_output([
+              'ffprobe','-v','error','-show_entries','format=duration:stream=codec_name,width,height',
+              '-of','json',str(p)],text=True))
+          assert 55 <= float(data['format']['duration']) <= 60, data
+          assert any(s.get('codec_name')=='h264' and s.get('width')==1280 and s.get('height')==720
+                     for s in data['streams']), data
+          print('Verified new GenAI demonstration:',p.stat().st_size,data['format']['duration'])
+          PY
+      - name: Publish final recorded demonstration
+        run: |
+          git config user.name "Gabriel Teixeira Machado"
+          git config user.email "rm551570@fiap.com.br"
+          git add docs/gs/genai/demonstracao.mp4
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: publish tested current GenAI user-flow demonstration"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
