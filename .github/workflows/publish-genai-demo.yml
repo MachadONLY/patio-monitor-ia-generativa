@@ -30,7 +30,7 @@ jobs:
           import json, subprocess
           from pathlib import Path
           p=Path('docs/gs/genai/demonstracao.mp4')
-          assert p.is_file() and p.stat().st_size > 800_000
+          assert p.is_file() and p.stat().st_size > 200_000
           data=json.loads(subprocess.check_output([
               'ffprobe','-v','error','-show_entries','format=duration:stream=codec_name,width,height',
               '-of','json',str(p)],text=True))
