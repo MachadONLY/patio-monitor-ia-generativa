@@ -7,7 +7,7 @@ on:
       - .github/workflows/release-real-e2e.yml
       - apps/web/tests/release-real-e2e.spec.ts
 permissions:
-  contents: read
+  contents: write
 jobs:
   professor:
     runs-on: ubuntu-latest
@@ -35,6 +35,31 @@ jobs:
       - run: pnpm --filter @patio/web exec playwright install --with-deps chromium
       - name: Test exact teacher workflow with no mocked providers or LLM
         run: pnpm --filter @patio/web exec playwright test tests/release-real-e2e.spec.ts --project=application
+      - name: Save exact real Qwen and video playback screenshots
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from shutil import copyfile
+          for source_name, dest in (
+              ('release-real-qwen-in-3d.png', 'docs/gs/genai/prova-qwen-real.png'),
+              ('release-real-vision-tour.png', 'docs/gs/cv/prova-video-tour.png'),
+          ):
+              files = list(Path('apps/web/test-results').rglob(source_name))
+              assert len(files) == 1, (source_name, files)
+              target = Path(dest)
+              target.parent.mkdir(parents=True, exist_ok=True)
+              copyfile(files[0], target)
+              assert target.stat().st_size > 10_000
+              print('QA screenshot:', target)
+          PY
+          git config user.name "Gabriel Teixeira Machado"
+          git config user.email "rm551570@fiap.com.br"
+          git add docs/gs/genai/prova-qwen-real.png docs/gs/cv/prova-video-tour.png
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: preserve tested real Qwen and video playback evidence"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
