@@ -23,10 +23,12 @@ def sha256(path):
     return digest.hexdigest()
 
 
-def prepare(directory):
+def prepare(directory, names=None):
     directory.mkdir(parents=True, exist_ok=True)
     dataset = json.loads(MANIFEST.read_text())
     for name, entry in dataset.items():
+        if names is not None and name not in names:
+            continue
         target = directory / f"{name}.webm"
         if not target.exists():
             request = Request(
@@ -43,7 +45,7 @@ def prepare(directory):
             target.write_bytes(contents)
         if sha256(target) != entry["sha256"]:
             raise ValueError(f"Hash de fonte diverge: {name}")
-    return dataset
+    return {name: entry for name, entry in dataset.items() if names is None or name in names}
 
 
 def examples(directory, dataset, split):
