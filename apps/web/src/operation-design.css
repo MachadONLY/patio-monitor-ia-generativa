@@ -118,9 +118,9 @@
   max-height: none;
   overflow: hidden;
   scrollbar-gutter: auto;
-  gap: 14px;
+  gap: 10px;
 }
-.operation-links { display: grid; gap: 10px; border-radius: var(--radius-panel); }
+.operation-links { display: grid; gap: 8px; border-radius: var(--radius-panel); }
 .operating-app .operation-panel-content { min-height: 0; flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; }
 .operating-app .review-panel > .shift-review { display: flex; flex-direction: column; min-height: 0; max-height: 100%; }
 .operating-app .review-panel .shift-body { overflow: auto; overscroll-behavior: contain; }
@@ -134,20 +134,20 @@
   box-shadow: 0 4px 16px #16302507;
   background: var(--paper);
 }
-.operating-app .operation-camera { gap: 12px; color: var(--ink); padding: 13px 15px; }
+.operating-app .operation-camera { gap: 10px; color: var(--ink); padding: 10px 13px; }
 .operating-app .operation-camera:hover { background: #f8faf8; }
 .operating-app .operation-camera-icon {
   display: grid;
   place-items: center;
-  flex: 0 0 38px;
-  width: 38px;
-  height: 38px;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
   border-radius: 12px;
   background: var(--mint);
   color: var(--forest);
 }
-.operating-app .operation-camera strong { font-size: 14px; }
-.operating-app .operation-camera small { margin-top: 2px; font-size: 11px; line-height: 1.4; }
+.operating-app .operation-camera strong { font-size: 13px; }
+.operating-app .operation-camera small { margin-top: 2px; font-size: 10px; line-height: 1.4; }
 .operating-app .fleet-heading h2 { margin: 0; color: var(--ink); font-size: 18px; letter-spacing: -.031em; }
 .operating-app .fleet-heading p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
 .operating-app .fleet-total { min-width: 35px; height: 31px; background: var(--mint); font-family: inherit; font-size: 13px; font-weight: 700; }
