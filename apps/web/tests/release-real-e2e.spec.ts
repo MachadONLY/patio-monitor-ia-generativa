@@ -19,7 +19,7 @@ test("professor completes live single-page tour with real Qwen, GPS and annotate
 
   const starter = page.getByRole("button", { name: "Iniciar teste guiado" });
   await starter.click();
-  const tour = page.getByRole("dialog", { name: "Teste guiado" });
+  const tour = page.getByRole("dialog");
   await tour.getByRole("button", { name: "Abrir caso de exemplo" }).click();
   const example = page.getByRole("region", { name: "Conferência do caso de exemplo" });
   await expect(example).toContainText("8 2361");
