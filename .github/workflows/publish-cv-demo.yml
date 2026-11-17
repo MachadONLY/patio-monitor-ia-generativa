@@ -1,0 +1,52 @@
+name: Publish recorded Computer Vision demonstration
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-cv-demo.yml
+      - docs/gs/cv/montar_video.py
+permissions:
+  contents: write
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install licensed media tooling
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install pillow==12.0.0
+      - name: Assemble the documentary footage from versioned sources
+        run: python docs/gs/cv/montar_video.py
+      - name: Verify deliverable duration and codec
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          from pathlib import Path
+          path = Path('docs/gs/cv/Patio-Monitor-Demonstracao-Visao.mp4')
+          info = json.loads(subprocess.check_output([
+              'ffprobe', '-v','error','-show_entries','format=duration:stream=codec_name,width,height',
+              '-of','json',str(path)], text=True))
+          assert float(info['format']['duration']) >= 50, info
+          assert path.stat().st_size > 1_000_000, info
+          assert any(x.get('codec_name') == 'h264' and x.get('width') == 1280 and x.get('height') == 720
+                     for x in info['streams']), info
+          print('Verified final MP4:', info['format']['duration'], path.stat().st_size)
+          PY
+      - name: Commit verified final demonstration
+        run: |
+          git config user.name "Gabriel Teixeira Machado"
+          git config user.email "rm551570@fiap.com.br"
+          git add docs/gs/cv/Patio-Monitor-Demonstracao-Visao.mp4
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: publish full recorded Computer Vision demonstration"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
