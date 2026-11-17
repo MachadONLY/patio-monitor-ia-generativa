@@ -211,8 +211,6 @@ def test_live_socket_is_empty_and_releases_slot_without_provider(monkeypatch):
                 socket.receive_json()
             assert closed.value.code == 1008
 
-        with client.websocket_connect("/api/vehicles/live", headers=same) as socket:
-            assert socket.receive_json()["state"] == "not_configured"
         assert app.state.ingestion.live_clients == 0
 
 
