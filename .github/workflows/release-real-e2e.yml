@@ -1,0 +1,43 @@
+name: Release acceptance - real browser and local Qwen
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/release-real-e2e.yml
+      - apps/web/tests/release-real-e2e.spec.ts
+permissions:
+  contents: read
+jobs:
+  professor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PATIO_E2E_REAL: '1'
+      PATIO_LIVE_PROVIDER: rio_brt
+      PATIO_LLM_MODEL_PATH: ${{ github.workspace }}/runtime-data/qwen.gguf
+      PATIO_LLM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm install -g pnpm@11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: |
+          python -m pip install -r services/api/requirements-dev.txt
+          python -m pip install --only-binary=:all: --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu -r services/api/requirements-ai.txt
+      - run: python gs/genai/download_model.py runtime-data/qwen.gguf
+      - run: pnpm --filter @patio/web exec playwright install --with-deps chromium
+      - name: Test exact teacher workflow with no mocked providers or LLM
+        run: pnpm --filter @patio/web exec playwright test tests/release-real-e2e.spec.ts --project=application
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: professor-real-e2e
+          path: apps/web/test-results/
+          retention-days: 3
