@@ -11,7 +11,7 @@ services:
       PATIO_REPLAY_KEY: ${PATIO_REPLAY_KEY:-}
       PATIO_LLM_MODEL_PATH: ${PATIO_LLM_MODEL_PATH:-/run/patio/qwen.gguf}
       PATIO_VISION_DIR: ${PATIO_VISION_DIR:-/app/vision-artifacts}
-      PATIO_LIVE_PROVIDER: ${PATIO_LIVE_PROVIDER:-sptrans}
+      PATIO_LIVE_PROVIDER: ${PATIO_LIVE_PROVIDER:-rio_brt}
       PATIO_PUBLIC_ORIGIN: ${PATIO_PUBLIC_ORIGIN:-}
       PATIO_ARCHIVE_FILE: /app/observations/observations.sqlite3
       RPA_API_URL: ${RPA_API_URL:-}
