@@ -33,7 +33,7 @@ test("reviewer can download complete example CSVs, import and audit a real discr
   await page.getByRole("button", { name: "Revisar arquivos" }).click();
 
   await expect(page.getByText("ARQUIVOS LOCAIS", { exact: true }).first()).toBeVisible();
-  await expect(page.getByRole("region", { name: "Resumo da conciliação" })).toContainText("Dados divergentes");
+  await expect(page.locator(".shift-metrics")).toContainText("Dados divergentes");
   await expect(page.getByRole("button", { name: /Investigar PM-0615/ })).toBeVisible();
   await page.getByRole("button", { name: /Investigar PM-0615/ }).click();
   await expect(page.getByRole("region", { name: "Evidências da saída selecionada" })).toContainText("7 8042");
