@@ -21,7 +21,7 @@ function snapshot(vehicles: ReturnType<typeof gpsSample>[], state = "connected")
 async function startOperatingPage(
   page: Page,
   initial: ReturnType<typeof snapshot>,
-  crossings: { status: string; events: unknown[] } = { status: "active", events: [] },
+  crossings: { status: string; events: unknown[]; summary?: { windowHours: number; entries: number; exits: number; paired: number; averageMinutes: number | null } } = { status: "active", events: [] },
 ) {
   let stream: WebSocketRoute | undefined;
   await page.route("**/api/vehicles/snapshot?mode=LIVE", (route) => route.fulfill({ json: initial }));
@@ -221,4 +221,20 @@ test("unmatched GPS remains in the inspector without a bus, pin or camera on the
   await expect(page.getByText("-23.001980, -43.366010", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Focar veículo" })).toBeDisabled();
   await expect(page.locator(".bus-tag")).toHaveCount(0);
+});
+
+
+test("crossing panel shows observed entry and exit metrics only when supplied by the backend", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await startOperatingPage(page, snapshot([gpsSample(new Date().toISOString())]), {
+    status: "active",
+    events: [],
+    summary: { windowHours: 24, entries: 3, exits: 2, paired: 2, averageMinutes: 18.5 },
+  });
+  await page.getByRole("button", { name: "Entradas e saídas", exact: true }).click();
+  const summary = page.locator(".crossing-overview");
+  await expect(summary).toContainText("Entradas");
+  await expect(summary).toContainText("Saídas");
+  await expect(summary).toContainText("18,5 min");
+  await expect(summary).toContainText("2 pares GPS");
 });
