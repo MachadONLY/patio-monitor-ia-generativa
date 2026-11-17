@@ -14,6 +14,17 @@ A correspondência exige IoU ≥ 0,50. Há um ônibus alvo anotado por quadro po
 
 Na reprodução de 10,92 s, a linha virtual está em x=468 px no vídeo de 768×432. O rastreador associa quadros por IoU e exige três observações por lado fora da faixa de tolerância de 18 px. O detector produziu uma passagem da esquerda para a direita aos 7,44 s no quadro 186. O relatório inclui taxa de amostragem e velocidade medida do processamento local. O pipeline é offline.
 
+## Verificar os resultados publicados, sem download externo
+
+Os pesos treinados, as métricas, o vídeo anotado e o registro de cruzamento estão no repositório. Para conferir o material submetido mesmo quando um servidor de vídeo original restringir downloads, execute na raiz:
+
+```bash
+python -m pip install -r services/api/requirements-dev.txt
+python gs/release_preflight.py
+```
+
+Essa verificação confere a integridade dos arquivos, os hashes dos pesos e da gravação e a coerência do PDF com a execução versionada. **Não equivale a treinar o modelo novamente.** O treinamento completo abaixo usa os cinco vídeos originais creditados em `dataset.json` e pode encontrar limitação temporária HTTP 429 do Wikimedia Commons; os arquivos locais, quando disponíveis, são reutilizados e conferidos por SHA-256.
+
 ## Reproduzir
 
 Execute na raiz do repositório com Python 3.12 e FFmpeg com `libx264` disponíveis. O diretório local de dados recebe os vídeos originais e o peso auxiliar, todos verificados por SHA-256.
