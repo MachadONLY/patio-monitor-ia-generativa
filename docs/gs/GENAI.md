@@ -6,7 +6,7 @@
 
 O assistente orienta a revisão de uma saída de garagem. A saída inclui uma resposta curta, IDs e URLs das fontes e um indicador de recusa. Um caso estruturado informa o motivo da ocorrência e distingue o cenário DEMO de registros CSV locais. A explicação descreve o procedimento, e a conclusão continua sob responsabilidade de quem revisa o turno.
 
-[Repositório](https://github.com/MachadONLY/patio-monitor-ia-generativa) · [Vídeo da demonstração](genai/demonstracao.mp4) · [Captura da ocorrência com fonte](genai/ocorrencia-com-fontes.png)
+[Repositório](https://github.com/MachadONLY/patio-monitor-ia-generativa) · [Vídeo da demonstração](genai/demonstracao.mp4) · [Captura da execução real com o Qwen](genai/prova-qwen-real.png)
 
 ## Ficha técnica
 
@@ -87,6 +87,10 @@ A tabela registra cinco erros observados na execução atual e uma regressão co
 | g12 · Senha do motorista | Na execução anterior, o agente respondeu com o endpoint de autenticação do Olho Vivo | Na execução anterior, o alias `senha → token` aproximava credenciais distintas. A remoção da equivalência, coberta por teste, fez o agente recusar esse caso antes de chamar o modelo. |
 
 O limite de citação valida que o ID pertence ao conjunto recuperado. Uma citação válida por si só ainda pode sustentar uma resposta insuficiente. O conjunto de avaliação e os cinco erros dão os pontos para a próxima iteração.
+
+## Verificação rápida do avaliador
+
+No Pátio Monitor, selecione **Iniciar teste guiado → Abrir caso de exemplo → Ir para a explicação → Explicar ocorrência**. O caso demonstrativo mostra a divergência documental entre os veículos `8 2361` e `7 8042`, identificada pelas regras de conciliação. A chamada à LLM local acrescenta a orientação e o trecho `p02` consultado; o professor pode conferir a fonte na própria interface. A captura da execução sem resposta simulada está em [prova-qwen-real.png](genai/prova-qwen-real.png). O [teste de aceitação com inferência real](../../apps/web/tests/release-real-e2e.spec.ts) registra esse fluxo. Essa demonstração não confirma uma troca física de ônibus.
 
 ## Conclusão técnica
 
