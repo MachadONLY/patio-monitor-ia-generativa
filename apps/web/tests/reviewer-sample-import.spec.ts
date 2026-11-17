@@ -37,6 +37,10 @@ test("reviewer can download complete example CSVs, import and audit a real discr
   await expect(page.getByRole("button", { name: /Investigar PM-0615/ })).toBeVisible();
   await page.getByRole("button", { name: /Investigar PM-0615/ }).click();
   await expect(page.getByRole("region", { name: "Evidências da saída selecionada" })).toContainText("7 8042");
+  const diagnosis = page.getByRole("region", { name: "Diagnóstico operacional" });
+  await expect(diagnosis).toContainText("Conferência dos CSVs importados");
+  await expect(diagnosis).toContainText("Portaria: veículo 7 8042");
+  await expect(diagnosis).toContainText("atualizar a escala");
 
   const [exported] = await Promise.all([
     page.waitForEvent("download"),
