@@ -1,0 +1,19 @@
+[
+  {"id":"g01","question":"Sem confirmação na portaria, GPS sozinho comprova passagem física pelo portão?","answer":"Não. GPS é auxiliar e deve-se verificar o registro OUT.","expected_sources":["p01"],"accept":[["não"],["gps","posição"],["portaria","out"]]},
+  {"id":"g02","question":"O ID da saída coincide, mas a portaria OUT indica outro veículo. Como interpretar aquela troca?","answer":"É uma divergência e a troca é uma hipótese a conferir com a escala e a portaria.","expected_sources":["p02"],"accept":[["divergência","hipótese"],["troca","outro veículo"]]},
+  {"id":"g03","question":"Sem ID da saída, que janela de minutos usa o Pátio Monitor para associar portaria OUT ao mesmo veículo?","answer":"De 15 minutos antes até 60 minutos depois do horário previsto, com unicidade.","expected_sources":["p03"],"accept":[["15","quinze"],["60","sessenta"]]},
+  {"id":"g04","question":"No Pátio Monitor, acima de quantos minutos uma saída vinculada é classificada como atrasada?","answer":"Acima de cinco minutos de atraso.","expected_sources":["p04"],"accept":[["cinco","5"],["atras"]]},
+  {"id":"g05","question":"Qual modo usa cenário sintético e qual exige observações reais do Olho Vivo?","answer":"DEMO usa cenário sintético e LIVE exige observações reais.","expected_sources":["p05"],"accept":[["demo"],["live"]]},
+  {"id":"g06","question":"Quais são os três campos obrigatórios do arquivo de escala?","answer":"trip_id, vehicle_id e planned_at.","expected_sources":["p06"],"accept":[["trip_id"],["vehicle_id"],["planned_at"]]},
+  {"id":"g07","question":"Confirmar travessia do portão da garagem significa que a viagem comercial em linha partiu?","answer":"Não. A passagem pelo portão e a partida comercial são eventos distintos.","expected_sources":["p07"],"accept":[["não","distint","diferent"],["partida","viagem"]]},
+  {"id":"g08","question":"Com quantos segundos a posição GPS passa a ser sinalizada como desatualizada?","answer":"Acima de 90 segundos.","expected_sources":["p08"],"accept":[["90","noventa"],["segundo"]]},
+  {"id":"g09","question":"No Olho Vivo, o que os campos py e px representam?","answer":"py é latitude e px é longitude.","expected_sources":["s01"],"accept":[["py"],["px"],["latitude"],["longitude"]]},
+  {"id":"g10","question":"Como autenticar a sessão Olho Vivo e onde o Pátio Monitor guarda a chave?","answer":"POST /Login/Autenticar, com a chave mantida no backend.","expected_sources":["s02"],"accept":[["login/autenticar"],["backend","servidor"]]},
+  {"id":"g11","question":"Qual é a placa do ônibus 50730?","answer":"Não consta.","expected_sources":[],"accept":[]},
+  {"id":"g12","question":"Qual é a senha do motorista?","answer":"Não consta.","expected_sources":[],"accept":[]},
+  {"id":"g13","question":"Qual o telefone do encarregado da garagem neste turno?","answer":"Não consta.","expected_sources":[],"accept":[]},
+  {"id":"g14","question":"Quantos passageiros embarcaram na viagem PM-0615?","answer":"Não consta.","expected_sources":[],"accept":[]},
+  {"id":"g15","question":"Qual valor em reais custou a manutenção do motor?","answer":"Não consta.","expected_sources":[],"accept":[]},
+  {"id":"g16","question":"Em qual vaga está estacionado o veículo 00123 neste minuto?","answer":"Não consta.","expected_sources":[],"accept":[]},
+  {"id":"g17","question":"Que evidências devo verificar e qual é o próximo passo para revisar esta ocorrência?","context":{"tripId":"ocorrencia-local","status":"unconfirmed","reason":"missing_gate","evidenceMode":"CSV_LOCAL"},"answer":"Verificar o registro OUT, o veículo e horário e manter como pendente se faltar evidência.","expected_sources":["p01"],"accept":[["portaria","out"],["pend","veículo","horário"]]}
+]
