@@ -8,6 +8,18 @@ Assistente local para explicar divergências entre escala e portaria, com citaç
 
 O Pátio Monitor acompanha ônibus pelo GPS e ajuda a revisar divergências entre escala e portaria. A tela abre no Terminal Alvorada, com a implantação em 3D, posições do BRT do Rio e acesso direto à gravação analisada e à revisão de turno.
 
+## Entregáveis organizados pela rubrica
+
+O material de IA está disponível também na estrutura solicitada pelo enunciado oficial da Global Solution:
+
+| Pasta | Conteúdo |
+|---|---|
+| [notebooks/](notebooks/) | [Notebook de avaliação executado, com saídas salvas](notebooks/avaliacao.ipynb) |
+| [base/](base/) | [Corpus de trechos, fontes e direitos](base/corpus.json) |
+| [avaliacao/](avaliacao/) | [Gabarito de 17 casos](avaliacao/gabarito.json) e [placar das três configurações, com as 51 respostas](avaliacao/placar.json) |
+
+Os arquivos dessa estrutura são cópias fiéis dos dados experimentais também usados pelo código em `gs/genai/` e `services/api/app/assistant_data/`. A explicação da arquitetura, a justificativa do limiar, as métricas e os cinco erros reais estão no [relatório técnico](docs/gs/GENAI.md).
+
 ## Teste direto para o professor
 
 1. Abra o MVP pelo link público informado no Teams e clique em **Iniciar teste guiado**.
