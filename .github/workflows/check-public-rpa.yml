@@ -1,0 +1,43 @@
+name: Verify public Pátio Monitor RPA integration
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/check-public-rpa.yml
+permissions:
+  contents: read
+jobs:
+  public-rpa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check deployed public API and configured upstream state
+        run: |
+          python - <<'PY'
+          from urllib.request import urlopen
+          from urllib.error import HTTPError
+          import json, sys
+          base='https://patio-monitor-production.up.railway.app'
+          with urlopen(base+'/health',timeout=20) as r:
+              health=json.load(r)
+              assert r.status==200 and health.get('status')=='ok'
+          try:
+              with urlopen(base+'/api/rpa/gate-events',timeout=20) as r:
+                  status_code=r.status
+                  data=json.load(r)
+          except HTTPError as exc:
+              status_code=exc.code
+              data=json.load(exc)
+          state=data.get('status')
+          events=data.get('eventos',[])
+          total=data.get('total')
+          print('Production RPA HTTP:', status_code)
+          print('Upstream status:', state)
+          print('Verified event count:', total)
+          print('Recent IDs:', [event.get('id') for event in events[:3]])
+          if state!='available' or status_code!=200:
+              sys.exit('Production n8n integration not yet available')
+          assert isinstance(total,int) and len(events)==total
+          print('PASS: live n8n history validated through deployed app')
+          PY
