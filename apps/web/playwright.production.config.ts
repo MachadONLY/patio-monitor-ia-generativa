@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests",
-  testMatch: "**/production-acceptance.spec.ts",
+  testMatch: "**/production-*.spec.ts",
   timeout: 120_000,
   expect: { timeout: 18_000 },
   workers: 1,
