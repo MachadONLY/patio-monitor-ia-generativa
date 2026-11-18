@@ -1,0 +1,36 @@
+name: Independent QA - real Pátio Monitor production (all user workflows)
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/qa-production-all.yml
+      - apps/web/playwright.production.config.ts
+      - apps/web/tests/production-primary.spec.ts
+      - apps/web/tests/production-secondary.spec.ts
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  production-browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install locked browser testing dependencies
+        run: |
+          npm install -g pnpm@11.25.0
+          pnpm install --frozen-lockfile
+          pnpm --filter @patio/web exec playwright install --with-deps chromium
+      - name: Exercise real production website, API and external n8n
+        run: pnpm --filter @patio/web exec playwright test --config=playwright.production.config.ts
+      - name: Archive screenshots, trace logs and machine-readable result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: patio-production-acceptance
+          path: apps/web/test-results/
+          if-no-files-found: warn
+          retention-days: 7
