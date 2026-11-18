@@ -1,0 +1,2821 @@
+{
+  "model_name": "qwen2.5-0.5b-instruct",
+  "n_gpu_layers": 0,
+  "threads": 1,
+  "temperature": 0,
+  "seed": 42,
+  "model_sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+  "threshold": 0.46,
+  "calibration": {
+    "recall_at_1": 1.0,
+    "recall_at_3": 1.0,
+    "n": 12,
+    "answerable": 7,
+    "threshold_sweep": [
+      {
+        "threshold": 0.1,
+        "answerable_pass": 7,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.12,
+        "answerable_pass": 7,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.14,
+        "answerable_pass": 7,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.16,
+        "answerable_pass": 7,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.18,
+        "answerable_pass": 7,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.2,
+        "answerable_pass": 7,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.22,
+        "answerable_pass": 7,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.24,
+        "answerable_pass": 7,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.26,
+        "answerable_pass": 7,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.28,
+        "answerable_pass": 7,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.3,
+        "answerable_pass": 7,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.32,
+        "answerable_pass": 7,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.34,
+        "answerable_pass": 7,
+        "unknown_blocked": 3
+      },
+      {
+        "threshold": 0.36,
+        "answerable_pass": 7,
+        "unknown_blocked": 3
+      },
+      {
+        "threshold": 0.38,
+        "answerable_pass": 7,
+        "unknown_blocked": 3
+      },
+      {
+        "threshold": 0.4,
+        "answerable_pass": 7,
+        "unknown_blocked": 3
+      },
+      {
+        "threshold": 0.42,
+        "answerable_pass": 7,
+        "unknown_blocked": 3
+      },
+      {
+        "threshold": 0.44,
+        "answerable_pass": 7,
+        "unknown_blocked": 3
+      },
+      {
+        "threshold": 0.46,
+        "answerable_pass": 7,
+        "unknown_blocked": 4
+      },
+      {
+        "threshold": 0.48,
+        "answerable_pass": 7,
+        "unknown_blocked": 4
+      },
+      {
+        "threshold": 0.5,
+        "answerable_pass": 6,
+        "unknown_blocked": 4
+      },
+      {
+        "threshold": 0.52,
+        "answerable_pass": 6,
+        "unknown_blocked": 5
+      },
+      {
+        "threshold": 0.54,
+        "answerable_pass": 6,
+        "unknown_blocked": 5
+      },
+      {
+        "threshold": 0.56,
+        "answerable_pass": 6,
+        "unknown_blocked": 5
+      },
+      {
+        "threshold": 0.58,
+        "answerable_pass": 6,
+        "unknown_blocked": 5
+      },
+      {
+        "threshold": 0.6,
+        "answerable_pass": 6,
+        "unknown_blocked": 5
+      }
+    ],
+    "ranked": [
+      {
+        "id": "GPS cancela a escala sem um registro de saída OUT?",
+        "expected_sources": [
+          "p01"
+        ],
+        "scores": [
+          [
+            "p01",
+            1.0
+          ],
+          [
+            "p02",
+            0.5063
+          ],
+          [
+            "p03",
+            0.5063
+          ]
+        ]
+      },
+      {
+        "id": "Como reconhecer troca de veículo pelo mesmo ID?",
+        "expected_sources": [
+          "p02"
+        ],
+        "scores": [
+          [
+            "p02",
+            0.9003
+          ],
+          [
+            "p03",
+            0.6305
+          ],
+          [
+            "p01",
+            0.2006
+          ]
+        ]
+      },
+      {
+        "id": "A janela é de 15 minutos antes e 60 depois sem ID?",
+        "expected_sources": [
+          "p03"
+        ],
+        "scores": [
+          [
+            "p03",
+            1.0
+          ],
+          [
+            "p04",
+            0.6017
+          ],
+          [
+            "p01",
+            0.108
+          ]
+        ]
+      },
+      {
+        "id": "Quem é o prefeito?",
+        "expected_sources": [],
+        "scores": [
+          [
+            "p01",
+            0.0
+          ],
+          [
+            "p02",
+            0.0
+          ],
+          [
+            "p03",
+            0.0
+          ]
+        ]
+      },
+      {
+        "id": "Qual é o preço da passagem amanhã?",
+        "expected_sources": [],
+        "scores": [
+          [
+            "p01",
+            0.5014
+          ],
+          [
+            "p07",
+            0.5014
+          ],
+          [
+            "s01",
+            0.5014
+          ]
+        ]
+      },
+      {
+        "id": "Qual é a idade do motorista na garagem?",
+        "expected_sources": [],
+        "scores": [
+          [
+            "p08",
+            0.4505
+          ],
+          [
+            "p07",
+            0.383
+          ],
+          [
+            "s02",
+            0.383
+          ]
+        ]
+      },
+      {
+        "id": "Qual o nome do terminal que possui o veículo 5877?",
+        "expected_sources": [],
+        "scores": [
+          [
+            "p01",
+            0.3346
+          ],
+          [
+            "p02",
+            0.3346
+          ],
+          [
+            "p03",
+            0.3346
+          ]
+        ]
+      },
+      {
+        "id": "Qual é a previsão de chuva?",
+        "expected_sources": [],
+        "scores": [
+          [
+            "p01",
+            0.0
+          ],
+          [
+            "p02",
+            0.0
+          ],
+          [
+            "p03",
+            0.0
+          ]
+        ]
+      },
+      {
+        "id": "Qual o procedimento para validação do arquivo CSV com fuso local?",
+        "expected_sources": [
+          "p06"
+        ],
+        "scores": [
+          [
+            "p06",
+            0.4867
+          ],
+          [
+            "p07",
+            0.2434
+          ],
+          [
+            "p01",
+            0.0
+          ]
+        ]
+      },
+      {
+        "id": "O que diferencia observedAt e receivedAt?",
+        "expected_sources": [
+          "p08"
+        ],
+        "scores": [
+          [
+            "p08",
+            0.844
+          ],
+          [
+            "p01",
+            0.0
+          ],
+          [
+            "p02",
+            0.0
+          ]
+        ]
+      },
+      {
+        "id": "Como autenticar a sessão no Olho Vivo, com qual endpoint?",
+        "expected_sources": [
+          "s02"
+        ],
+        "scores": [
+          [
+            "s02",
+            0.9041
+          ],
+          [
+            "p05",
+            0.3856
+          ],
+          [
+            "s01",
+            0.3856
+          ]
+        ]
+      },
+      {
+        "id": "O que px e py significam?",
+        "expected_sources": [
+          "s01"
+        ],
+        "scores": [
+          [
+            "s01",
+            0.844
+          ],
+          [
+            "p01",
+            0.0
+          ],
+          [
+            "p02",
+            0.0
+          ]
+        ]
+      }
+    ]
+  },
+  "retrieval": {
+    "recall_at_1": 1.0,
+    "recall_at_3": 1.0,
+    "n": 17,
+    "answerable": 11,
+    "threshold_sweep": [
+      {
+        "threshold": 0.1,
+        "answerable_pass": 11,
+        "unknown_blocked": 1
+      },
+      {
+        "threshold": 0.12,
+        "answerable_pass": 11,
+        "unknown_blocked": 1
+      },
+      {
+        "threshold": 0.14,
+        "answerable_pass": 11,
+        "unknown_blocked": 1
+      },
+      {
+        "threshold": 0.16,
+        "answerable_pass": 11,
+        "unknown_blocked": 1
+      },
+      {
+        "threshold": 0.18,
+        "answerable_pass": 11,
+        "unknown_blocked": 1
+      },
+      {
+        "threshold": 0.2,
+        "answerable_pass": 11,
+        "unknown_blocked": 1
+      },
+      {
+        "threshold": 0.22,
+        "answerable_pass": 11,
+        "unknown_blocked": 1
+      },
+      {
+        "threshold": 0.24,
+        "answerable_pass": 11,
+        "unknown_blocked": 1
+      },
+      {
+        "threshold": 0.26,
+        "answerable_pass": 11,
+        "unknown_blocked": 1
+      },
+      {
+        "threshold": 0.28,
+        "answerable_pass": 11,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.3,
+        "answerable_pass": 11,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.32,
+        "answerable_pass": 11,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.34,
+        "answerable_pass": 11,
+        "unknown_blocked": 2
+      },
+      {
+        "threshold": 0.36,
+        "answerable_pass": 11,
+        "unknown_blocked": 3
+      },
+      {
+        "threshold": 0.38,
+        "answerable_pass": 11,
+        "unknown_blocked": 4
+      },
+      {
+        "threshold": 0.4,
+        "answerable_pass": 11,
+        "unknown_blocked": 4
+      },
+      {
+        "threshold": 0.42,
+        "answerable_pass": 11,
+        "unknown_blocked": 5
+      },
+      {
+        "threshold": 0.44,
+        "answerable_pass": 11,
+        "unknown_blocked": 5
+      },
+      {
+        "threshold": 0.46,
+        "answerable_pass": 11,
+        "unknown_blocked": 5
+      },
+      {
+        "threshold": 0.48,
+        "answerable_pass": 11,
+        "unknown_blocked": 5
+      },
+      {
+        "threshold": 0.5,
+        "answerable_pass": 11,
+        "unknown_blocked": 5
+      },
+      {
+        "threshold": 0.52,
+        "answerable_pass": 10,
+        "unknown_blocked": 6
+      },
+      {
+        "threshold": 0.54,
+        "answerable_pass": 10,
+        "unknown_blocked": 6
+      },
+      {
+        "threshold": 0.56,
+        "answerable_pass": 10,
+        "unknown_blocked": 6
+      },
+      {
+        "threshold": 0.58,
+        "answerable_pass": 10,
+        "unknown_blocked": 6
+      },
+      {
+        "threshold": 0.6,
+        "answerable_pass": 10,
+        "unknown_blocked": 6
+      }
+    ],
+    "ranked": [
+      {
+        "id": "g01",
+        "expected_sources": [
+          "p01"
+        ],
+        "scores": [
+          [
+            "p01",
+            0.7531
+          ],
+          [
+            "s01",
+            0.3796
+          ],
+          [
+            "p07",
+            0.3502
+          ]
+        ]
+      },
+      {
+        "id": "g02",
+        "expected_sources": [
+          "p02"
+        ],
+        "scores": [
+          [
+            "p02",
+            0.7451
+          ],
+          [
+            "p03",
+            0.3782
+          ],
+          [
+            "p01",
+            0.3668
+          ]
+        ]
+      },
+      {
+        "id": "g03",
+        "expected_sources": [
+          "p03"
+        ],
+        "scores": [
+          [
+            "p03",
+            0.8825
+          ],
+          [
+            "p02",
+            0.5773
+          ],
+          [
+            "p01",
+            0.4804
+          ]
+        ]
+      },
+      {
+        "id": "g04",
+        "expected_sources": [
+          "p04"
+        ],
+        "scores": [
+          [
+            "p04",
+            0.8701
+          ],
+          [
+            "p01",
+            0.3959
+          ],
+          [
+            "p03",
+            0.3959
+          ]
+        ]
+      },
+      {
+        "id": "g05",
+        "expected_sources": [
+          "p05"
+        ],
+        "scores": [
+          [
+            "p05",
+            0.8363
+          ],
+          [
+            "s02",
+            0.2994
+          ],
+          [
+            "s01",
+            0.1996
+          ]
+        ]
+      },
+      {
+        "id": "g06",
+        "expected_sources": [
+          "p06"
+        ],
+        "scores": [
+          [
+            "p06",
+            0.5006
+          ],
+          [
+            "p07",
+            0.2871
+          ],
+          [
+            "p01",
+            0.2135
+          ]
+        ]
+      },
+      {
+        "id": "g07",
+        "expected_sources": [
+          "p07"
+        ],
+        "scores": [
+          [
+            "p07",
+            0.6903
+          ],
+          [
+            "p01",
+            0.1469
+          ],
+          [
+            "s01",
+            0.1248
+          ]
+        ]
+      },
+      {
+        "id": "g08",
+        "expected_sources": [
+          "p08"
+        ],
+        "scores": [
+          [
+            "p08",
+            0.7599
+          ],
+          [
+            "p01",
+            0.3271
+          ],
+          [
+            "s01",
+            0.1431
+          ]
+        ]
+      },
+      {
+        "id": "g09",
+        "expected_sources": [
+          "s01"
+        ],
+        "scores": [
+          [
+            "s01",
+            0.718
+          ],
+          [
+            "p05",
+            0.3062
+          ],
+          [
+            "s02",
+            0.3062
+          ]
+        ]
+      },
+      {
+        "id": "g10",
+        "expected_sources": [
+          "s02"
+        ],
+        "scores": [
+          [
+            "s02",
+            0.8775
+          ],
+          [
+            "p05",
+            0.3806
+          ],
+          [
+            "s01",
+            0.2464
+          ]
+        ]
+      },
+      {
+        "id": "g11",
+        "expected_sources": [],
+        "scores": [
+          [
+            "p01",
+            0.5014
+          ],
+          [
+            "p02",
+            0.5014
+          ],
+          [
+            "p03",
+            0.5014
+          ]
+        ]
+      },
+      {
+        "id": "g12",
+        "expected_sources": [],
+        "scores": [
+          [
+            "p01",
+            0.0
+          ],
+          [
+            "p02",
+            0.0
+          ],
+          [
+            "p03",
+            0.0
+          ]
+        ]
+      },
+      {
+        "id": "g13",
+        "expected_sources": [],
+        "scores": [
+          [
+            "p07",
+            0.365
+          ],
+          [
+            "s02",
+            0.365
+          ],
+          [
+            "p01",
+            0.0
+          ]
+        ]
+      },
+      {
+        "id": "g14",
+        "expected_sources": [],
+        "scores": [
+          [
+            "p07",
+            0.351
+          ],
+          [
+            "p01",
+            0.0
+          ],
+          [
+            "p02",
+            0.0
+          ]
+        ]
+      },
+      {
+        "id": "g15",
+        "expected_sources": [],
+        "scores": [
+          [
+            "p05",
+            0.4034
+          ],
+          [
+            "p01",
+            0.0
+          ],
+          [
+            "p02",
+            0.0
+          ]
+        ]
+      },
+      {
+        "id": "g16",
+        "expected_sources": [],
+        "scores": [
+          [
+            "s01",
+            0.2784
+          ],
+          [
+            "p01",
+            0.207
+          ],
+          [
+            "p02",
+            0.207
+          ]
+        ]
+      },
+      {
+        "id": "g17",
+        "expected_sources": [
+          "p01"
+        ],
+        "scores": [
+          [
+            "p01",
+            1.0
+          ],
+          [
+            "s01",
+            0.4361
+          ],
+          [
+            "p08",
+            0.2922
+          ]
+        ]
+      }
+    ]
+  },
+  "scoreboard": {
+    "baseline": {
+      "correct_total": 4,
+      "correct_answerable": 0,
+      "correct_refusals": 4,
+      "correct_with_relevant_citation": 0,
+      "raw_model_json_valid": 17,
+      "raw_model_calls": 17,
+      "api_json_valid": 17,
+      "median_seconds": 1.605
+    },
+    "rag": {
+      "correct_total": 8,
+      "correct_answerable": 2,
+      "correct_refusals": 6,
+      "correct_with_relevant_citation": 2,
+      "raw_model_json_valid": 17,
+      "raw_model_calls": 17,
+      "api_json_valid": 17,
+      "median_seconds": 4.868
+    },
+    "rag_agent": {
+      "correct_total": 11,
+      "correct_answerable": 5,
+      "correct_refusals": 6,
+      "correct_with_relevant_citation": 5,
+      "raw_model_json_valid": 12,
+      "raw_model_calls": 12,
+      "api_json_valid": 17,
+      "median_seconds": 4.007
+    }
+  },
+  "results": [
+    {
+      "mode": "baseline",
+      "id": "g01",
+      "question": "Sem confirmação na portaria, GPS sozinho comprova passagem física pelo portão?",
+      "expected": "Não. GPS é auxiliar e deve-se verificar o registro OUT.",
+      "expected_sources": [
+        "p01"
+      ],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 2.493,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"refused\", \"citation_ids\": [], \"refused\": true }",
+      "completion_tokens": 20,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g02",
+      "question": "O ID da saída coincide, mas a portaria OUT indica outro veículo. Como interpretar aquela troca?",
+      "expected": "É uma divergência e a troca é uma hipótese a conferir com a escala e a portaria.",
+      "expected_sources": [
+        "p02"
+      ],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.772,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"refused\", \"citation_ids\": [ ] , \"refused\": true }",
+      "completion_tokens": 21,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g03",
+      "question": "Sem ID da saída, que janela de minutos usa o Pátio Monitor para associar portaria OUT ao mesmo veículo?",
+      "expected": "De 15 minutos antes até 60 minutos depois do horário previsto, com unicidade.",
+      "expected_sources": [
+        "p03"
+      ],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.865,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"Sem ID da saída\", \"citation_ids\": [], \"refused\": true }",
+      "completion_tokens": 23,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g04",
+      "question": "No Pátio Monitor, acima de quantos minutos uma saída vinculada é classificada como atrasada?",
+      "expected": "Acima de cinco minutos de atraso.",
+      "expected_sources": [
+        "p04"
+      ],
+      "answer": {
+        "answer": "30 minutos",
+        "citations": [],
+        "refused": false,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": false,
+      "raw_model_json_valid": true,
+      "seconds": 1.743,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"30 minutos\", \"citation_ids\": [ ] , \"refused\": false }",
+      "completion_tokens": 22,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g05",
+      "question": "Qual modo usa cenário sintético e qual exige observações reais do Olho Vivo?",
+      "expected": "DEMO usa cenário sintético e LIVE exige observações reais.",
+      "expected_sources": [
+        "p05"
+      ],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.421,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"modo sintético\", \"citation_ids\": [], \"refused\": true }",
+      "completion_tokens": 20,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g06",
+      "question": "Quais são os três campos obrigatórios do arquivo de escala?",
+      "expected": "trip_id, vehicle_id e planned_at.",
+      "expected_sources": [
+        "p06"
+      ],
+      "answer": {
+        "answer": "3",
+        "citations": [],
+        "refused": false,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": false,
+      "raw_model_json_valid": true,
+      "seconds": 1.448,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"3\", \"citation_ids\": [], \"refused\": false }",
+      "completion_tokens": 18,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g07",
+      "question": "Confirmar travessia do portão da garagem significa que a viagem comercial em linha partiu?",
+      "expected": "Não. A passagem pelo portão e a partida comercial são eventos distintos.",
+      "expected_sources": [
+        "p07"
+      ],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.536,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"refused\", \"citation_ids\": [], \"refused\": true }",
+      "completion_tokens": 20,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g08",
+      "question": "Com quantos segundos a posição GPS passa a ser sinalizada como desatualizada?",
+      "expected": "Acima de 90 segundos.",
+      "expected_sources": [
+        "p08"
+      ],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.604,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"sem resposta\", \"citation_ids\": [], \"refused\": true }",
+      "completion_tokens": 20,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g09",
+      "question": "No Olho Vivo, o que os campos py e px representam?",
+      "expected": "py é latitude e px é longitude.",
+      "expected_sources": [
+        "s01"
+      ],
+      "answer": {
+        "answer": "py é o valor de um campo e px é o valor de outro",
+        "citations": [],
+        "refused": false,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": false,
+      "raw_model_json_valid": true,
+      "seconds": 2.191,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"py é o valor de um campo e px é o valor de outro\", \"citation_ids\": [], \"refused\": false }",
+      "completion_tokens": 31,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g10",
+      "question": "Como autenticar a sessão Olho Vivo e onde o Pátio Monitor guarda a chave?",
+      "expected": "POST /Login/Autenticar, com a chave mantida no backend.",
+      "expected_sources": [
+        "s02"
+      ],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.522,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"Não souber\", \"citation_ids\": [], \"refused\": true }",
+      "completion_tokens": 21,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g11",
+      "question": "Qual é a placa do ônibus 50730?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "50730",
+        "citations": [],
+        "refused": false,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.605,
+      "retrieved": [],
+      "raw": "{\"answer\": \"50730\", \"citation_ids\": [], \"refused\": false}",
+      "completion_tokens": 21,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g12",
+      "question": "Qual é a senha do motorista?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.456,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"Não souber\", \"citation_ids\": [], \"refused\": true }",
+      "completion_tokens": 21,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g13",
+      "question": "Qual o telefone do encarregado da garagem neste turno?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.697,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"Não souber\", \"citation_ids\": [], \"refused\": true }",
+      "completion_tokens": 22,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g14",
+      "question": "Quantos passageiros embarcaram na viagem PM-0615?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.567,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"Não souber\", \"citation_ids\": [], \"refused\": true }",
+      "completion_tokens": 22,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g15",
+      "question": "Qual valor em reais custou a manutenção do motor?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.48,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"Não sei\", \"citation_ids\": [], \"refused\": true }",
+      "completion_tokens": 20,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g16",
+      "question": "Em qual vaga está estacionado o veículo 00123 neste minuto?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "00123",
+        "citations": [],
+        "refused": false,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.757,
+      "retrieved": [],
+      "raw": "{\"answer\": \"00123\", \"citation_ids\": [], \"refused\": false}",
+      "completion_tokens": 21,
+      "guard": null
+    },
+    {
+      "mode": "baseline",
+      "id": "g17",
+      "question": "Que evidências devo verificar e qual é o próximo passo para revisar esta ocorrência?",
+      "expected": "Verificar o registro OUT, o veículo e horário e manter como pendente se faltar evidência.",
+      "expected_sources": [
+        "p01"
+      ],
+      "answer": {
+        "answer": "Verifique as fontes e o texto completo",
+        "citations": [],
+        "refused": false,
+        "actions": [
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": false,
+      "raw_model_json_valid": true,
+      "seconds": 1.939,
+      "retrieved": [],
+      "raw": "{ \"answer\": \"Verifique as fontes e o texto completo\", \"citation_ids\": [], \"refused\": false }",
+      "completion_tokens": 26,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g01",
+      "question": "Sem confirmação na portaria, GPS sozinho comprova passagem física pelo portão?",
+      "expected": "Não. GPS é auxiliar e deve-se verificar o registro OUT.",
+      "expected_sources": [
+        "p01"
+      ],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 5.795,
+      "retrieved": [
+        [
+          "p01",
+          0.7531170480235027
+        ],
+        [
+          "s01",
+          0.3795836464825663
+        ],
+        [
+          "p07",
+          0.3502498858517582
+        ]
+      ],
+      "raw": "{\"answer\": \"Não consta\", \"citation_ids\": [\"p01\"], \"refused\": true}",
+      "completion_tokens": 23,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g02",
+      "question": "O ID da saída coincide, mas a portaria OUT indica outro veículo. Como interpretar aquela troca?",
+      "expected": "É uma divergência e a troca é uma hipótese a conferir com a escala e a portaria.",
+      "expected_sources": [
+        "p02"
+      ],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 5.163,
+      "retrieved": [
+        [
+          "p02",
+          0.7451027682267912
+        ],
+        [
+          "p03",
+          0.37815508162435985
+        ],
+        [
+          "p01",
+          0.3667793469207528
+        ]
+      ],
+      "raw": "{ \"answer\": \"Não consta\", \"citation_ids\": [ \"p02\"], \"refused\": true }",
+      "completion_tokens": 26,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g03",
+      "question": "Sem ID da saída, que janela de minutos usa o Pátio Monitor para associar portaria OUT ao mesmo veículo?",
+      "expected": "De 15 minutos antes até 60 minutos depois do horário previsto, com unicidade.",
+      "expected_sources": [
+        "p03"
+      ],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 5.153,
+      "retrieved": [
+        [
+          "p03",
+          0.8824595672893043
+        ],
+        [
+          "p02",
+          0.577327123348693
+        ],
+        [
+          "p01",
+          0.48040661069516427
+        ]
+      ],
+      "raw": "{ \"answer\": \"Não consta\", \"citation_ids\": [ \"p02\"], \"refused\": true }",
+      "completion_tokens": 26,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g04",
+      "question": "No Pátio Monitor, acima de quantos minutos uma saída vinculada é classificada como atrasada?",
+      "expected": "Acima de cinco minutos de atraso.",
+      "expected_sources": [
+        "p04"
+      ],
+      "answer": {
+        "answer": "5",
+        "citations": [
+          {
+            "id": "p04",
+            "title": "Pátio Monitor · Tolerância e divergência de horário",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local",
+          "verificar_citações"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 4.868,
+      "retrieved": [
+        [
+          "p04",
+          0.8701244154211679
+        ],
+        [
+          "p01",
+          0.39586332393611556
+        ],
+        [
+          "p03",
+          0.39586332393611556
+        ]
+      ],
+      "raw": "{\"answer\": \"5\", \"citation_ids\": [\"p04\"], \"refused\": false}",
+      "completion_tokens": 21,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g05",
+      "question": "Qual modo usa cenário sintético e qual exige observações reais do Olho Vivo?",
+      "expected": "DEMO usa cenário sintético e LIVE exige observações reais.",
+      "expected_sources": [
+        "p05"
+      ],
+      "answer": {
+        "answer": "Cenário sintético",
+        "citations": [
+          {
+            "id": "p05",
+            "title": "Pátio Monitor · Modos e privacidade",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#modos-de-dados"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local",
+          "verificar_citações"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 4.827,
+      "retrieved": [
+        [
+          "p05",
+          0.8362888800557348
+        ],
+        [
+          "s02",
+          0.2994481889390913
+        ],
+        [
+          "s01",
+          0.19963212595939422
+        ]
+      ],
+      "raw": "{\"answer\": \"Cenário sintético\", \"citation_ids\": [\"p05\"], \"refused\": false}",
+      "completion_tokens": 25,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g06",
+      "question": "Quais são os três campos obrigatórios do arquivo de escala?",
+      "expected": "trip_id, vehicle_id e planned_at.",
+      "expected_sources": [
+        "p06"
+      ],
+      "answer": {
+        "answer": "O arquivo de escala exige trip_id, vehicle_id e planned_at.",
+        "citations": [
+          {
+            "id": "p06",
+            "title": "Pátio Monitor · Importação e retenção",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local",
+          "verificar_citações"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 5.479,
+      "retrieved": [
+        [
+          "p06",
+          0.5006156879374066
+        ],
+        [
+          "p07",
+          0.2870948112128268
+        ],
+        [
+          "p01",
+          0.2135208767245799
+        ]
+      ],
+      "raw": "{\"answer\": \"O arquivo de escala exige trip_id, vehicle_id e planned_at.\", \"citation_ids\": [\"p06\"], \"refused\": false}",
+      "completion_tokens": 35,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g07",
+      "question": "Confirmar travessia do portão da garagem significa que a viagem comercial em linha partiu?",
+      "expected": "Não. A passagem pelo portão e a partida comercial são eventos distintos.",
+      "expected_sources": [
+        "p07"
+      ],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 4.7,
+      "retrieved": [
+        [
+          "p07",
+          0.6902549193661841
+        ],
+        [
+          "p01",
+          0.1468570395009014
+        ],
+        [
+          "s01",
+          0.12484190043173998
+        ]
+      ],
+      "raw": "{\"answer\": \"Não consta\", \"citation_ids\": [\"p01\"], \"refused\": true}",
+      "completion_tokens": 23,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g08",
+      "question": "Com quantos segundos a posição GPS passa a ser sinalizada como desatualizada?",
+      "expected": "Acima de 90 segundos.",
+      "expected_sources": [
+        "p08"
+      ],
+      "answer": {
+        "answer": "90",
+        "citations": [
+          {
+            "id": "p08",
+            "title": "Pátio Monitor · Idade da posição",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#modos-de-dados"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local",
+          "verificar_citações"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 4.683,
+      "retrieved": [
+        [
+          "p08",
+          0.7599469296235747
+        ],
+        [
+          "p01",
+          0.3270915401991662
+        ],
+        [
+          "s01",
+          0.1431082268642533
+        ]
+      ],
+      "raw": "{\"answer\": \"90\", \"citation_ids\": [\"p08\"], \"refused\": false}",
+      "completion_tokens": 22,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g09",
+      "question": "No Olho Vivo, o que os campos py e px representam?",
+      "expected": "py é latitude e px é longitude.",
+      "expected_sources": [
+        "s01"
+      ],
+      "answer": {
+        "answer": "o latitude e o longitude",
+        "citations": [
+          {
+            "id": "s01",
+            "title": "SPTrans · Posição de veículos do Olho Vivo",
+            "url": "https://www.sptrans.com.br/desenvolvedores/api-do-olho-vivo-guia-de-referencia/documentacao-api/"
+          },
+          {
+            "id": "p05",
+            "title": "Pátio Monitor · Modos e privacidade",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#modos-de-dados"
+          },
+          {
+            "id": "s02",
+            "title": "SPTrans · Autenticação do Olho Vivo",
+            "url": "https://www.sptrans.com.br/desenvolvedores/api-do-olho-vivo-guia-de-referencia/documentacao-api/"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local",
+          "verificar_citações"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 5.246,
+      "retrieved": [
+        [
+          "s01",
+          0.7180008911916256
+        ],
+        [
+          "p05",
+          0.3062392639110305
+        ],
+        [
+          "s02",
+          0.3062392639110305
+        ]
+      ],
+      "raw": "{\"answer\": \"o latitude e o longitude\", \"citation_ids\": [\"s01\", \"p05\", \"s02\"], \"refused\": false}",
+      "completion_tokens": 35,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g10",
+      "question": "Como autenticar a sessão Olho Vivo e onde o Pátio Monitor guarda a chave?",
+      "expected": "POST /Login/Autenticar, com a chave mantida no backend.",
+      "expected_sources": [
+        "s02"
+      ],
+      "answer": {
+        "answer": "POST /Login/Autenticar usando uma chave obtida no portal da SPTrans",
+        "citations": [
+          {
+            "id": "s02",
+            "title": "SPTrans · Autenticação do Olho Vivo",
+            "url": "https://www.sptrans.com.br/desenvolvedores/api-do-olho-vivo-guia-de-referencia/documentacao-api/"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local",
+          "verificar_citações"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 5.796,
+      "retrieved": [
+        [
+          "s02",
+          0.8775115225713574
+        ],
+        [
+          "p05",
+          0.3805608091018912
+        ],
+        [
+          "s01",
+          0.24639793286556658
+        ]
+      ],
+      "raw": "{\"answer\": \"POST /Login/Autenticar usando uma chave obtida no portal da SPTrans\", \"citation_ids\": [\"s02\"], \"refused\": false}",
+      "completion_tokens": 37,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g11",
+      "question": "Qual é a placa do ônibus 50730?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 5.009,
+      "retrieved": [
+        [
+          "p01",
+          0.5014459204609196
+        ],
+        [
+          "p02",
+          0.5014459204609196
+        ],
+        [
+          "p03",
+          0.5014459204609196
+        ]
+      ],
+      "raw": "{\"answer\": \"Não consta\", \"citation_ids\": [\"p01\"], \"refused\": true}",
+      "completion_tokens": 23,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g12",
+      "question": "Qual é a senha do motorista?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.368,
+      "retrieved": [
+        [
+          "p01",
+          0.0
+        ],
+        [
+          "p02",
+          0.0
+        ],
+        [
+          "p03",
+          0.0
+        ]
+      ],
+      "raw": "{\"answer\": \"Não consta\", \"citation_ids\": [], \"refused\": true}",
+      "completion_tokens": 19,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g13",
+      "question": "Qual o telefone do encarregado da garagem neste turno?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 3.809,
+      "retrieved": [
+        [
+          "p07",
+          0.3650070952397008
+        ],
+        [
+          "s02",
+          0.3650070952397008
+        ],
+        [
+          "p01",
+          0.0
+        ]
+      ],
+      "raw": "{\"answer\": \"Não consta\", \"citation_ids\": [\"p07\"], \"refused\": true}",
+      "completion_tokens": 23,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g14",
+      "question": "Quantos passageiros embarcaram na viagem PM-0615?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 1.753,
+      "retrieved": [
+        [
+          "p07",
+          0.3510495164615599
+        ],
+        [
+          "p01",
+          0.0
+        ],
+        [
+          "p02",
+          0.0
+        ]
+      ],
+      "raw": "{\"answer\": \"Não consta\", \"citation_ids\": [\"p07\"], \"refused\": true}",
+      "completion_tokens": 23,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g15",
+      "question": "Qual valor em reais custou a manutenção do motor?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 2.907,
+      "retrieved": [
+        [
+          "p05",
+          0.40340786186575833
+        ],
+        [
+          "p01",
+          0.0
+        ],
+        [
+          "p02",
+          0.0
+        ]
+      ],
+      "raw": "{\"answer\": \"Não consta\", \"citation_ids\": [\"p05\"], \"refused\": true}",
+      "completion_tokens": 23,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g16",
+      "question": "Em qual vaga está estacionado o veículo 00123 neste minuto?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 5.123,
+      "retrieved": [
+        [
+          "s01",
+          0.2783708254147801
+        ],
+        [
+          "p01",
+          0.20703259124055268
+        ],
+        [
+          "p02",
+          0.20703259124055268
+        ]
+      ],
+      "raw": "{\"answer\": \"Não consta\", \"citation_ids\": [\"p02\"], \"refused\": true}",
+      "completion_tokens": 23,
+      "guard": null
+    },
+    {
+      "mode": "rag",
+      "id": "g17",
+      "question": "Que evidências devo verificar e qual é o próximo passo para revisar esta ocorrência?",
+      "expected": "Verificar o registro OUT, o veículo e horário e manter como pendente se faltar evidência.",
+      "expected_sources": [
+        "p01"
+      ],
+      "answer": {
+        "answer": "Verificar o registro OUT, o veículo e o horário",
+        "citations": [
+          {
+            "id": "p01",
+            "title": "Pátio Monitor · Evidência de passagem",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "recuperar_trechos",
+          "gerar_com_llm_local",
+          "verificar_citações"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 3.93,
+      "retrieved": [
+        [
+          "p01",
+          0.3107210069238086
+        ],
+        [
+          "p02",
+          0.0
+        ],
+        [
+          "p03",
+          0.0
+        ]
+      ],
+      "raw": "{ \"answer\": \"Verificar o registro OUT, o veículo e o horário\", \"citation_ids\": [ \"p01\"], \"refused\": false }",
+      "completion_tokens": 35,
+      "guard": null
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g01",
+      "question": "Sem confirmação na portaria, GPS sozinho comprova passagem física pelo portão?",
+      "expected": "Não. GPS é auxiliar e deve-se verificar o registro OUT.",
+      "expected_sources": [
+        "p01"
+      ],
+      "answer": {
+        "answer": "Sem confirmação de saída significa que a portaria não forneceu uma passagem vinculada inequivocamente.",
+        "citations": [
+          {
+            "id": "p01",
+            "title": "Pátio Monitor · Evidência de passagem",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "restringir_à_fonte_recuperada",
+          "gerar_com_llm_local",
+          "verificar_citações",
+          "validar_dados_numéricos"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 4.602,
+      "retrieved": [
+        [
+          "p01",
+          0.7531170480235027
+        ],
+        [
+          "s01",
+          0.3795836464825663
+        ],
+        [
+          "p07",
+          0.3502498858517582
+        ]
+      ],
+      "raw": "{\"answer\": \"Sem confirmação de saída significa que a portaria não forneceu uma passagem vinculada inequivocamente.\", \"citation_ids\": [\"p01\"], \"refused\": false}",
+      "completion_tokens": 46,
+      "guard": null
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g02",
+      "question": "O ID da saída coincide, mas a portaria OUT indica outro veículo. Como interpretar aquela troca?",
+      "expected": "É uma divergência e a troca é uma hipótese a conferir com a escala e a portaria.",
+      "expected_sources": [
+        "p02"
+      ],
+      "answer": {
+        "answer": "A troca é uma hipótese até o operador examinar escala e portaria, registrar a conclusão ou manter o caso pendente.",
+        "citations": [
+          {
+            "id": "p02",
+            "title": "Pátio Monitor · Troca de veículo",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "restringir_à_fonte_recuperada",
+          "gerar_com_llm_local",
+          "verificar_citações",
+          "validar_dados_numéricos"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 4.007,
+      "retrieved": [
+        [
+          "p02",
+          0.7451027682267912
+        ],
+        [
+          "p03",
+          0.37815508162435985
+        ],
+        [
+          "p01",
+          0.3667793469207528
+        ]
+      ],
+      "raw": "{\"answer\": \"A troca é uma hipótese até o operador examinar escala e portaria, registrar a conclusão ou manter o caso pendente.\", \"citation_ids\": [\"p02\"], \"refused\": false}",
+      "completion_tokens": 52,
+      "guard": null
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g03",
+      "question": "Sem ID da saída, que janela de minutos usa o Pátio Monitor para associar portaria OUT ao mesmo veículo?",
+      "expected": "De 15 minutos antes até 60 minutos depois do horário previsto, com unicidade.",
+      "expected_sources": [
+        "p03"
+      ],
+      "answer": {
+        "answer": "Sem ID da saída, a associação usa o mesmo veículo e um registro OUT na janela de 15 minutos antes a 60 minutos depois do horário previsto. A associação tem de ser única nos dois sentidos.",
+        "citations": [
+          {
+            "id": "p03",
+            "title": "Pátio Monitor · Vínculo sem identificador",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "restringir_à_fonte_recuperada",
+          "gerar_com_llm_local",
+          "verificar_citações",
+          "validar_dados_numéricos"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 5.913,
+      "retrieved": [
+        [
+          "p03",
+          0.8824595672893043
+        ],
+        [
+          "p02",
+          0.577327123348693
+        ],
+        [
+          "p01",
+          0.48040661069516427
+        ]
+      ],
+      "raw": "{\"answer\": \"Sem ID da saída, a associação usa o mesmo veículo e um registro OUT na janela de 15 minutos antes a 60 minutos depois do horário previsto. A associação tem de ser única nos dois sentidos.\", \"citation_ids\": [\"p03\"], \"refused\": false}",
+      "completion_tokens": 70,
+      "guard": null
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g04",
+      "question": "No Pátio Monitor, acima de quantos minutos uma saída vinculada é classificada como atrasada?",
+      "expected": "Acima de cinco minutos de atraso.",
+      "expected_sources": [
+        "p04"
+      ],
+      "answer": {
+        "answer": "Mais de cinco minutos de antecedência exige revisão.",
+        "citations": [
+          {
+            "id": "p04",
+            "title": "Pátio Monitor · Tolerância e divergência de horário",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "restringir_à_fonte_recuperada",
+          "gerar_com_llm_local",
+          "verificar_citações",
+          "validar_dados_numéricos"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 3.413,
+      "retrieved": [
+        [
+          "p04",
+          0.8701244154211679
+        ],
+        [
+          "p01",
+          0.39586332393611556
+        ],
+        [
+          "p03",
+          0.39586332393611556
+        ]
+      ],
+      "raw": "{\"answer\": \"Mais de cinco minutos de antecedência exige revisão.\", \"citation_ids\": [\"p04\"], \"refused\": false}",
+      "completion_tokens": 32,
+      "guard": null
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g05",
+      "question": "Qual modo usa cenário sintético e qual exige observações reais do Olho Vivo?",
+      "expected": "DEMO usa cenário sintético e LIVE exige observações reais.",
+      "expected_sources": [
+        "p05"
+      ],
+      "answer": {
+        "answer": "DEMO usa um cenário sintético.",
+        "citations": [
+          {
+            "id": "p05",
+            "title": "Pátio Monitor · Modos e privacidade",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#modos-de-dados"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "restringir_à_fonte_recuperada",
+          "gerar_com_llm_local",
+          "verificar_citações",
+          "validar_dados_numéricos"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 3.448,
+      "retrieved": [
+        [
+          "p05",
+          0.8362888800557348
+        ],
+        [
+          "s02",
+          0.2994481889390913
+        ],
+        [
+          "s01",
+          0.19963212595939422
+        ]
+      ],
+      "raw": "{\"answer\": \"DEMO usa um cenário sintético.\", \"citation_ids\": [\"p05\"], \"refused\": false}",
+      "completion_tokens": 28,
+      "guard": null
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g06",
+      "question": "Quais são os três campos obrigatórios do arquivo de escala?",
+      "expected": "trip_id, vehicle_id e planned_at.",
+      "expected_sources": [
+        "p06"
+      ],
+      "answer": {
+        "answer": "O arquivo de escala exige trip_id, vehicle_id e planned_at.",
+        "citations": [
+          {
+            "id": "p06",
+            "title": "Pátio Monitor · Importação e retenção",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "gerar_com_llm_local",
+          "verificar_citações",
+          "validar_dados_numéricos"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 7.221,
+      "retrieved": [
+        [
+          "p06",
+          0.5006156879374066
+        ],
+        [
+          "p07",
+          0.2870948112128268
+        ],
+        [
+          "p01",
+          0.2135208767245799
+        ]
+      ],
+      "raw": "{\"answer\": \"O arquivo de escala exige trip_id, vehicle_id e planned_at.\", \"citation_ids\": [\"p06\"], \"refused\": false}",
+      "completion_tokens": 35,
+      "guard": null
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g07",
+      "question": "Confirmar travessia do portão da garagem significa que a viagem comercial em linha partiu?",
+      "expected": "Não. A passagem pelo portão e a partida comercial são eventos distintos.",
+      "expected_sources": [
+        "p07"
+      ],
+      "answer": {
+        "answer": "A decisão do operador e a evidência de portaria ficam em campos separados no CSV exportado. Uma passagem pelo portão da garagem é distinta da partida da viagem comercial em linha.",
+        "citations": [
+          {
+            "id": "p07",
+            "title": "Pátio Monitor · Governança de conclusão",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "restringir_à_fonte_recuperada",
+          "gerar_com_llm_local",
+          "verificar_citações",
+          "validar_dados_numéricos"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 4.981,
+      "retrieved": [
+        [
+          "p07",
+          0.7432331202501018
+        ],
+        [
+          "p01",
+          0.292776965175056
+        ],
+        [
+          "s01",
+          0.1940299885277798
+        ]
+      ],
+      "raw": "{\"answer\": \"A decisão do operador e a evidência de portaria ficam em campos separados no CSV exportado. Uma passagem pelo portão da garagem é distinta da partida da viagem comercial em linha.\", \"citation_ids\": [\"p07\"], \"refused\": false}",
+      "completion_tokens": 64,
+      "guard": null
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g08",
+      "question": "Com quantos segundos a posição GPS passa a ser sinalizada como desatualizada?",
+      "expected": "Acima de 90 segundos.",
+      "expected_sources": [
+        "p08"
+      ],
+      "answer": {
+        "answer": "observedAt representa o horário informado pelo provedor para a observação e receivedAt registra o recebimento pelo servidor.",
+        "citations": [
+          {
+            "id": "p08",
+            "title": "Pátio Monitor · Idade da posição",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#modos-de-dados"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "restringir_à_fonte_recuperada",
+          "gerar_com_llm_local",
+          "verificar_citações",
+          "validar_dados_numéricos"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 4.158,
+      "retrieved": [
+        [
+          "p08",
+          0.7599469296235747
+        ],
+        [
+          "p01",
+          0.3270915401991662
+        ],
+        [
+          "s01",
+          0.1431082268642533
+        ]
+      ],
+      "raw": "{ \"answer\": \"observedAt representa o horário informado pelo provedor para a observação e receivedAt registra o recebimento pelo servidor.\", \"citation_ids\": [\"p08\"], \"refused\": false}",
+      "completion_tokens": 53,
+      "guard": null
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g09",
+      "question": "No Olho Vivo, o que os campos py e px representam?",
+      "expected": "py é latitude e px é longitude.",
+      "expected_sources": [
+        "s01"
+      ],
+      "answer": {
+        "answer": "A API de posição não fornece confirmação de passagem no portão nem vaga individual de estacionamento.",
+        "citations": [
+          {
+            "id": "s01",
+            "title": "SPTrans · Posição de veículos do Olho Vivo",
+            "url": "https://www.sptrans.com.br/desenvolvedores/api-do-olho-vivo-guia-de-referencia/documentacao-api/"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "restringir_à_fonte_recuperada",
+          "gerar_com_llm_local",
+          "verificar_citações",
+          "validar_dados_numéricos"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 3.729,
+      "retrieved": [
+        [
+          "s01",
+          0.7180008911916256
+        ],
+        [
+          "p05",
+          0.3062392639110305
+        ],
+        [
+          "s02",
+          0.3062392639110305
+        ]
+      ],
+      "raw": "{ \"answer\": \"A API de posição não fornece confirmação de passagem no portão nem vaga individual de estacionamento.\", \"citation_ids\": [\"s01\"], \"refused\": false}",
+      "completion_tokens": 46,
+      "guard": null
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g10",
+      "question": "Como autenticar a sessão Olho Vivo e onde o Pátio Monitor guarda a chave?",
+      "expected": "POST /Login/Autenticar, com a chave mantida no backend.",
+      "expected_sources": [
+        "s02"
+      ],
+      "answer": {
+        "answer": "A sessão Olho Vivo começa com POST /Login/Autenticar usando uma chave obtida no portal da SPTrans. A consulta autenticada /Posicao/Garagem usa código de empresa.",
+        "citations": [
+          {
+            "id": "s02",
+            "title": "SPTrans · Autenticação do Olho Vivo",
+            "url": "https://www.sptrans.com.br/desenvolvedores/api-do-olho-vivo-guia-de-referencia/documentacao-api/"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "restringir_à_fonte_recuperada",
+          "gerar_com_llm_local",
+          "verificar_citações",
+          "validar_dados_numéricos"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": false,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 4.606,
+      "retrieved": [
+        [
+          "s02",
+          0.8775115225713574
+        ],
+        [
+          "p05",
+          0.3805608091018912
+        ],
+        [
+          "s01",
+          0.24639793286556658
+        ]
+      ],
+      "raw": "{\"answer\": \"A sessão Olho Vivo começa com POST /Login/Autenticar usando uma chave obtida no portal da SPTrans. A consulta autenticada /Posicao/Garagem usa código de empresa.\", \"citation_ids\": [\"s02\"], \"refused\": false}",
+      "completion_tokens": 61,
+      "guard": null
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g11",
+      "question": "Qual é a placa do ônibus 50730?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "gerar_com_llm_local"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 5.877,
+      "retrieved": [
+        [
+          "p01",
+          0.5014459204609196
+        ],
+        [
+          "p02",
+          0.5014459204609196
+        ],
+        [
+          "p03",
+          0.5014459204609196
+        ]
+      ],
+      "raw": "{\"answer\": \"Não consta\", \"citation_ids\": [\"p01\"], \"refused\": true}",
+      "completion_tokens": 23,
+      "guard": null
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g12",
+      "question": "Qual é a senha do motorista?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "recusar_sem_evidência"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": null,
+      "seconds": 0.0,
+      "retrieved": [
+        [
+          "p01",
+          0.0
+        ],
+        [
+          "p02",
+          0.0
+        ],
+        [
+          "p03",
+          0.0
+        ]
+      ],
+      "raw": null,
+      "completion_tokens": 0,
+      "guard": "below_threshold"
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g13",
+      "question": "Qual o telefone do encarregado da garagem neste turno?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "recusar_sem_evidência"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": null,
+      "seconds": 0.0,
+      "retrieved": [
+        [
+          "p07",
+          0.3650070952397008
+        ],
+        [
+          "s02",
+          0.3650070952397008
+        ],
+        [
+          "p01",
+          0.0
+        ]
+      ],
+      "raw": null,
+      "completion_tokens": 0,
+      "guard": "below_threshold"
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g14",
+      "question": "Quantos passageiros embarcaram na viagem PM-0615?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "recusar_sem_evidência"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": null,
+      "seconds": 0.0,
+      "retrieved": [
+        [
+          "p07",
+          0.3510495164615599
+        ],
+        [
+          "p01",
+          0.0
+        ],
+        [
+          "p02",
+          0.0
+        ]
+      ],
+      "raw": null,
+      "completion_tokens": 0,
+      "guard": "below_threshold"
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g15",
+      "question": "Qual valor em reais custou a manutenção do motor?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "recusar_sem_evidência"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": null,
+      "seconds": 0.0,
+      "retrieved": [
+        [
+          "p05",
+          0.40340786186575833
+        ],
+        [
+          "p01",
+          0.0
+        ],
+        [
+          "p02",
+          0.0
+        ]
+      ],
+      "raw": null,
+      "completion_tokens": 0,
+      "guard": "below_threshold"
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g16",
+      "question": "Em qual vaga está estacionado o veículo 00123 neste minuto?",
+      "expected": "Não consta.",
+      "expected_sources": [],
+      "answer": {
+        "answer": "A informação solicitada não consta nas fontes disponíveis.",
+        "citations": [],
+        "refused": true,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "recusar_sem_evidência"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": null,
+      "seconds": 0.0,
+      "retrieved": [
+        [
+          "s01",
+          0.2783708254147801
+        ],
+        [
+          "p01",
+          0.20703259124055268
+        ],
+        [
+          "p02",
+          0.20703259124055268
+        ]
+      ],
+      "raw": null,
+      "completion_tokens": 0,
+      "guard": "below_threshold"
+    },
+    {
+      "mode": "rag_agent",
+      "id": "g17",
+      "question": "Que evidências devo verificar e qual é o próximo passo para revisar esta ocorrência?",
+      "expected": "Verificar o registro OUT, o veículo e horário e manter como pendente se faltar evidência.",
+      "expected_sources": [
+        "p01"
+      ],
+      "answer": {
+        "answer": "Para revisar, conferir o registro OUT, o veículo e o horário, e manter a pendência se a evidência não for suficiente.",
+        "citations": [
+          {
+            "id": "p01",
+            "title": "Pátio Monitor · Evidência de passagem",
+            "url": "https://github.com/MachadONLY/patio-monitor-ia-generativa/blob/main/README.md#fechamento-de-turno"
+          }
+        ],
+        "refused": false,
+        "actions": [
+          "selecionar_busca",
+          "recuperar_trechos",
+          "restringir_à_fonte_recuperada",
+          "gerar_com_llm_local",
+          "verificar_citações",
+          "validar_dados_numéricos"
+        ],
+        "model": "Qwen2.5-0.5B-Instruct Q4_K_M"
+      },
+      "correct": true,
+      "citation_relevant": true,
+      "raw_model_json_valid": true,
+      "seconds": 4.53,
+      "retrieved": [
+        [
+          "p01",
+          1.0
+        ],
+        [
+          "s01",
+          0.4360677959668634
+        ],
+        [
+          "p08",
+          0.29224990825107466
+        ]
+      ],
+      "raw": "{ \"answer\": \"Para revisar, conferir o registro OUT, o veículo e o horário, e manter a pendência se a evidência não for suficiente.\", \"citation_ids\": [\"p01\"], \"refused\": false}",
+      "completion_tokens": 53,
+      "guard": null
+    }
+  ]
+}
