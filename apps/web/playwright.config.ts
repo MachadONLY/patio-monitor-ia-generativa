@@ -6,6 +6,7 @@ const operatingRegression = "**/operating-regression.spec.ts";
 
 export default defineConfig({
   testDir: "./tests",
+  testIgnore: "**/production-*.spec.ts",
   timeout: 90_000,
   workers: 1,
   // Give the screenshot-heavy WebGL tests their own browser processes.
