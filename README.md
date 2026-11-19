@@ -1,5 +1,10 @@
 # Pátio Monitor · Generative AI for Engineering
 
+> **Avaliação FIAP — comece aqui:** [Roteiro completo do professor (8 critérios + 7 entregáveis + testes reais)](ROTEIRO_AVALIACAO_IA.md).
+> 
+> O percurso no navegador demonstra a inferência e as fontes; o roteiro reúne as evidências acadêmicas do modelo, corpus, recuperação, placar, erros e reprodutibilidade. A especialização adotada é por **agente**, alternativa prevista na rubrica; não foi realizado fine-tuning/LoRA nos pesos da LLM.
+
+
 FIAP · Global Solution 2026.2 · Engenharia de Software
 
 Assistente local para explicar divergências entre escala e portaria, com citação das fontes e recusa quando faltam evidências. O experimento compara o mesmo modelo sem contexto, com RAG e com RAG e agente.
