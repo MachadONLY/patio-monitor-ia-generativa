@@ -22,7 +22,7 @@ O assistente orienta a revisão de uma saída de garagem. A saída inclui uma re
 
 O [corpus](../../services/api/app/assistant_data/corpus.json) reúne dez trechos UTF-8 com `id`, título, URL, direitos e conteúdo. As unidades correspondem a tópicos operacionais completos, oito originais do projeto e dois resumidos a partir da documentação pública do Olho Vivo. Os direitos de republicação do texto oficial não foram identificados. A base contém paráfrases próprias e aponta para a publicação oficial. [Documentação do Olho Vivo](https://www.sptrans.com.br/desenvolvedores/api-do-olho-vivo-guia-de-referencia/documentacao-api/)
 
-| Fonte | Formato consumido | Direitos do conteúdo | Trechos |
+| Fonte | Formato consumido | Licença / direitos do conteúdo | Trechos |
 |---|---|---|---:|
 | Regras operacionais do Pátio Monitor | UTF-8 em JSON | Texto original do projeto, uso acadêmico autorizado pelo projeto | 8 |
 | Documentação oficial da SPTrans Olho Vivo | Paráfrases originais em UTF-8 e JSON | Texto oficial referenciado, licença de republicação do original não identificada | 2 |
@@ -31,13 +31,17 @@ O [gabarito](../../gs/genai/gold.json) tem 17 perguntas, onze respondíveis e se
 
 ```mermaid
 flowchart TD
+    S1["Regras operacionais próprias · 8 trechos"] --> K["Corpus JSON · IDs, textos, URLs e direitos"]
+    S2["Documentação SPTrans em paráfrases · 2 trechos"] --> K
+    K --> I["Indexação lexical · termos e frequências documentais"]
     A["Pergunta ou ocorrência"] --> B["Agente seleciona a busca"]
     B --> C["Índice recupera até três trechos"]
+    I --> C
     C --> D{"Cobertura suficiente?"}
     D -->|Não| E["Recusa em JSON"]
     D -->|Sim| F["Qwen local gera resposta"]
-    F --> G{"JSON e citações válidos?"}
-    G -->|Sim| H["Resposta e fontes"]
+    F --> G{"JSON, citações e números válidos?"}
+    G -->|Sim| H["Resposta fundamentada com fontes"]
     G -->|Não| E
 ```
 
@@ -94,7 +98,11 @@ No Pátio Monitor, selecione **Iniciar teste guiado → Abrir caso de exemplo �
 
 ## Conclusão técnica
 
+A opção adotada para especialização foi o **agente**, alternativa prevista na rubrica ao lado de LoRA. O Qwen é um modelo pré-treinado executado localmente em CPU: não houve ajuste de pesos, fine-tuning nem treinamento de uma LoRA pela equipe. O ganho observado é atribuído às mudanças no fluxo de recuperação, decisão e validação, mantendo o mesmo peso nas três configurações.
+
 Usar recuperação e agente elevou a correção de 4 para 11 perguntas em 17 em relação ao modelo sem contexto. Os seis pedidos sem evidência foram recusados. Nas perguntas respondíveis, os principais erros vieram da seleção de frases incompletas ou de regras próximas no mesmo trecho. O fluxo de revisão envia ao modelo uma categoria de ocorrência e preserva a decisão no navegador. A próxima validação deve medir a qualidade em perguntas novas e em ocorrências autorizadas de uma garagem.
+
+**Links para a entrega:** [repositório público](https://github.com/MachadONLY/patio-monitor-ia-generativa) · [vídeo demonstrativo](genai/demonstracao.mp4) · [plataforma pública](https://patio-monitor-production.up.railway.app/) · [roteiro completo do avaliador](../../ROTEIRO_AVALIACAO_IA.md).
 
 ## Reprodutibilidade
 
