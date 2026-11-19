@@ -23,23 +23,23 @@ try {
   if (response?.status() !== 200) throw new Error("Site público não respondeu HTTP 200");
   await expect(page.getByRole("button", { name: "Iniciar teste guiado" })).toBeVisible();
   await expect(page.locator(".viewport")).toHaveAttribute("data-ready", "true", { timeout: 45_000 });
-  await page.waitForTimeout(2300);
+  await page.waitForTimeout(4300);
 
   await page.getByRole("button", { name: "Iniciar teste guiado" }).click();
   const tour = page.getByRole("dialog");
   await expect(tour.getByText("Confira uma saída de garagem")).toBeVisible();
-  await page.waitForTimeout(2300);
+  await page.waitForTimeout(4300);
 
   await tour.getByRole("button", { name: "Abrir caso de exemplo" }).click();
   const example = page.getByRole("region", { name: "Conferência do caso de exemplo" });
   await expect(example).toContainText("8 2361");
   await expect(example).toContainText("7 8042");
-  await page.waitForTimeout(3500);
+  await page.waitForTimeout(6500);
 
   await tour.getByRole("button", { name: "Ir para a explicação" }).click();
   await expect(example.getByRole("region", { name: "Diagnóstico operacional" }))
     .toContainText("Divergência de identificação comprovada");
-  await page.waitForTimeout(2800);
+  await page.waitForTimeout(5500);
 
   const llm = page.waitForResponse(r => new URL(r.url()).pathname === "/api/gs/explain" &&
     r.request().method() === "POST", { timeout: 65_000 });
@@ -51,20 +51,20 @@ try {
     throw new Error("Resposta Qwen sem referência p02: " + JSON.stringify(payload));
   }
   await expect(example.getByText("Fontes consultadas")).toBeVisible();
-  await page.waitForTimeout(5600);
+  await page.waitForTimeout(9000);
 
   await tour.getByRole("button", { name: "Ver gravação" }).click();
   const evidence = page.getByRole("region", { name: "Evidência em vídeo" });
   const video = evidence.locator("video");
   await expect.poll(() => video.evaluate(el => el.error === null && el.readyState >= 1 &&
     el.duration > 7.44 && el.videoWidth > 0), { timeout: 30_000 }).toBe(true);
-  await page.waitForTimeout(2600);
+  await page.waitForTimeout(5200);
   await evidence.getByRole("button", { name: /Esquerda.*direita.*00:07,4/ }).click();
   await expect.poll(() => video.evaluate(el => Math.abs(el.currentTime - 7.44)), { timeout: 15_000 })
     .toBeLessThan(0.1);
-  await page.waitForTimeout(3800);
+  await page.waitForTimeout(7500);
   await tour.getByRole("button", { name: "Concluir teste" }).click();
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(3800);
   expect(errors).toEqual([]);
   const recording = page.video();
   await context.close();
