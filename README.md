@@ -9,7 +9,7 @@ FIAP · Global Solution 2026.2 · Engenharia de Software
 
 Assistente local para explicar divergências entre escala e portaria, com citação das fontes e recusa quando faltam evidências. O experimento compara o mesmo modelo sem contexto, com RAG e com RAG e agente.
 
-[Relatório técnico](docs/gs/GENAI.md) · [Notebook executado](gs/genai/avaliacao.ipynb) · [Resultados brutos](gs/genai/evaluation.json) · [Vídeo](docs/gs/genai/demonstracao.mp4)
+[Relatório técnico](docs/gs/GENAI.md) · [Notebook executado](gs/genai/avaliacao.ipynb) · [Resultados brutos](gs/genai/evaluation.json) · [Vídeo real do teste guiado](docs/gs/genai/demonstracao-navegador-real.mp4) · [Apresentação complementar](docs/gs/genai/demonstracao.mp4)
 
 O Pátio Monitor acompanha ônibus pelo GPS e ajuda a revisar divergências entre escala e portaria. A tela abre no Terminal Alvorada, com a implantação em 3D, posições do BRT do Rio e acesso direto à gravação analisada e à revisão de turno.
 
