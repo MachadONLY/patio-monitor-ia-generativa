@@ -1,0 +1,63 @@
+name: Independent GenAI benchmark - fresh Qwen inference
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/independent-genai-benchmark.yml
+permissions:
+  contents: read
+jobs:
+  evaluate-real-model:
+    name: Reproduce all 51 real LLM evaluations
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PATIO_LLM_MODEL_PATH: /tmp/qwen.gguf
+      PATIO_LLM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install evaluation and local inference runtime
+        run: |
+          python -m pip install -r services/api/requirements.txt
+          python -m pip install --only-binary=:all: --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu -r services/api/requirements-ai.txt
+      - name: Download and verify exact official Qwen model SHA256
+        run: python gs/genai/download_model.py /tmp/qwen.gguf
+      - name: Execute actual Qwen 51 times in three modes, no mocks
+        run: python gs/genai/evaluate.py --out gs/genai/independent-recheck.json
+      - name: Independently validate source attribution and scoreboard
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from collections import Counter
+          from pathlib import Path
+          data=json.loads(Path('gs/genai/independent-recheck.json').read_text())
+          manifest=json.loads(Path('gs/genai/model.json').read_text())
+          gold=json.loads(Path('gs/genai/gold.json').read_text())
+          corpus=json.loads(Path('services/api/app/assistant_data/corpus.json').read_text())
+          assert data['model_sha256']==manifest['sha256']
+          assert hashlib.sha256(Path('/tmp/qwen.gguf').read_bytes()).hexdigest()==manifest['sha256']
+          assert len(data['results'])==51, len(data['results'])
+          assert set(data['scoreboard'])=={'baseline','rag','rag_agent'}
+          assert Counter(x['mode'] for x in data['results'])==Counter({'baseline':17,'rag':17,'rag_agent':17})
+          assert {x['id'] for x in data['results']}=={x['id'] for x in gold}
+          assert len(corpus)==10 and all(x.get('id') and x.get('url') and x.get('rights') for x in corpus)
+          for mode,score in data['scoreboard'].items():
+            rows=[r for r in data['results'] if r['mode']==mode]
+            assert score['correct_total']==sum(bool(r['correct']) for r in rows)
+            assert score['api_json_valid']==17
+          print('EVALUATION_BENCHMARK',json.dumps(data['scoreboard'],ensure_ascii=False))
+          print('RETRIEVAL_RECHECK',json.dumps({k:data['retrieval'][k] for k in ('recall_at_1','recall_at_3')},ensure_ascii=False))
+          print('Confirmed actual original model and 51 generated result records')
+          PY
+      - name: Upload fresh measurements and full raw model responses
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: genai-real-51-responses
+          path: gs/genai/independent-recheck.json
+          if-no-files-found: warn
+          retention-days: 7
