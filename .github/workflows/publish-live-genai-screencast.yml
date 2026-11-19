@@ -1,0 +1,61 @@
+name: Capture real GenAI browser demonstration
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-live-genai-screencast.yml
+      - apps/web/scripts/capture-genai-real.mjs
+permissions:
+  contents: write
+jobs:
+  real-screencast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install locked browser tooling and video encoder
+        run: |
+          npm install -g pnpm@11.25.0
+          pnpm install --frozen-lockfile
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          pnpm --filter @patio/web exec playwright install --with-deps chromium
+      - name: Capture genuine Qwen response, evidence and guided camera from public app
+        run: pnpm --filter @patio/web exec node scripts/capture-genai-real.mjs
+      - name: Validate recorded browser video
+        run: |
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          p=Path('docs/gs/genai/demonstracao-navegador-real.mp4')
+          assert p.is_file() and p.stat().st_size > 200000, (p, p.stat().st_size if p.exists() else None)
+          metadata=json.loads(subprocess.check_output(['ffprobe','-loglevel','error','-show_entries',
+            'format=duration:stream=codec_name,width,height','-of','json',str(p)],text=True))
+          assert float(metadata['format']['duration']) > 20,metadata
+          assert any(x.get('codec_name')=='h264' and x.get('width')==1280 and x.get('height')==720
+              for x in metadata['streams']), metadata
+          print('Verified actual browser footage:',p.stat().st_size,metadata['format']['duration'])
+          PY
+      - name: Publish actual captured MP4 into GitHub
+        run: |
+          git config user.name "Gabriel Teixeira Machado"
+          git config user.email "rm551570@fiap.com.br"
+          git add docs/gs/genai/demonstracao-navegador-real.mp4
+          if ! git diff --cached --quiet; then
+            git commit -m "docs(genai): add genuine production browser walkthrough"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-genai-acceptance-recording
+          path: |
+            docs/gs/genai/demonstracao-navegador-real.mp4
+            apps/web/test-results/ia-real-recording/
+          if-no-files-found: warn
+          retention-days: 7
