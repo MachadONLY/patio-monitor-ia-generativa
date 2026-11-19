@@ -1,3 +1,4 @@
+# Verificação final em produção para avaliação da Global Solution em 19/11/2026.
 name: Independent QA - real Pátio Monitor production (all user workflows)
 on:
   push:
