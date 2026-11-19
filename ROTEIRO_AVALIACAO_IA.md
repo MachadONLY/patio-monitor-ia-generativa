@@ -95,4 +95,5 @@ A inferência é **local em CPU**, sem necessidade de chave comercial de IA, e u
 - **Vídeo principal — gravação real do fluxo no navegador:** [docs/gs/genai/demonstracao-navegador-real.mp4](docs/gs/genai/demonstracao-navegador-real.mp4). A captura verifica a chamada real ao Qwen, a fonte p02 e a navegação pela visão computacional.
 - **Apresentação complementar:** [docs/gs/genai/demonstracao.mp4](docs/gs/genai/demonstracao.mp4) (resumo com métricas e capturas).
 - **Plataforma:** https://patio-monitor-production.up.railway.app/
-- **Teste automatizado em navegador contra a produção (10 aprovados):** https://github.com/MachadONLY/patio-monitor-ia-generativa/actions/runs/44326965363
+- **Teste automatizado na produção em 19/11/2026 (10 de 10 aprovados; Qwen, visão, n8n e GPS reais):** https://github.com/MachadONLY/patio-monitor-ia-generativa/actions/runs/44637525854
+- **Reprodução independente em 19/11/2026 (51 inferências reais do Qwen e mesmo placar):** https://github.com/MachadONLY/patio-monitor-ia-generativa/actions/runs/44637894029
