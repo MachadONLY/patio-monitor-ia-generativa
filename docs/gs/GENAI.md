@@ -6,7 +6,7 @@
 
 O assistente orienta a revisão de uma saída de garagem. A saída inclui uma resposta curta, IDs e URLs das fontes e um indicador de recusa. Um caso estruturado informa o motivo da ocorrência e distingue o cenário DEMO de registros CSV locais. A explicação descreve o procedimento, e a conclusão continua sob responsabilidade de quem revisa o turno.
 
-[Repositório](https://github.com/MachadONLY/patio-monitor-ia-generativa) · [Vídeo da demonstração](genai/demonstracao.mp4) · [Captura da execução real com o Qwen](genai/prova-qwen-real.png)
+[Repositório](https://github.com/MachadONLY/patio-monitor-ia-generativa) · [Vídeo — teste real no navegador](genai/demonstracao-navegador-real.mp4) · [Apresentação complementar](genai/demonstracao.mp4) · [Captura da execução real com o Qwen](genai/prova-qwen-real.png)
 
 ## Ficha técnica
 
@@ -102,7 +102,7 @@ A opção adotada para especialização foi o **agente**, alternativa prevista n
 
 Usar recuperação e agente elevou a correção de 4 para 11 perguntas em 17 em relação ao modelo sem contexto. Os seis pedidos sem evidência foram recusados. Nas perguntas respondíveis, os principais erros vieram da seleção de frases incompletas ou de regras próximas no mesmo trecho. O fluxo de revisão envia ao modelo uma categoria de ocorrência e preserva a decisão no navegador. A próxima validação deve medir a qualidade em perguntas novas e em ocorrências autorizadas de uma garagem.
 
-**Links para a entrega:** [repositório público](https://github.com/MachadONLY/patio-monitor-ia-generativa) · [vídeo demonstrativo](genai/demonstracao.mp4) · [plataforma pública](https://patio-monitor-production.up.railway.app/) · [roteiro completo do avaliador](../../ROTEIRO_AVALIACAO_IA.md).
+**Links para a entrega:** [repositório público](https://github.com/MachadONLY/patio-monitor-ia-generativa) · [vídeo do teste real](genai/demonstracao-navegador-real.mp4) · [apresentação complementar](genai/demonstracao.mp4) · [plataforma pública](https://patio-monitor-production.up.railway.app/) · [roteiro completo do avaliador](../../ROTEIRO_AVALIACAO_IA.md).
 
 ## Reprodutibilidade
 
