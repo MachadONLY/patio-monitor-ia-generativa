@@ -5,6 +5,8 @@
 > O percurso no navegador demonstra a inferência e as fontes; o roteiro reúne as evidências acadêmicas do modelo, corpus, recuperação, placar, erros e reprodutibilidade. A especialização adotada é por **agente**, alternativa prevista na rubrica; não foi realizado fine-tuning/LoRA nos pesos da LLM.
 
 
+**Critérios 3, 4 e 5 auditados:** [auditoria independente de recall, JSON, citações, recusas e agente](https://github.com/MachadONLY/patio-monitor-ia-generativa/actions/runs/44642516037) · [51 inferências reais do Qwen reproduzidas](https://github.com/MachadONLY/patio-monitor-ia-generativa/actions/runs/44637894029) · [código do verificador](gs/genai/audit_rubric.py). Evidências e limitações na [seção específica do relatório](docs/gs/GENAI.md#auditoria-objetiva-dos-critérios-3-4-e-5-da-rubrica).
+
 FIAP · Global Solution 2026.2 · Engenharia de Software
 
 Assistente local para explicar divergências entre escala e portaria, com citação das fontes e recusa quando faltam evidências. O experimento compara o mesmo modelo sem contexto, com RAG e com RAG e agente.
