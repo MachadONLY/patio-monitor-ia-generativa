@@ -1,8 +1,8 @@
 # Pátio Monitor · Generative AI for Engineering
 
-> **Avaliação FIAP — comece aqui:** [Roteiro completo do professor (8 critérios + 7 entregáveis + testes reais)](ROTEIRO_AVALIACAO_IA.md).
+> **Global Solution 2026.2 — evidências e validação:** [Guia técnico de conferência dos oito critérios e sete entregáveis](ROTEIRO_AVALIACAO_IA.md).
 > 
-> O percurso no navegador demonstra a inferência e as fontes; o roteiro reúne as evidências acadêmicas do modelo, corpus, recuperação, placar, erros e reprodutibilidade. A especialização adotada é por **agente**, alternativa prevista na rubrica; não foi realizado fine-tuning/LoRA nos pesos da LLM.
+> O teste funcional demonstra a inferência e as fontes; a documentação organiza o corpus, recuperação, avaliação, erros e reprodução. A especialização é feita por **agente**, conforme alternativa da rubrica, sem fine-tuning dos pesos.
 
 
 **Critérios 3, 4 e 5 auditados:** [auditoria independente de recall, JSON, citações, recusas e agente](https://github.com/MachadONLY/patio-monitor-ia-generativa/actions/runs/44642516037) · [51 inferências reais do Qwen reproduzidas](https://github.com/MachadONLY/patio-monitor-ia-generativa/actions/runs/44637894029) · [código do verificador](gs/genai/audit_rubric.py). Evidências e limitações na [seção específica do relatório](docs/gs/GENAI.md#auditoria-objetiva-dos-critérios-3-4-e-5-da-rubrica).
@@ -27,9 +27,9 @@ O material de IA está disponível também na estrutura solicitada pelo enunciad
 
 Os arquivos dessa estrutura são cópias fiéis dos dados experimentais também usados pelo código em `gs/genai/` e `services/api/app/assistant_data/`. A explicação da arquitetura, a justificativa do limiar, as métricas e os cinco erros reais estão no [relatório técnico](docs/gs/GENAI.md).
 
-## Teste direto para o professor
+## Validação funcional no navegador
 
-1. Abra o MVP pelo link público informado no Teams e clique em **Iniciar teste guiado**.
+1. Abra a [plataforma publicada](https://patio-monitor-production.up.railway.app/) em um navegador e clique em **Iniciar teste guiado**.
 2. Selecione **Abrir caso de exemplo → Ir para a explicação → Explicar ocorrência**. O app deve exibir o diagnóstico de dois prefixos diferentes (`8 2361` na escala, `7 8042` na portaria) e a resposta do **Qwen local**, com a fonte da regra consultada.
 3. Clique em **Ver gravação** para conferir a visão computacional integrada. Para testar arquivos próprios, abra **Revisar turno** e baixe os dois CSVs de exemplo preenchidos ou importe uma escala e uma portaria da operação.
 
