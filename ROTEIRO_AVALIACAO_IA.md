@@ -1,12 +1,12 @@
-# Roteiro do avaliador — Generative AI for Engineering
+# Guia de validação e reprodutibilidade — Generative AI for Engineering
 
 **Global Solution FIAP 2026.2 · Pátio Monitor · Data de entrega: 19/11/2026**
 
-Este roteiro acompanha o repositório e permite verificar, sem instruções orais da equipe, os oito critérios de pontuação e os sete elementos do relatório.
+Este documento reúne os procedimentos de validação funcional, as evidências dos oito critérios de pontuação e a organização dos sete elementos do relatório.
 
 **Integrantes:** Gabriel Teixeira Machado — RM551570; Felipe Bressani — RM97688; Camila do Prado Padalino — RM98316.
 
-## Comece pelo teste funcional na URL pública
+## Validação funcional da plataforma publicada
 
 **URL:** https://patio-monitor-production.up.railway.app/
 
@@ -18,13 +18,13 @@ Este roteiro acompanha o repositório e permite verificar, sem instruções orai
 
 A demonstração de IA usa um **caso de exemplo sintético**; a chamada ao Qwen, a recuperação de documentos e a resposta são executadas no servidor. A câmera usa gravação pública processada. O GPS da tela principal, quando disponível, é de uma fonte independente.
 
-A aplicação possui um **tour operacional**. As evidências acadêmicas de treinamento/especialização, métricas e análise de erros são verificadas nos arquivos abaixo; não são etapas clicáveis do tour.
+O aplicativo possui um **tour operacional** para os principais fluxos. Os experimentos, métricas, documentos e análise de erros permanecem versionados e verificáveis neste repositório.
 
-## Prova automatizada dos critérios mais importantes (3, 4 e 5)
+## Auditoria automatizada de recuperação, geração e especialização
 
 O código `gs/genai/audit_rubric.py` confere os números do experimento diretamente no gabarito e no JSON completo de 51 respostas. O teste foi executado e [aprovado no GitHub Actions em 19/11/2026](https://github.com/MachadONLY/patio-monitor-ia-generativa/actions/runs/44642516037).
 
-| Requisito do professor | Verificação independente |
+| Critério | Verificação independente |
 |---|---|
 | **Critério 3 · Recall e limiar** | Recall@1 e Recall@3 = 100% nas 11 perguntas com fonte, corte 0,46 justificado pela calibração separada: 7/7 respondíveis preservados e 4/5 desconhecidos bloqueados |
 | **Critério 4 · JSON, fonte e recusa** | 51/51 respostas da API com JSON válido; 46/46 chamadas reais à LLM com JSON válido; 6/6 perguntas sem fonte corretamente recusadas pelo agente, sem citações indevidas; IDs citados validados contra os documentos recuperados |
@@ -40,7 +40,7 @@ py -3.12 gs/genai/audit_rubric.py --out gs/genai/rubric-audit.json
 
 **Limites:** os 100% de recall são válidos somente no pequeno conjunto acadêmico. O agente acertou 11/17 no teste e não ajustou pesos: especialização por agente é a alternativa escolhida em vez de LoRA, conforme a rubrica.
 
-## Rubrica: oito verificações objetivas
+## Matriz de evidências por critério
 
 | Pontos | Requisito | Evidência e como conferir |
 |---:|---|---|
@@ -96,9 +96,9 @@ $env:PATIO_LLM_MODEL_PATH = (Resolve-Path gs/genai/qwen.gguf).Path
 
 A inferência é **local em CPU**, sem necessidade de chave comercial de IA, e usa o modelo previamente treinado Qwen2.5-0.5B-Instruct. O peso original GGUF é baixado e validado pelo hash do [manifesto](gs/genai/model.json). O tempo e o sucesso do download dependem do ambiente e da conectividade do avaliador. O script produz um novo placar, que pode variar se versões, hardware ou geração não forem idênticos.
 
-**Distinção acadêmica:** nesta implementação não foi feito ajuste de pesos do Qwen, fine-tuning nem LoRA. A especialização foi feita por **agente + recuperação e validações**, a alternativa explicitamente prevista no item 5 da rubrica. Não interpretar o uso do modelo previamente treinado como evidência de treinamento de parâmetros feito pela equipe.
+**Escopo da especialização:** a implementação adota **agente + recuperação e validações**, alternativa expressamente prevista no item 5. O peso Qwen original é carregado localmente; não houve fine-tuning, LoRA ou ajuste dos seus parâmetros.
 
-## Sete elementos exigidos no relatório
+## Estrutura do relatório técnico
 
 1. **Nome completo e RM:** início do [relatório](docs/gs/GENAI.md).
 2. **Ficha técnica e tarefa:** [Ficha técnica](docs/gs/GENAI.md#ficha-técnica).
