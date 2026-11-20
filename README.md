@@ -1,4 +1,10 @@
 # Pátio Monitor · Generative AI for Engineering
+**Integrantes**
+
+- Gabriel Teixeira Machado — RM551570
+- Felipe Bressani — RM97688
+- Camila do Prado Padalino — RM98316
+
 
 > **Global Solution 2026.2 — evidências e validação:** [Guia técnico de conferência dos oito critérios e sete entregáveis](ROTEIRO_AVALIACAO_IA.md).
 > 
