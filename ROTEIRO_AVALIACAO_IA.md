@@ -20,6 +20,26 @@ A demonstração de IA usa um **caso de exemplo sintético**; a chamada ao Qwen,
 
 A aplicação possui um **tour operacional**. As evidências acadêmicas de treinamento/especialização, métricas e análise de erros são verificadas nos arquivos abaixo; não são etapas clicáveis do tour.
 
+## Prova automatizada dos critérios mais importantes (3, 4 e 5)
+
+O código `gs/genai/audit_rubric.py` confere os números do experimento diretamente no gabarito e no JSON completo de 51 respostas. O teste foi executado e [aprovado no GitHub Actions em 19/11/2026](https://github.com/MachadONLY/patio-monitor-ia-generativa/actions/runs/44642516037).
+
+| Requisito do professor | Verificação independente |
+|---|---|
+| **Critério 3 · Recall e limiar** | Recall@1 e Recall@3 = 100% nas 11 perguntas com fonte, corte 0,46 justificado pela calibração separada: 7/7 respondíveis preservados e 4/5 desconhecidos bloqueados |
+| **Critério 4 · JSON, fonte e recusa** | 51/51 respostas da API com JSON válido; 46/46 chamadas reais à LLM com JSON válido; 6/6 perguntas sem fonte corretamente recusadas pelo agente, sem citações indevidas; IDs citados validados contra os documentos recuperados |
+| **Critério 5 · Agente versus RAG** | Mesmo peso Qwen nas três configurações e no mesmo gabarito: 4/17 sem contexto, 8/17 com RAG, 11/17 com agente; a lista `actions` comprova seleção de busca, recuperação, restrição de fonte e validações adicionais |
+
+O resultado foi **reexecutado com inferência real do Qwen**, não apenas verificado no arquivo: [execução independente das 51 inferências](https://github.com/MachadONLY/patio-monitor-ia-generativa/actions/runs/44637894029).
+
+Para executar uma auditoria local dos resultados salvos, sem instalar a LLM:
+
+```powershell
+py -3.12 gs/genai/audit_rubric.py --out gs/genai/rubric-audit.json
+```
+
+**Limites:** os 100% de recall são válidos somente no pequeno conjunto acadêmico. O agente acertou 11/17 no teste e não ajustou pesos: especialização por agente é a alternativa escolhida em vez de LoRA, conforme a rubrica.
+
 ## Rubrica: oito verificações objetivas
 
 | Pontos | Requisito | Evidência e como conferir |
