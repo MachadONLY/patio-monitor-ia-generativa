@@ -77,6 +77,24 @@ Todas as configurações devolveram 17 objetos JSON válidos. A métrica de JSON
 
 Na ocorrência tipada g17, a LLM selecionou o procedimento de portaria `p01` e informou que o operador deve conferir registro OUT, veículo e horário. Essa chamada é reproduzível com os mesmos arquivos e os pesos registrados.
 
+## Auditoria objetiva dos critérios 3, 4 e 5 da rubrica
+
+Para tornar verificáveis as evidências quantitativas além das capturas de tela, a equipe publicou um [auditor independente de resultados e contratos](../../gs/genai/audit_rubric.py), executado em [GitHub Actions](https://github.com/MachadONLY/patio-monitor-ia-generativa/actions/runs/44642516037). Esse teste confronta os resultados armazenados com os 17 IDs do gabarito, o corpus e o manifesto do peso; não produz inferências novas. A [reprodução independente das 51 inferências reais](https://github.com/MachadONLY/patio-monitor-ia-generativa/actions/runs/44637894029), com o GGUF oficial baixado e SHA-256 validado, é a evidência complementar de execução efetiva.
+
+**Critério 3 — recuperação e corte.** Os 11 casos respondíveis do gabarito recuperaram a fonte esperada na primeira posição e entre as três primeiras: Recall@1 = **11/11 (100%)** e Recall@3 = **11/11 (100%)**. O limiar **0,46** foi calibrado separadamente em 12 perguntas: preservou **7/7** casos respondíveis e bloqueou **4/5** consultas sem evidência. Não é uma alegação de desempenho geral fora dessas amostras.
+
+**Critério 4 — contrato de geração fundamentada, JSON e recusa.** O FastAPI devolveu **17/17 objetos JSON válidos em cada configuração** (**51/51** no total). As saídas brutas efetivamente geradas pela LLM também eram JSON válido em **17/17 chamadas sem contexto, 17/17 com RAG e 12/12 chamadas no agente**. O agente não invocou o modelo em cinco perguntas que recusou antecipadamente por ausência de evidência; não devemos reportar esses casos como cinco gerações da LLM. As seis consultas sem fonte receberam `refused: true` e `citations: []` na saída final do agente. IDs das citações retornadas são verificados contra os documentos recuperados e a estrutura da API é validada com Pydantic. O teste funcional reproduz um caso com fonte `p02` no [vídeo gravado do navegador](genai/demonstracao-navegador-real.mp4).
+
+**Critério 5 — especialização como agente (sem LoRA).** As três configurações usam **o mesmo modelo, peso, gabarito e método de avaliação**. A especialização por agente acrescenta escolha de consulta conforme a ocorrência, chamada ao recuperador, limiar de recusa, restrição a fonte de alta confiança, validação de citação e checagem de números antes de publicar o resultado. A rastreabilidade é registrada no campo `actions` de cada ocorrência. O resultado passou de **8/17 no RAG simples para 11/17 no RAG com agente**, acréscimo de três acertos neste conjunto; a configuração sem contexto fez 4/17. O agente é uma orquestração determinística com o modelo Qwen local, não um treino de novos pesos nem uma implementação LoRA. A rubrica permite a escolha entre LoRA ou agente.
+
+Para reproduzir a conferência dos dados salvos a partir da raiz do repositório, sem baixar o modelo:
+
+```sh
+python gs/genai/audit_rubric.py --out gs/genai/rubric-audit.json
+```
+
+Para refazer a **inferência real** das 51 perguntas, use `python gs/genai/evaluate.py` após instalar o runtime e baixar o GGUF conforme o [guia](../../gs/genai/README.md).
+
 ## Erros observados
 
 A tabela registra cinco erros observados na execução atual e uma regressão corrigida nesta versão.
