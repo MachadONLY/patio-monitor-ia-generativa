@@ -1,0 +1,29 @@
+name: Academic AI rubric - objective evidence checks
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/academic-ai-rubric.yml
+      - gs/genai/audit_rubric.py
+permissions:
+  contents: read
+jobs:
+  academic-rubric:
+    name: Verify recall, JSON, refusal and agent comparison
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify 17 cases, 51 results, 10 sources, thresholds and citations
+        run: python gs/genai/audit_rubric.py --out gs/genai/rubric-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fiap-genai-rubric-audit
+          path: gs/genai/rubric-audit.json
+          if-no-files-found: warn
+          retention-days: 14
