@@ -6,6 +6,8 @@ on:
     paths:
       - .github/workflows/academic-ai-rubric.yml
       - gs/genai/audit_rubric.py
+      - notebooks/avaliacao.ipynb
+      - gs/genai/avaliacao.ipynb
 permissions:
   contents: read
 jobs:
@@ -20,6 +22,34 @@ jobs:
           python-version: '3.12'
       - name: Verify 17 cases, 51 results, 10 sources, thresholds and citations
         run: python gs/genai/audit_rubric.py --out gs/genai/rubric-audit.json
+      - name: Verify notebook cells from root, notebooks and gs/genai
+        run: |
+          python - <<'PY'
+          import json, subprocess, sys
+          from pathlib import Path
+          root = Path.cwd()
+          notebooks = [
+              json.loads((root / path).read_text(encoding="utf-8"))
+              for path in ("notebooks/avaliacao.ipynb", "gs/genai/avaliacao.ipynb")
+          ]
+          scripts = [
+              "".join(next(cell["source"] for cell in document["cells"] if cell["cell_type"] == "code"))
+              for document in notebooks
+          ]
+          assert scripts[0] == scripts[1]
+          for relative in (".", "notebooks", "gs/genai"):
+              cwd = root / relative
+              completed = subprocess.run(
+                  [sys.executable, "-c", scripts[0]], cwd=cwd, text=True,
+                  capture_output=True, check=True,
+              )
+              assert "Casos por método: 17" in completed.stdout, completed.stdout
+              print("PASS notebook CWD:", relative)
+          for document in notebooks:
+              assert sum(bool(cell.get("outputs")) for cell in document["cells"]
+                         if cell["cell_type"] == "code") >= 4
+          print("PASS: notebook outputs remain saved in both academic locations")
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
